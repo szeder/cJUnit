@@ -11,9 +11,9 @@
 package de.fzi.cjunit.builders;
 
 import de.fzi.cjunit.ConcurrentTest;
+import de.fzi.cjunit.runners.ConcurrentRunner;
 
 import org.junit.runner.Runner;
-import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.RunnerBuilder;
 import org.junit.runners.model.TestClass;
 
@@ -24,7 +24,7 @@ public class ConcurrentBuilder extends RunnerBuilder {
 		TestClass testClass = new TestClass(klass);
 		if (testClass.getAnnotatedMethods(
 					ConcurrentTest.class).size() != 0) {
-			return new BlockJUnit4ClassRunner(klass);
+			return new ConcurrentRunner(klass);
 		}
 		return null;
 	}

@@ -1,9 +1,13 @@
 <project name="cjunit" default="jar">
 	<property name="build.sysclasspath" value="ignore"/>
 
+	<property name="testsuite" value="de.fzi.cjunit.AllTests"/>
+
 	<property name="src" value="src/main"/>
+	<property name="testsrc" value="src/test"/>
 	<property name="target" value="target"/>
 	<property name="bin" value="${target}/main"/>
+	<property name="testbin" value="${target}/test"/>
 	<property name="lib" value="lib"/>
 	<property name="binjar" value="${target}/cjunit.jar"/>
 
@@ -11,7 +15,7 @@
 		<fileset dir="${lib}" includes="**/*.jar"/>
 	</path>
 
-	<target name="all" depends="clean,jar"/>
+	<target name="all" depends="clean,run-test,jar"/>
 
 	<target name="clean">
 		<delete dir="${target}"/>
@@ -21,9 +25,23 @@
 		<mkdir dir="${bin}"/>
 		<javac srcdir="${src}" destdir="${bin}" debug="on"
 				classpathref="deps"/>
+
+		<mkdir dir="${testbin}"/>
+		<javac srcdir="${testsrc}" destdir="${testbin}" debug="on"
+				classpath="${bin}" classpathref="deps"/>
 	</target>
 
 	<target name="jar" depends="compile">
 		<jar jarfile="${binjar}" basedir="${bin}"/>
+	</target>
+
+	<target name="run-test" depends="compile">
+		<java classname="org.junit.runner.JUnitCore"
+				classpath="${testbin};${bin}"
+				classpathref="deps"
+				fork="yes"
+				failonerror="true">
+			<arg value="${testsuite}"/>
+		</java>
 	</target>
 </project>
