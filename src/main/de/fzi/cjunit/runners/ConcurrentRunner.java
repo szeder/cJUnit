@@ -18,6 +18,7 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 
 import de.fzi.cjunit.ConcurrentTest;
+import de.fzi.cjunit.runners.model.ConcurrentFrameworkMethod;
 
 public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 
@@ -44,7 +45,16 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 	}
 
 	protected List<FrameworkMethod> computeConcurrentTestMethods() {
-		return getTestClass().getAnnotatedMethods(ConcurrentTest.class);
+		List<FrameworkMethod> methods
+				= getTestClass().getAnnotatedMethods(
+						ConcurrentTest.class);
+		List<FrameworkMethod> concurrentMethods
+				= new ArrayList<FrameworkMethod>();
+		for (FrameworkMethod eachMethod : methods) {
+			concurrentMethods.add(new ConcurrentFrameworkMethod(
+						eachMethod.getMethod()));
+		}
+		return concurrentMethods;
 	}
 
 	protected void validateConcurrentTestMethods(List<Throwable> errors) {
