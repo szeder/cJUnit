@@ -16,9 +16,11 @@ import java.util.List;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
+import org.junit.runners.model.Statement;
 
 import de.fzi.cjunit.ConcurrentTest;
 import de.fzi.cjunit.runners.model.ConcurrentFrameworkMethod;
+import de.fzi.cjunit.runners.statements.ConcurrentStatement;
 
 public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 
@@ -60,5 +62,14 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 	protected void validateConcurrentTestMethods(List<Throwable> errors) {
 		validatePublicVoidNoArgMethods(ConcurrentTest.class, false,
 				errors);
+	}
+
+	@Override
+	protected Statement methodInvoker(FrameworkMethod method, Object test) {
+		if (method.getClass() == ConcurrentFrameworkMethod.class) {
+			return new ConcurrentStatement(method, test);
+		} else {
+			return super.methodInvoker(method, test);
+		}
 	}
 }

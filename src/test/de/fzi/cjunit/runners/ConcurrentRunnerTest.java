@@ -10,16 +10,19 @@
 
 package de.fzi.cjunit.runners;
 
+import org.junit.Test;
+
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-import org.junit.Test;
-
 import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.Statement;
 
 import de.fzi.cjunit.ConcurrentTest;
+import de.fzi.cjunit.runners.model.ConcurrentFrameworkMethod;
+import de.fzi.cjunit.runners.statements.ConcurrentStatement;
 
 public class ConcurrentRunnerTest {
 
@@ -162,5 +165,32 @@ public class ConcurrentRunnerTest {
 					MixedTestClass.class.getMethod(
 						"concurrentMethodInMixed2"))
 				));
+	}
+
+	@Test
+	public void returnStatementForTestMethod() throws Throwable {
+		ConcurrentRunner runner = new ConcurrentRunner(
+				MixedTestClass.class);
+		FrameworkMethod method = new FrameworkMethod(
+				MixedTestClass.class.getMethod(
+						"methodInMixed1"));
+		Statement statement = runner.methodInvoker(method, null);
+
+		assertThat(statement, instanceOf(Statement.class));
+		assertThat(statement,
+				not(instanceOf(ConcurrentStatement.class)));
+	}
+
+	@Test
+	public void returnConcurrentStatementForConcurrentTestMethod()
+			throws Throwable {
+		ConcurrentRunner runner = new ConcurrentRunner(
+				MixedTestClass.class);
+		FrameworkMethod method = new ConcurrentFrameworkMethod(
+				MixedTestClass.class.getMethod(
+						"concurrentMethodInMixed1"));
+		Statement statement = runner.methodInvoker(method, null);
+
+		assertThat(statement, instanceOf(ConcurrentStatement.class));
 	}
 }
