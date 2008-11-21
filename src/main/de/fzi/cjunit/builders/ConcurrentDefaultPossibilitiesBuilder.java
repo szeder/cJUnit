@@ -32,6 +32,7 @@ public class ConcurrentDefaultPossibilitiesBuilder
 				annotatedBuilder(),
 				suiteMethodBuilder(),
 				junit3Builder(),
+				concurrentBuilder(),
 				junit4Builder());
 
 		for (RunnerBuilder each : builders) {
@@ -41,5 +42,9 @@ public class ConcurrentDefaultPossibilitiesBuilder
 			}
 		}
 		return null;
+	}
+
+	protected ConcurrentBuilder concurrentBuilder() {
+		return new ConcurrentBuilder();
 	}
 }
