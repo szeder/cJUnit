@@ -1,0 +1,29 @@
+<project name="cjunit" default="jar">
+	<property name="build.sysclasspath" value="ignore"/>
+
+	<property name="src" value="src/main"/>
+	<property name="target" value="target"/>
+	<property name="bin" value="${target}/main"/>
+	<property name="lib" value="lib"/>
+	<property name="binjar" value="${target}/cjunit.jar"/>
+
+	<path id="deps">
+		<fileset dir="${lib}" includes="**/*.jar"/>
+	</path>
+
+	<target name="all" depends="clean,jar"/>
+
+	<target name="clean">
+		<delete dir="${target}"/>
+	</target>
+
+	<target name="compile">
+		<mkdir dir="${bin}"/>
+		<javac srcdir="${src}" destdir="${bin}" debug="on"
+				classpathref="deps"/>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar jarfile="${binjar}" basedir="${bin}"/>
+	</target>
+</project>
