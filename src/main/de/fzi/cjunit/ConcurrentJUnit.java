@@ -14,6 +14,7 @@ import org.junit.runner.Result;
 import org.junit.internal.JUnitSystem;
 import org.junit.internal.RealSystem;
 
+import de.fzi.cjunit.runner.Request;
 
 public class ConcurrentJUnit extends org.junit.runner.JUnitCore {
 
@@ -29,4 +30,10 @@ public class ConcurrentJUnit extends org.junit.runner.JUnitCore {
 	public static Result runClasses(Class<?>... classes) {
 		return new ConcurrentJUnit().run(classes);
 	}
+
+	@Override
+	public Result run(Class<?>... classes) {
+		return run(Request.classes(classes));
+	}
+
 }
