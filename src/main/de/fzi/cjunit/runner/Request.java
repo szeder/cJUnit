@@ -10,17 +10,19 @@
 
 package de.fzi.cjunit.runner;
 
+import de.fzi.cjunit.builders.ConcurrentDefaultPossibilitiesBuilder;
+
 import org.junit.runners.Suite;
 import org.junit.runners.model.InitializationError;
-import org.junit.internal.builders.AllDefaultPossibilitiesBuilder;
 
 
 public abstract class Request extends org.junit.runner.Request {
 
 	public static org.junit.runner.Request classes(Class<?>... classes) {
 		try {
-			AllDefaultPossibilitiesBuilder builder
-				= new AllDefaultPossibilitiesBuilder(true);
+			ConcurrentDefaultPossibilitiesBuilder builder
+				= new ConcurrentDefaultPossibilitiesBuilder(
+						true);
 			Suite suite = new Suite(builder, classes);
 			return runner(suite);
 		} catch (InitializationError e) {
