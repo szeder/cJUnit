@@ -18,6 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
 import de.fzi.cjunit.ConcurrentTest;
@@ -165,6 +166,17 @@ public class ConcurrentRunnerTest {
 					MixedTestClass.class.getMethod(
 						"concurrentMethodInMixed2"))
 				));
+	}
+
+	static public class TestAndConcurrentTestClass {
+		@Test @ConcurrentTest public void testMethod() { }
+	}
+
+	@Test(expected=InitializationError.class)
+	public void errorOnTestAndConcurrentTest() throws Throwable {
+		ConcurrentRunner runner = new ConcurrentRunner(
+				TestAndConcurrentTestClass.class);
+		runner.hashCode();	// to avoid unused variable warning
 	}
 
 	@Test

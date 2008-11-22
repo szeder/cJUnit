@@ -17,6 +17,7 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
+import org.junit.Test;
 
 import de.fzi.cjunit.ConcurrentTest;
 import de.fzi.cjunit.runners.model.ConcurrentFrameworkMethod;
@@ -62,6 +63,18 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 	protected void validateConcurrentTestMethods(List<Throwable> errors) {
 		validatePublicVoidNoArgMethods(ConcurrentTest.class, false,
 				errors);
+
+		List<FrameworkMethod> methods
+				= getTestClass().getAnnotatedMethods(
+						ConcurrentTest.class);
+		for (FrameworkMethod eachMethod : methods) {
+			if (eachMethod.getAnnotation(Test.class) != null) {
+				String gripe = "@Test and @ConcurrentTest " +
+						"annotations are mutually " +
+						"exclusive";
+				errors.add(new Exception(gripe));
+			}
+		}
 	}
 
 	@Override
