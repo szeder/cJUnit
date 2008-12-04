@@ -19,7 +19,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
 	de.fzi.cjunit.builders.ConcurrentBuilderTest.class,
 	de.fzi.cjunit.runners.ConcurrentRunnerTest.class,
-	de.fzi.cjunit.jpf.util.ArgumentCreatorTest.class
+	de.fzi.cjunit.jpf.util.ArgumentCreatorTest.class,
+	de.fzi.cjunit.jpf.util.StackFrameConverterTest.class
 })
 public class BaseTests {
 }
