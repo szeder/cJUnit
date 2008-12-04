@@ -17,7 +17,8 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	de.fzi.cjunit.BaseTests.class
+	de.fzi.cjunit.builders.ConcurrentBuilderTest.class,
+	de.fzi.cjunit.runners.ConcurrentRunnerTest.class
 })
-public class AllTests {
+public class BaseTests {
 }
