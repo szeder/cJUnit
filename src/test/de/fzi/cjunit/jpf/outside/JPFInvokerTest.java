@@ -20,12 +20,14 @@ public class JPFInvokerTest {
 	@Test
 	public void createJPFArgs() throws Throwable {
 		String[] args = new JPFInvoker().createJPFArgs(new String(),
-				String.class.getMethod("toString"));
+				String.class.getMethod("toString"),
+				RuntimeException.class);
 		assertThat(args, hasItemInArray(
 				"de.fzi.cjunit.jpf.inside.TestWrapper"));
 		assertThat(args, hasItemInArray(
 				"--testclass=java.lang.String"));
 		assertThat(args, hasItemInArray("--testmethod=toString"));
+		assertThat(args, hasItemInArray("--expectedexception=java.lang.RuntimeException"));
 	}
 
 	@Test

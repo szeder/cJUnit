@@ -30,8 +30,10 @@ public class JPFInvoker {
 		testObserver = new TestObserver();
 	}
 
-	public void run(Object target, Method method) throws Throwable {
-		runJPF(createJPFArgs(target, method));
+	public void run(Object target, Method method,
+			Class<? extends Throwable> exceptionClass)
+			throws Throwable {
+		runJPF(createJPFArgs(target, method, exceptionClass));
 
 		checkResult();
 	}
@@ -49,10 +51,15 @@ public class JPFInvoker {
 		jpf.run();
 	}
 
-	public String[] createJPFArgs(Object target, Method method) {
+	public String[] createJPFArgs(Object target, Method method,
+			Class<? extends Throwable> exceptionClass) {
 		List<String> testArgs = new ArrayList<String>();
 		testArgs.add("--testclass=" + target.getClass().getName());
 		testArgs.add("--testmethod=" + method.getName());
+		if (exceptionClass != null) {
+			testArgs.add("--expectedexception=" +
+					exceptionClass.getName());
+		}
 
 		return new ArgumentCreator()
 			.app(TestWrapper.class)
