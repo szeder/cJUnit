@@ -8,17 +8,8 @@
  * Framework Programme under grant agreement No. 216682.
  */
 
-package de.fzi.cjunit;
+package de.fzi.cjunit.util;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
-
-
-@RunWith(Suite.class)
-@SuiteClasses({
-	de.fzi.cjunit.BaseTests.class,
-	de.fzi.cjunit.JPFTests.class
-})
-public class AllTests {
+public class LineSeparator {
+	public static String lineSeparator = System.getProperty("line.separator");
 }
