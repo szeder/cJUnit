@@ -21,6 +21,7 @@ public class TestWrapperTest {
 
 	String className = "java.lang.String";
 	String methodName = "toString";
+	String exceptionName = "java.lang.AssertionError";
 
 	@Test
 	public void parseArgsTestClass() {
@@ -34,6 +35,13 @@ public class TestWrapperTest {
 		TestWrapper tw = new TestWrapper(new String[] {
 				"--testmethod=" + methodName });
 		assertThat(tw.testMethodName, equalTo(methodName));
+	}
+
+	@Test
+	public void parseArgsExpectedException() {
+		TestWrapper tw = new TestWrapper(new String[] {
+				"--expectedexception=" + exceptionName });
+		assertThat(tw.expectedExceptionName, equalTo(exceptionName));
 	}
 
 	@Test(expected=RuntimeException.class)
@@ -70,5 +78,71 @@ public class TestWrapperTest {
 		assertThat(tw.method.getName(), equalTo(methodName));
 		assertThat(tw.method.getDeclaringClass().getName(),
 				equalTo(className));
+	}
+
+	@Test
+	public void isExpectedExceptionTrue() {
+		TestWrapper tw = new TestWrapper(new String[] {
+				"--expectedexception=" + exceptionName });
+		assertThat(tw.isExpectedException(new AssertionError()),
+				equalTo(true));
+	}
+
+	@Test
+	public void isExpectedExceptionFalse() {
+		TestWrapper tw = new TestWrapper(new String[] {
+				"--expectedexception=" + exceptionName });
+		assertThat(tw.isExpectedException(new Throwable()),
+				equalTo(false));
+	}
+
+	@Test(expected=AssertionError.class)
+	public void testExpectingExceptionButNoneIsThrown() throws Throwable {
+		TestWrapper tw = new TestWrapper(new String[] {
+				"--testmethod=" + methodName,
+				"--expectedexception=" + exceptionName
+				}) {
+			public void createTestObject() {
+				target = new Object();
+			}
+		};
+
+		tw.run();
+	}
+
+	@Test
+	public void testExpectedExceptionIsCatched() throws Throwable {
+		TestWrapper tw = new TestWrapper(new String[] {
+				"--testmethod=" + methodName,
+				"--expectedexception=" + exceptionName
+				}) {
+			public void createTestObject() {
+				target = new Object() {
+					public String toString() {
+						throw new AssertionError();
+					}
+				};
+			}
+		};
+
+		tw.run();
+	}
+
+	@Test(expected=RuntimeException.class)
+	public void testUnexpectedExceptionIsThrown() throws Throwable {
+		TestWrapper tw = new TestWrapper(new String[] {
+				"--testmethod=" + methodName,
+				"--expectedexception=" + exceptionName
+				}) {
+			public void createTestObject() {
+				target = new Object() {
+					public String toString() {
+						throw new RuntimeException();
+					}
+				};
+			}
+		};
+
+		tw.run();
 	}
 }
