@@ -13,6 +13,9 @@ package de.fzi.cjunit.jpf.inside;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import static de.fzi.cjunit.jpf.inside.NotifierMethods.*;
+
+
 public class TestWrapper {
 
 	String testClassName;
@@ -43,7 +46,7 @@ public class TestWrapper {
 	public void run() throws IllegalArgumentException, SecurityException,
 			InstantiationException, IllegalAccessException,
 			InvocationTargetException, NoSuchMethodException,
-			ClassNotFoundException {
+			ClassNotFoundException, Throwable {
 		// The testing framework calling this has already checked
 		// that both the class and the method exists
 		createTestObject();
@@ -53,8 +56,16 @@ public class TestWrapper {
 	}
 
 	public void runTest() throws IllegalArgumentException,
-			IllegalAccessException, InvocationTargetException {
-		method.invoke(target);
+			IllegalAccessException, Throwable {
+		try {
+			method.invoke(target);
+		} catch (InvocationTargetException e) {
+			testFailed();
+			throw e.getCause();
+		} catch (Throwable t) {
+			testFailed();
+			throw t;
+		}
 	}
 
 	public void createTestObject() throws
