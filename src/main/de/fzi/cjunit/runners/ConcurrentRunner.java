@@ -10,6 +10,7 @@
 
 package de.fzi.cjunit.runners;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,8 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.fzi.cjunit.ConcurrentTest;
@@ -36,6 +39,8 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 	protected void collectInitializationErrors(List<Throwable> errors) {
 		super.collectInitializationErrors(errors);
 		validateConcurrentTestMethods(errors);
+		validateNoMethodsWithAnnotation(BeforeClass.class, errors);
+		validateNoMethodsWithAnnotation(AfterClass.class, errors);
 	}
 
 	@Override
@@ -75,6 +80,18 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 						"exclusive";
 				errors.add(new Exception(gripe));
 			}
+		}
+	}
+
+	private void validateNoMethodsWithAnnotation(
+			Class<? extends Annotation> annotationClass,
+			List<Throwable> errors) {
+		if (!getTestClass().getAnnotatedMethods(annotationClass)
+				.isEmpty()) {
+			String gripe = "@BeforeClass and @AfterClass " +
+					"annotations in test classes with " +
+					"concurrent tests are not possible";
+			errors.add(new Exception(gripe));
 		}
 	}
 

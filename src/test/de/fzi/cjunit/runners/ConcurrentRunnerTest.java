@@ -10,6 +10,8 @@
 
 package de.fzi.cjunit.runners;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.List;
@@ -204,5 +206,43 @@ public class ConcurrentRunnerTest {
 		Statement statement = runner.methodInvoker(method, null);
 
 		assertThat(statement, instanceOf(ConcurrentStatement.class));
+	}
+
+	static public class TestClassWithBeforeClass {
+		@BeforeClass public static void beforeClassMethod() { }
+		@ConcurrentTest public void testMethod() { }
+	}
+
+	@Test(expected=InitializationError.class)
+	public void errorOnBeforeClassWithConcurrentTest() throws Throwable {
+		ConcurrentRunner runner = new ConcurrentRunner(
+				TestClassWithBeforeClass.class);
+		runner.hashCode();	// to avoid unused variable warning
+	}
+
+	static public class TestClassWithAfterClass {
+		@AfterClass public static void afterClassMethod() { }
+		@ConcurrentTest public void testMethod() { }
+	}
+
+	@Test(expected=InitializationError.class)
+	public void errorOnAfterClassWithConcurrentTest() throws Throwable {
+		ConcurrentRunner runner = new ConcurrentRunner(
+				TestClassWithAfterClass.class);
+		runner.hashCode();	// to avoid unused variable warning
+	}
+
+	static public class TestClassWithBeforeClassAndAfterClass {
+		@BeforeClass public static void beforeClassMethod() { }
+		@AfterClass public static void afterClassMethod() { }
+		@ConcurrentTest public void testMethod() { }
+	}
+
+	@Test(expected=InitializationError.class)
+	public void errorOnBeforeClassAndAfterClassWithConcurrentTest()
+			throws Throwable {
+		ConcurrentRunner runner = new ConcurrentRunner(
+				TestClassWithBeforeClassAndAfterClass.class);
+		runner.hashCode();	// to avoid unused variable warning
 	}
 }
