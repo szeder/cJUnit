@@ -12,6 +12,8 @@ package de.fzi.cjunit.jpf.inside;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
 
@@ -20,12 +22,16 @@ public class TestWrapper {
 
 	protected String testClassName;
 	protected String testMethodName;
+	protected List<String> beforeMethodNames;
 	protected String expectedExceptionName;
 
 	protected Object target;
 	protected Method method;
+	protected List<Method> beforeMethods;
 
 	public TestWrapper(String... args) {
+		beforeMethodNames = new ArrayList<String>();
+		beforeMethods = new ArrayList<Method>();
 		parseArgs(args);
 	}
 
@@ -39,6 +45,8 @@ public class TestWrapper {
 				testClassName = getArgumentValue(arg);
 			} else if (arg.startsWith("--testmethod=")) {
 				testMethodName = getArgumentValue(arg);
+			} else if (arg.startsWith("--beforemethod=")) {
+				beforeMethodNames.add(getArgumentValue(arg));
 			} else if (arg.startsWith("--expectedexception=")) {
 				expectedExceptionName = getArgumentValue(arg);
 			} else {
@@ -76,11 +84,20 @@ public class TestWrapper {
 		// throw any exceptions
 		createTestObject();
 		createTestMethod();
+		createBeforeMethods();
 	}
 
 	protected void runTest() throws IllegalArgumentException,
 			IllegalAccessException, AssertionError, Throwable {
+		runBeforeMethods();
 		runTestMethod();
+	}
+
+	protected void runBeforeMethods() throws IllegalArgumentException,
+			IllegalAccessException, Throwable {
+		for (Method beforeMethod : beforeMethods) {
+			invokeMethodUnchainingException(beforeMethod);
+		}
 	}
 
 	protected void runTestMethod() throws IllegalArgumentException,
@@ -145,6 +162,13 @@ public class TestWrapper {
 	protected void createTestMethod() throws SecurityException,
 			NoSuchMethodException {
 		method = createMethod(testMethodName);
+	}
+
+	protected void createBeforeMethods() throws SecurityException,
+			NoSuchMethodException {
+		for (String methodName : beforeMethodNames) {
+			beforeMethods.add(createMethod(methodName));
+		}
 	}
 
 	protected Method createMethod(String methodName) throws SecurityException,

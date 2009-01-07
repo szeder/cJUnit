@@ -17,6 +17,8 @@ import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.fzi.cjunit.testexceptions.*;
 
@@ -45,6 +47,17 @@ public class TestWrapperTest {
 		TestWrapper tw = new TestWrapper(new String[] {
 				"--testmethod=" + methodName });
 		assertThat(tw.testMethodName, equalTo(methodName));
+	}
+
+	@Test
+	public void parseArgsBeforeMethods() {
+		TestWrapper tw = new TestWrapper(new String[] {
+				"--beforemethod=toString",
+				"--beforemethod=hashCode" });
+		assertThat("number of method names",
+				tw.beforeMethodNames.size(), equalTo(2));
+		assertThat(tw.beforeMethodNames,
+				hasItems("toString", "hashCode"));
 	}
 
 	@Test
@@ -97,6 +110,18 @@ public class TestWrapperTest {
 		assertThat(tw.method.getName(), equalTo(methodName));
 		assertThat(tw.method.getDeclaringClass().getName(),
 				equalTo(className));
+	}
+
+	@Test
+	public void createBeforeMethods() throws Throwable {
+		TestWrapper tw = new TestWrapper(new String[] {
+				"--testclass=" + className,
+				"--beforemethod=toString",
+				"--beforemethod=hashCode" });
+		tw.createTestObject();
+		tw.createBeforeMethods();
+		assertThat("number of methods",
+				tw.beforeMethodNames.size(), equalTo(2));
 	}
 
 	@Test
@@ -171,5 +196,58 @@ public class TestWrapperTest {
 		tw.expectedExceptionName = OtherTestException.class.getName();
 
 		tw.runTestMethod();
+	}
+
+	@Test
+	public void testRunBeforeMethods() throws Throwable {
+		final List<String> invokedMethodNames = new ArrayList<String>();
+		TestWrapper tw = new TestWrapper() {
+			protected void invokeMethodUnchainingException(Method m)
+					throws IllegalArgumentException,
+					IllegalAccessException, Throwable {
+				invokedMethodNames.add(m.getName());
+			}
+		};
+		tw.beforeMethods.add(this.getClass().getMethod("throwNothing"));
+		tw.beforeMethods.add(this.getClass().getMethod(
+				"throwTestException"));
+
+		tw.runBeforeMethods();
+
+		assertThat("number of invoked methods",
+				invokedMethodNames.size(), equalTo(2));
+		assertThat("invoked method names", invokedMethodNames,
+				hasItems("throwNothing", "throwTestException"));
+	}
+
+	@Test(expected=TestException.class)
+	public void testExceptionInBeforeMethods() throws Throwable {
+		TestWrapper tw = new TestWrapper();
+		tw.target = this;
+		tw.beforeMethods.add(this.getClass().getMethod(
+				"throwTestException"));
+
+		tw.runBeforeMethods();
+	}
+
+	boolean testMethodInvoked = false;
+
+	@Test
+	public void testMethodIsNotInvokedIfABeforeMethodFails()
+			throws Throwable {
+		TestWrapper tw = new TestWrapper() {
+			protected void invokeTestMethod() {
+				testMethodInvoked = true;
+			}
+		};
+		tw.target = this;
+		tw.beforeMethods.add(this.getClass().getMethod(
+				"throwTestException"));
+
+		try {
+			tw.runTest();
+		} catch (TestException te) {}
+
+		assertThat(testMethodInvoked, equalTo(false));
 	}
 }
