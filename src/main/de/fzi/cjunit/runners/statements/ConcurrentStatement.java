@@ -10,6 +10,10 @@
 
 package de.fzi.cjunit.runners.statements;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
@@ -21,11 +25,13 @@ public class ConcurrentStatement extends Statement {
 
 	private final ConcurrentFrameworkMethod testMethod;
 	private Object target;
+	private List<FrameworkMethod> befores;
 	private Class<? extends Throwable> expectedExceptionClass;
 
 	public ConcurrentStatement(FrameworkMethod testMethod, Object target) {
 		this.testMethod = (ConcurrentFrameworkMethod) testMethod;
 		this.target = target;
+		befores = new ArrayList<FrameworkMethod>();
 	}
 
 	@Override
@@ -35,10 +41,24 @@ public class ConcurrentStatement extends Statement {
 
 	void invokeJPF() throws Throwable {
 		new JPFInvoker().run(target, testMethod.getMethod(),
+				convertFrameworkMethodListToMethodList(befores),
 				expectedExceptionClass);
 	}
 
 	public void expectException(Class<? extends Throwable> expected) {
 		expectedExceptionClass = expected;
+	}
+
+	public void addBefores(List<FrameworkMethod> befores) {
+		this.befores = befores;
+	}
+
+	List<Method> convertFrameworkMethodListToMethodList(
+			List<FrameworkMethod> frameworkMethods) {
+		List<Method> methods = new ArrayList<Method>();
+		for (FrameworkMethod method : frameworkMethods) {
+			methods.add(method.getMethod());
+		}
+		return methods;
 	}
 }
