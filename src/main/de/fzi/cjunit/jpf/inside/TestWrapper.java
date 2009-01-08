@@ -20,6 +20,7 @@ public class TestWrapper {
 
 	String testClassName;
 	String testMethodName;
+	String expectedExceptionName;
 
 	Object target;
 	Method method;
@@ -36,6 +37,9 @@ public class TestWrapper {
 			} else if (arg.startsWith("--testmethod=")) {
 				testMethodName = arg.substring(
 						arg.indexOf('=')+1);
+			} else if (arg.startsWith("--expectedexception=")) {
+				expectedExceptionName = arg.substring(
+						arg.indexOf('=')+1);
 			} else {
 				throw new RuntimeException("wrong command " +
 						"line parameter: " + arg);
@@ -46,7 +50,7 @@ public class TestWrapper {
 	public void run() throws IllegalArgumentException, SecurityException,
 			InstantiationException, IllegalAccessException,
 			InvocationTargetException, NoSuchMethodException,
-			ClassNotFoundException, Throwable {
+			ClassNotFoundException, AssertionError, Throwable {
 		// The testing framework calling this has already checked
 		// that both the class and the method exists
 		createTestObject();
@@ -56,16 +60,32 @@ public class TestWrapper {
 	}
 
 	public void runTest() throws IllegalArgumentException,
-			IllegalAccessException, Throwable {
+			IllegalAccessException, AssertionError, Throwable {
 		try {
 			method.invoke(target);
+			if (isExpectingException()) {
+				testFailed();
+				throw new AssertionError(
+						"Expected exception: " +
+						expectedExceptionName);
+			}
 		} catch (InvocationTargetException e) {
-			testFailed();
-			throw e.getCause();
+			if (!isExpectedException(e.getCause())) {
+				testFailed();
+				throw e.getCause();
+			}
 		} catch (Throwable t) {
 			testFailed();
 			throw t;
 		}
+	}
+
+	public boolean isExpectingException() {
+		return expectedExceptionName != null;
+	}
+
+	public boolean isExpectedException(Throwable t) {
+		return t.getClass().getName().equals(expectedExceptionName);
 	}
 
 	public void createTestObject() throws

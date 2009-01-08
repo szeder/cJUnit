@@ -20,6 +20,7 @@ import org.junit.runners.model.Statement;
 import org.junit.Test;
 
 import de.fzi.cjunit.ConcurrentTest;
+import de.fzi.cjunit.ConcurrentTest.None;
 import de.fzi.cjunit.runners.model.ConcurrentFrameworkMethod;
 import de.fzi.cjunit.runners.statements.ConcurrentStatement;
 
@@ -83,6 +84,26 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 			return new ConcurrentStatement(method, test);
 		} else {
 			return super.methodInvoker(method, test);
+		}
+	}
+
+	@Override
+	protected Statement possiblyExpectingExceptions(FrameworkMethod method,
+			Object test, Statement next) {
+		if (method.getClass() == ConcurrentFrameworkMethod.class) {
+			// if method is a ConcurrentFrameworkMethod, then the
+			// statement _must_ be a ConcurrentStatement
+			ConcurrentStatement statement
+					= (ConcurrentStatement) next;
+			ConcurrentTest annotation = method.getAnnotation(
+					ConcurrentTest.class);
+			if (annotation != null && annotation.expected() != None.class) {
+				statement.expectException(annotation.expected());
+			}
+			return statement;
+		} else {
+			return super.possiblyExpectingExceptions(method, test,
+					next);
 		}
 	}
 }

@@ -21,6 +21,7 @@ public class ConcurrentStatement extends Statement {
 
 	private final ConcurrentFrameworkMethod testMethod;
 	private Object target;
+	private Class<? extends Throwable> expectedExceptionClass;
 
 	public ConcurrentStatement(FrameworkMethod testMethod, Object target) {
 		this.testMethod = (ConcurrentFrameworkMethod) testMethod;
@@ -29,6 +30,11 @@ public class ConcurrentStatement extends Statement {
 
 	@Override
 	public void evaluate() throws Throwable {
-		new JPFInvoker().run(target, testMethod.getMethod());
+		new JPFInvoker().run(target, testMethod.getMethod(),
+				expectedExceptionClass);
+	}
+
+	public void expectException(Class<? extends Throwable> expected) {
+		expectedExceptionClass = expected;
 	}
 }
