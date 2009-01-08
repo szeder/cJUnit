@@ -15,6 +15,8 @@ import org.junit.runners.model.Statement;
 
 import de.fzi.cjunit.runners.model.ConcurrentFrameworkMethod;
 
+import de.fzi.cjunit.jpf.outside.JPFInvoker;
+
 public class ConcurrentStatement extends Statement {
 
 	private final ConcurrentFrameworkMethod testMethod;
@@ -27,6 +29,6 @@ public class ConcurrentStatement extends Statement {
 
 	@Override
 	public void evaluate() throws Throwable {
-		testMethod.invokeExplosively(target);
+		new JPFInvoker().run(target, testMethod.getMethod());
 	}
 }

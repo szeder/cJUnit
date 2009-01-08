@@ -8,17 +8,9 @@
  * Framework Programme under grant agreement No. 216682.
  */
 
-package de.fzi.cjunit;
+package de.fzi.cjunit.jpf.inside;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+public class NotifierMethods {
 
-
-@RunWith(Suite.class)
-@SuiteClasses({
-	de.fzi.cjunit.jpf.util.StackFrameConverterTestWithJPF.class,
-	de.fzi.cjunit.jpf.outside.TestObserverTest.class
-})
-public class JPFTests {
+	public static void testFailed() { }
 }
