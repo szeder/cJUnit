@@ -117,7 +117,8 @@ public class TestWrapperTest {
 			}
 		};
 
-		tw.run();
+		tw.createTest();
+		tw.runTest();
 	}
 
 	@Test
@@ -135,7 +136,8 @@ public class TestWrapperTest {
 			}
 		};
 
-		tw.run();
+		tw.createTest();
+		tw.runTest();
 	}
 
 	@Test(expected=RuntimeException.class)
@@ -153,6 +155,7 @@ public class TestWrapperTest {
 			}
 		};
 
-		tw.run();
+		tw.createTest();
+		tw.runTest();
 	}
 }

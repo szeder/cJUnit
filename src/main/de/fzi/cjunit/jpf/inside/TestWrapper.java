@@ -62,12 +62,19 @@ public class TestWrapper {
 			InstantiationException, IllegalAccessException,
 			InvocationTargetException, NoSuchMethodException,
 			ClassNotFoundException, AssertionError, Throwable {
+		createTest();
+		runTest();
+	}
+
+	public void createTest() throws IllegalArgumentException,
+			SecurityException, InstantiationException,
+			IllegalAccessException, InvocationTargetException,
+			NoSuchMethodException, ClassNotFoundException {
 		// The testing framework calling this has already checked
-		// that both the class and the method exists
+		// that both the class and the method exists, so they won't
+		// throw any exceptions
 		createTestObject();
 		createTestMethod();
-
-		runTest();
 	}
 
 	public void runTest() throws IllegalArgumentException,
