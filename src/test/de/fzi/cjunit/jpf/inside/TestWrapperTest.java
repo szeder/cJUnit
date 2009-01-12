@@ -129,7 +129,7 @@ public class TestWrapperTest {
 		tw.method = this.getClass().getMethod("throwNothing");
 		tw.expectedExceptionName = TestException.class.getName();
 
-		tw.runTest();
+		tw.runTestMethod();
 	}
 
 	@Test
@@ -139,7 +139,7 @@ public class TestWrapperTest {
 		tw.method = this.getClass().getMethod("throwTestException");
 		tw.expectedExceptionName = TestException.class.getName();
 
-		tw.runTest();
+		tw.runTestMethod();
 	}
 
 	@Test(expected=Exception.class)
@@ -149,6 +149,6 @@ public class TestWrapperTest {
 		tw.method = this.getClass().getMethod("throwTestException");
 		tw.expectedExceptionName = OtherTestException.class.getName();
 
-		tw.runTest();
+		tw.runTestMethod();
 	}
 }

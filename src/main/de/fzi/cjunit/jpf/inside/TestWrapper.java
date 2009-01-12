@@ -80,6 +80,11 @@ public class TestWrapper {
 
 	protected void runTest() throws IllegalArgumentException,
 			IllegalAccessException, AssertionError, Throwable {
+		runTestMethod();
+	}
+
+	protected void runTestMethod() throws IllegalArgumentException,
+			IllegalAccessException, AssertionError, Throwable {
 		try {
 			invokeTestMethod();
 			if (isExpectingException()) {
