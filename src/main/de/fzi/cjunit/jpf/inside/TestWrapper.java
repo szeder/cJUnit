@@ -30,6 +30,10 @@ public class TestWrapper {
 	}
 
 	public void parseArgs(String... args) {
+		if (args == null) {
+			throw new RuntimeException("no command line arguments");
+		}
+
 		for (String arg : args) {
 			if (arg.startsWith("--testclass=")) {
 				testClassName = getArgumentValue(arg);
