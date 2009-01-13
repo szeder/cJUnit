@@ -98,8 +98,12 @@ public class TestWrapperTest {
 		private static final long serialVersionUID = 1L;
 	}
 
+	public class CTestException extends BTestException {
+		private static final long serialVersionUID = 1L;
+	}
+
 	@Test
-	public void isExpectedExceptionTrue() {
+	public void isExpectedExceptionTrue() throws Throwable {
 		TestWrapper tw = new TestWrapper(new String[] {
 				"--expectedexception="
 					+ ATestException.class.getName()
@@ -109,13 +113,22 @@ public class TestWrapperTest {
 	}
 
 	@Test
-	public void isExpectedExceptionFalse() {
+	public void isExpectedExceptionFalse() throws Throwable {
 		TestWrapper tw = new TestWrapper(new String[] {
 				"--expectedexception="
 					+ ATestException.class.getName()
 				});
 		assertThat(tw.isExpectedException(new BTestException()),
 				equalTo(false));
+	}
+
+	@Test
+	public void isExpectedExceptionTrueOnSubclass() throws Throwable {
+		TestWrapper tw = new TestWrapper(new String[] {
+				"--expectedexception="
+					+ BTestException.class.getName()});
+		assertThat(tw.isExpectedException(new CTestException()),
+				equalTo(true));
 	}
 
 	@Test(expected=AssertionError.class)

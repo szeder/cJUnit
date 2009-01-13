@@ -106,8 +106,10 @@ public class TestWrapper {
 		return expectedExceptionName != null;
 	}
 
-	public boolean isExpectedException(Throwable t) {
-		return t.getClass().getName().equals(expectedExceptionName);
+	public boolean isExpectedException(Throwable t)
+			throws ClassNotFoundException {
+		return Class.forName(expectedExceptionName)
+				.isAssignableFrom(t.getClass());
 	}
 
 	public void createTestObject() throws
