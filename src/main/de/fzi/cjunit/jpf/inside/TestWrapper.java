@@ -32,19 +32,20 @@ public class TestWrapper {
 	public void parseArgs(String... args) {
 		for (String arg : args) {
 			if (arg.startsWith("--testclass=")) {
-				testClassName = arg.substring(
-						arg.indexOf('=')+1);
+				testClassName = getArgumentValue(arg);
 			} else if (arg.startsWith("--testmethod=")) {
-				testMethodName = arg.substring(
-						arg.indexOf('=')+1);
+				testMethodName = getArgumentValue(arg);
 			} else if (arg.startsWith("--expectedexception=")) {
-				expectedExceptionName = arg.substring(
-						arg.indexOf('=')+1);
+				expectedExceptionName = getArgumentValue(arg);
 			} else {
 				throw new RuntimeException("wrong command " +
 						"line parameter: " + arg);
 			}
 		}
+	}
+
+	String getArgumentValue(String arg) {
+		return arg.substring(arg.indexOf('=')+1);
 	}
 
 	public void run() throws IllegalArgumentException, SecurityException,
