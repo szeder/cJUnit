@@ -49,6 +49,11 @@ public class TestWrapperTest {
 		new TestWrapper(new String[] { "asdf" });
 	}
 
+	@Test(expected=RuntimeException.class)
+	public void parseArgsNoValue() {
+		new TestWrapper(new String[] { "--testclass=" });
+	}
+
 	@Test
 	public void createTestObject() throws Throwable {
 		TestWrapper tw = new TestWrapper(new String[] {

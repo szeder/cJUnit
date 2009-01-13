@@ -45,7 +45,13 @@ public class TestWrapper {
 	}
 
 	String getArgumentValue(String arg) {
-		return arg.substring(arg.indexOf('=')+1);
+		String value = arg.substring(arg.indexOf('=')+1);
+		if (value.length() == 0) {
+			throw new RuntimeException(
+					"wrong command line parameter: " +
+					"option without value: " + arg);
+		}
+		return value;
 	}
 
 	public void run() throws IllegalArgumentException, SecurityException,
