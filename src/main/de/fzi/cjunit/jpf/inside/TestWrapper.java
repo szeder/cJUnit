@@ -88,8 +88,16 @@ public class TestWrapper {
 						expectedExceptionName);
 			}
 		} catch (InvocationTargetException e) {
-			if (!isExpectedException(e.getCause())) {
-				throw e.getCause();
+			Throwable cause = e.getCause();
+			if (!isExpectingException()) {
+				throw cause;
+			}
+			if (!isExpectedException(cause)) {
+				String message
+					= "Unexpected exception, expected<"
+					+ expectedExceptionName + "> but was<"
+					+ cause.getClass().getName() + ">";
+				throw new Exception(message, cause);
 			}
 		}
 	}

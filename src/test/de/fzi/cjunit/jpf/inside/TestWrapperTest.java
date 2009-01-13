@@ -158,7 +158,7 @@ public class TestWrapperTest {
 		tw.runTest();
 	}
 
-	@Test(expected=BTestException.class)
+	@Test(expected=Exception.class)
 	public void testUnexpectedExceptionIsThrown() throws Throwable {
 		TestWrapper tw = new TestWrapper(new String[] {
 				"--testmethod=method",
