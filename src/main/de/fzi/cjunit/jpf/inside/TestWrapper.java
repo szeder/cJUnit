@@ -30,21 +30,32 @@ public class TestWrapper {
 	}
 
 	public void parseArgs(String... args) {
+		if (args == null) {
+			throw new RuntimeException("no command line arguments");
+		}
+
 		for (String arg : args) {
 			if (arg.startsWith("--testclass=")) {
-				testClassName = arg.substring(
-						arg.indexOf('=')+1);
+				testClassName = getArgumentValue(arg);
 			} else if (arg.startsWith("--testmethod=")) {
-				testMethodName = arg.substring(
-						arg.indexOf('=')+1);
+				testMethodName = getArgumentValue(arg);
 			} else if (arg.startsWith("--expectedexception=")) {
-				expectedExceptionName = arg.substring(
-						arg.indexOf('=')+1);
+				expectedExceptionName = getArgumentValue(arg);
 			} else {
 				throw new RuntimeException("wrong command " +
 						"line parameter: " + arg);
 			}
 		}
+	}
+
+	String getArgumentValue(String arg) {
+		String value = arg.substring(arg.indexOf('=')+1);
+		if (value.length() == 0) {
+			throw new RuntimeException(
+					"wrong command line parameter: " +
+					"option without value: " + arg);
+		}
+		return value;
 	}
 
 	public void run() throws IllegalArgumentException, SecurityException,
