@@ -58,16 +58,24 @@ public class TestWrapper {
 		return value;
 	}
 
-	public void run() throws IllegalArgumentException, SecurityException,
-			InstantiationException, IllegalAccessException,
-			InvocationTargetException, NoSuchMethodException,
-			ClassNotFoundException, AssertionError, Throwable {
+	public void run() {
+		try {
+			createTest();
+			runTest();
+		} catch (Throwable t) {
+			testFailed();
+		}
+	}
+
+	public void createTest() throws IllegalArgumentException,
+			SecurityException, InstantiationException,
+			IllegalAccessException, InvocationTargetException,
+			NoSuchMethodException, ClassNotFoundException {
 		// The testing framework calling this has already checked
-		// that both the class and the method exists
+		// that both the class and the method exists, so they won't
+		// throw any exceptions
 		createTestObject();
 		createTestMethod();
-
-		runTest();
 	}
 
 	public void runTest() throws IllegalArgumentException,
@@ -75,19 +83,14 @@ public class TestWrapper {
 		try {
 			method.invoke(target);
 			if (isExpectingException()) {
-				testFailed();
 				throw new AssertionError(
 						"Expected exception: " +
 						expectedExceptionName);
 			}
 		} catch (InvocationTargetException e) {
 			if (!isExpectedException(e.getCause())) {
-				testFailed();
 				throw e.getCause();
 			}
-		} catch (Throwable t) {
-			testFailed();
-			throw t;
 		}
 	}
 
@@ -119,7 +122,7 @@ public class TestWrapper {
 		return target.getClass().getMethod(methodName);
 	}
 
-	public static void main(String... args) throws Throwable {
+	public static void main(String... args) {
 		new TestWrapper(args).run();
 	}
 }
