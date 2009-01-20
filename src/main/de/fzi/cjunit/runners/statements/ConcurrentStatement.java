@@ -30,6 +30,10 @@ public class ConcurrentStatement extends Statement {
 
 	@Override
 	public void evaluate() throws Throwable {
+		invokeJPF();
+	}
+
+	void invokeJPF() throws Throwable {
 		new JPFInvoker().run(target, testMethod.getMethod(),
 				expectedExceptionClass);
 	}
