@@ -15,6 +15,7 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class TestWrapperTest {
@@ -134,60 +135,52 @@ public class TestWrapperTest {
 	@Test(expected=AssertionError.class)
 	public void testExpectingExceptionButNoneIsThrown() throws Throwable {
 		TestWrapper tw = new TestWrapper(new String[] {
-				"--testmethod=" + methodName,
 				"--expectedexception="
 					+ ATestException.class.getName()
 				}) {
-			public void createTestObject() {
-				target = new Object();
+			public void invokeTestMethod() throws
+					IllegalArgumentException,
+					IllegalAccessException,
+					InvocationTargetException {
 			}
 		};
 
-		tw.createTest();
 		tw.runTest();
-	}
-
-	public class TestClass {
-		public void method() throws Throwable { }
 	}
 
 	@Test
 	public void testExpectedExceptionIsCatched() throws Throwable {
 		TestWrapper tw = new TestWrapper(new String[] {
-				"--testmethod=method",
 				"--expectedexception="
 					+ ATestException.class.getName()
 				}) {
-			public void createTestObject() {
-				target = new TestClass() {
-					public void method() throws Throwable {
-						throw new ATestException();
-					}
-				};
+			public void invokeTestMethod() throws
+					IllegalArgumentException,
+					IllegalAccessException,
+					InvocationTargetException {
+				throw new InvocationTargetException(
+						new ATestException());
 			}
 		};
 
-		tw.createTest();
 		tw.runTest();
 	}
 
 	@Test(expected=Exception.class)
 	public void testUnexpectedExceptionIsThrown() throws Throwable {
 		TestWrapper tw = new TestWrapper(new String[] {
-				"--testmethod=method",
 				"--expectedexception="
 					+ ATestException.class.getName()
 				}) {
-			public void createTestObject() {
-				target = new TestClass() {
-					public void method() throws Throwable {
-						throw new BTestException();
-					}
-				};
+			public void invokeTestMethod() throws
+					IllegalArgumentException,
+					IllegalAccessException,
+					InvocationTargetException {
+				throw new InvocationTargetException(
+						new BTestException());
 			}
 		};
 
-		tw.createTest();
 		tw.runTest();
 	}
 }
