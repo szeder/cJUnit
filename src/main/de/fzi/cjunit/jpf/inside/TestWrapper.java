@@ -81,7 +81,7 @@ public class TestWrapper {
 	public void runTest() throws IllegalArgumentException,
 			IllegalAccessException, AssertionError, Throwable {
 		try {
-			method.invoke(target);
+			invokeTestMethod();
 			if (isExpectingException()) {
 				throw new AssertionError(
 						"Expected exception: " +
@@ -100,6 +100,11 @@ public class TestWrapper {
 				throw new Exception(message, cause);
 			}
 		}
+	}
+
+	public void invokeTestMethod() throws IllegalArgumentException,
+			IllegalAccessException, InvocationTargetException {
+		method.invoke(target);
 	}
 
 	public boolean isExpectingException() {
