@@ -90,27 +90,53 @@ public class TestWrapperTest {
 				equalTo(className));
 	}
 
+	public class ATestException extends Throwable {
+		private static final long serialVersionUID = 1L;
+	}
+
+	public class BTestException extends Throwable {
+		private static final long serialVersionUID = 1L;
+	}
+
+	public class CTestException extends BTestException {
+		private static final long serialVersionUID = 1L;
+	}
+
 	@Test
-	public void isExpectedExceptionTrue() {
+	public void isExpectedExceptionTrue() throws Throwable {
 		TestWrapper tw = new TestWrapper(new String[] {
-				"--expectedexception=" + exceptionName });
-		assertThat(tw.isExpectedException(new AssertionError()),
+				"--expectedexception="
+					+ ATestException.class.getName()
+				});
+		assertThat(tw.isExpectedException(new ATestException()),
 				equalTo(true));
 	}
 
 	@Test
-	public void isExpectedExceptionFalse() {
+	public void isExpectedExceptionFalse() throws Throwable {
 		TestWrapper tw = new TestWrapper(new String[] {
-				"--expectedexception=" + exceptionName });
-		assertThat(tw.isExpectedException(new Throwable()),
+				"--expectedexception="
+					+ ATestException.class.getName()
+				});
+		assertThat(tw.isExpectedException(new BTestException()),
 				equalTo(false));
+	}
+
+	@Test
+	public void isExpectedExceptionTrueOnSubclass() throws Throwable {
+		TestWrapper tw = new TestWrapper(new String[] {
+				"--expectedexception="
+					+ BTestException.class.getName()});
+		assertThat(tw.isExpectedException(new CTestException()),
+				equalTo(true));
 	}
 
 	@Test(expected=AssertionError.class)
 	public void testExpectingExceptionButNoneIsThrown() throws Throwable {
 		TestWrapper tw = new TestWrapper(new String[] {
 				"--testmethod=" + methodName,
-				"--expectedexception=" + exceptionName
+				"--expectedexception="
+					+ ATestException.class.getName()
 				}) {
 			public void createTestObject() {
 				target = new Object();
@@ -121,16 +147,21 @@ public class TestWrapperTest {
 		tw.runTest();
 	}
 
+	public class TestClass {
+		public void method() throws Throwable { }
+	}
+
 	@Test
 	public void testExpectedExceptionIsCatched() throws Throwable {
 		TestWrapper tw = new TestWrapper(new String[] {
-				"--testmethod=" + methodName,
-				"--expectedexception=" + exceptionName
+				"--testmethod=method",
+				"--expectedexception="
+					+ ATestException.class.getName()
 				}) {
 			public void createTestObject() {
-				target = new Object() {
-					public String toString() {
-						throw new AssertionError();
+				target = new TestClass() {
+					public void method() throws Throwable {
+						throw new ATestException();
 					}
 				};
 			}
@@ -140,16 +171,17 @@ public class TestWrapperTest {
 		tw.runTest();
 	}
 
-	@Test(expected=RuntimeException.class)
+	@Test(expected=Exception.class)
 	public void testUnexpectedExceptionIsThrown() throws Throwable {
 		TestWrapper tw = new TestWrapper(new String[] {
-				"--testmethod=" + methodName,
-				"--expectedexception=" + exceptionName
+				"--testmethod=method",
+				"--expectedexception="
+					+ ATestException.class.getName()
 				}) {
 			public void createTestObject() {
-				target = new Object() {
-					public String toString() {
-						throw new RuntimeException();
+				target = new TestClass() {
+					public void method() throws Throwable {
+						throw new BTestException();
 					}
 				};
 			}
