@@ -76,6 +76,8 @@ public class JPFInvoker {
 		return new ArgumentCreator()
 			.publisher(OnFailurePublisher.class)
 			.jpfArgs(new String[] {
+					"+jpf.report.console.start=",
+					"+jpf.report.console.finished=result",
 					"+jpf.report.console.show_steps=true"
 				})
 			.app(TestWrapper.class)
