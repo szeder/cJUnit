@@ -15,6 +15,7 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class TestWrapperTest {
@@ -61,16 +62,16 @@ public class TestWrapperTest {
 
 	@Test
 	public void createTestObject() throws Throwable {
-		TestWrapper tw = new TestWrapper(new String[] {
-				"--testclass=" + className });
+		TestWrapper tw = new TestWrapper();
+		tw.testClassName = String.class.getName();
 		tw.createTestObject();
 		assertThat(tw.target, instanceOf(String.class));
 	}
 
 	@Test
 	public void createMethod() throws Throwable {
-		TestWrapper tw = new TestWrapper(new String[] {
-				"--testclass=" + className });
+		TestWrapper tw = new TestWrapper();
+		tw.testClassName = String.class.getName();
 		tw.createTestObject();
 		Method m = tw.createMethod(methodName);
 		assertThat(m.getName(), equalTo(methodName));
@@ -79,10 +80,9 @@ public class TestWrapperTest {
 
 	@Test
 	public void createTestMethod() throws Throwable {
-		TestWrapper tw = new TestWrapper(new String[] {
-				"--testclass=" + className,
-				"--testmethod=" + methodName
-				});
+		TestWrapper tw = new TestWrapper();
+		tw.testClassName = String.class.getName();
+		tw.testMethodName = methodName;
 		tw.createTestObject();
 		tw.createTestMethod();
 		assertThat(tw.method.getName(), equalTo(methodName));
@@ -104,90 +104,71 @@ public class TestWrapperTest {
 
 	@Test
 	public void isExpectedExceptionTrue() throws Throwable {
-		TestWrapper tw = new TestWrapper(new String[] {
-				"--expectedexception="
-					+ ATestException.class.getName()
-				});
+		TestWrapper tw = new TestWrapper();
+		tw.expectedExceptionName = ATestException.class.getName();
 		assertThat(tw.isExpectedException(new ATestException()),
 				equalTo(true));
 	}
 
 	@Test
 	public void isExpectedExceptionFalse() throws Throwable {
-		TestWrapper tw = new TestWrapper(new String[] {
-				"--expectedexception="
-					+ ATestException.class.getName()
-				});
+		TestWrapper tw = new TestWrapper();
+		tw.expectedExceptionName = ATestException.class.getName();
 		assertThat(tw.isExpectedException(new BTestException()),
 				equalTo(false));
 	}
 
 	@Test
 	public void isExpectedExceptionTrueOnSubclass() throws Throwable {
-		TestWrapper tw = new TestWrapper(new String[] {
-				"--expectedexception="
-					+ BTestException.class.getName()});
+		TestWrapper tw = new TestWrapper();
+		tw.expectedExceptionName = BTestException.class.getName();
 		assertThat(tw.isExpectedException(new CTestException()),
 				equalTo(true));
 	}
 
 	@Test(expected=AssertionError.class)
 	public void testExpectingExceptionButNoneIsThrown() throws Throwable {
-		TestWrapper tw = new TestWrapper(new String[] {
-				"--testmethod=" + methodName,
-				"--expectedexception="
-					+ ATestException.class.getName()
-				}) {
-			public void createTestObject() {
-				target = new Object();
+		TestWrapper tw = new TestWrapper() {
+			public void invokeTestMethod() throws
+					IllegalArgumentException,
+					IllegalAccessException,
+					InvocationTargetException {
 			}
 		};
+		tw.expectedExceptionName = ATestException.class.getName();
 
-		tw.createTest();
 		tw.runTest();
-	}
-
-	public class TestClass {
-		public void method() throws Throwable { }
 	}
 
 	@Test
 	public void testExpectedExceptionIsCatched() throws Throwable {
-		TestWrapper tw = new TestWrapper(new String[] {
-				"--testmethod=method",
-				"--expectedexception="
-					+ ATestException.class.getName()
-				}) {
-			public void createTestObject() {
-				target = new TestClass() {
-					public void method() throws Throwable {
-						throw new ATestException();
-					}
-				};
+		TestWrapper tw = new TestWrapper() {
+			public void invokeTestMethod() throws
+					IllegalArgumentException,
+					IllegalAccessException,
+					InvocationTargetException {
+				throw new InvocationTargetException(
+						new ATestException());
 			}
 		};
+		tw.expectedExceptionName = ATestException.class.getName();
 
-		tw.createTest();
 		tw.runTest();
 	}
 
 	@Test(expected=Exception.class)
 	public void testUnexpectedExceptionIsThrown() throws Throwable {
-		TestWrapper tw = new TestWrapper(new String[] {
-				"--testmethod=method",
-				"--expectedexception="
-					+ ATestException.class.getName()
-				}) {
-			public void createTestObject() {
-				target = new TestClass() {
-					public void method() throws Throwable {
-						throw new BTestException();
-					}
-				};
+		TestWrapper tw = new TestWrapper() {
+			public void invokeTestMethod() throws
+					IllegalArgumentException,
+					IllegalAccessException,
+					InvocationTargetException {
+				throw new InvocationTargetException(
+						new BTestException());
 			}
 		};
+		tw.expectedExceptionName = ATestException.class.getName();
 
-		tw.createTest();
 		tw.runTest();
 	}
 }
