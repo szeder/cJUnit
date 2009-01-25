@@ -27,21 +27,24 @@ public class ConcurrentDefaultPossibilitiesBuilder
 
 	@Override
 	public Runner runnerForClass(Class<?> testClass) throws Throwable {
-		List<RunnerBuilder> builders = Arrays.asList(
-				ignoredBuilder(),
-				annotatedBuilder(),
-				suiteMethodBuilder(),
-				junit3Builder(),
-				concurrentBuilder(),
-				junit4Builder());
-
-		for (RunnerBuilder each : builders) {
+		for (RunnerBuilder each : builderList()) {
 			Runner runner = each.safeRunnerForClass(testClass);
 			if (runner != null) {
 				return runner;
 			}
 		}
 		return null;
+	}
+
+	protected List<RunnerBuilder> builderList() {
+		return Arrays.asList(
+				ignoredBuilder(),
+				annotatedBuilder(),
+				suiteMethodBuilder(),
+				junit3Builder(),
+				concurrentBuilder(),
+				junit4Builder()
+				);
 	}
 
 	protected ConcurrentBuilder concurrentBuilder() {
