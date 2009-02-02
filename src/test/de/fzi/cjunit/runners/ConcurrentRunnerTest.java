@@ -182,7 +182,7 @@ public class ConcurrentRunnerTest {
 	}
 
 	@Test
-	public void returnStatementForTestMethod() throws Throwable {
+	public void methodBlockReturnStatementForTestMethod() throws Throwable {
 		ConcurrentRunner runner = new ConcurrentRunner(
 				MixedTestClass.class);
 		FrameworkMethod method = new FrameworkMethod(
@@ -196,7 +196,7 @@ public class ConcurrentRunnerTest {
 	}
 
 	@Test
-	public void returnConcurrentStatementForConcurrentTestMethod()
+	public void methodBlockReturnConcurrentStatementForConcurrentTestMethod()
 			throws Throwable {
 		ConcurrentRunner runner = new ConcurrentRunner(
 				MixedTestClass.class);
