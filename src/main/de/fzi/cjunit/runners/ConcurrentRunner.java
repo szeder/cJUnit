@@ -90,9 +90,9 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 			List<Throwable> errors) {
 		if (!getTestClass().getAnnotatedMethods(annotationClass)
 				.isEmpty()) {
-			String gripe = "@BeforeClass and @AfterClass " +
-					"annotations in test classes with " +
-					"concurrent tests are not possible";
+			String gripe = "@" + annotationClass.getSimpleName() +
+					" annotation in a test class with " +
+					"concurrent tests is not allowed";
 			errors.add(new Exception(gripe));
 		}
 	}
