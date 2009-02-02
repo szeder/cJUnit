@@ -188,7 +188,7 @@ public class ConcurrentRunnerTest {
 		FrameworkMethod method = new FrameworkMethod(
 				MixedTestClass.class.getMethod(
 						"methodInMixed1"));
-		Statement statement = runner.methodInvoker(method, null);
+		Statement statement = runner.methodBlock(method);
 
 		assertThat(statement, instanceOf(Statement.class));
 		assertThat(statement,
@@ -203,7 +203,7 @@ public class ConcurrentRunnerTest {
 		FrameworkMethod method = new ConcurrentFrameworkMethod(
 				MixedTestClass.class.getMethod(
 						"concurrentMethodInMixed1"));
-		Statement statement = runner.methodInvoker(method, null);
+		Statement statement = runner.methodBlock(method);
 
 		assertThat(statement, instanceOf(ConcurrentStatement.class));
 	}
