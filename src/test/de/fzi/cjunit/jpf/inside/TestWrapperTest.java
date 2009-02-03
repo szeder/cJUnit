@@ -18,6 +18,9 @@ import org.junit.Test;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import de.fzi.cjunit.testexceptions.*;
+
+
 public class TestWrapperTest {
 
 	String className = "java.lang.String";
@@ -90,39 +93,27 @@ public class TestWrapperTest {
 				equalTo(className));
 	}
 
-	public class ATestException extends Throwable {
-		private static final long serialVersionUID = 1L;
-	}
-
-	public class BTestException extends Throwable {
-		private static final long serialVersionUID = 1L;
-	}
-
-	public class CTestException extends BTestException {
-		private static final long serialVersionUID = 1L;
-	}
-
 	@Test
 	public void isExpectedExceptionTrue() throws Throwable {
 		TestWrapper tw = new TestWrapper();
-		tw.expectedExceptionName = ATestException.class.getName();
-		assertThat(tw.isExpectedException(new ATestException()),
+		tw.expectedExceptionName = TestException.class.getName();
+		assertThat(tw.isExpectedException(new TestException()),
 				equalTo(true));
 	}
 
 	@Test
 	public void isExpectedExceptionFalse() throws Throwable {
 		TestWrapper tw = new TestWrapper();
-		tw.expectedExceptionName = ATestException.class.getName();
-		assertThat(tw.isExpectedException(new BTestException()),
+		tw.expectedExceptionName = TestException.class.getName();
+		assertThat(tw.isExpectedException(new OtherTestException()),
 				equalTo(false));
 	}
 
 	@Test
 	public void isExpectedExceptionTrueOnSubclass() throws Throwable {
 		TestWrapper tw = new TestWrapper();
-		tw.expectedExceptionName = BTestException.class.getName();
-		assertThat(tw.isExpectedException(new CTestException()),
+		tw.expectedExceptionName = ParentTestException.class.getName();
+		assertThat(tw.isExpectedException(new ChildTestException()),
 				equalTo(true));
 	}
 
@@ -135,7 +126,7 @@ public class TestWrapperTest {
 					InvocationTargetException {
 			}
 		};
-		tw.expectedExceptionName = ATestException.class.getName();
+		tw.expectedExceptionName = TestException.class.getName();
 
 		tw.runTest();
 	}
@@ -148,10 +139,10 @@ public class TestWrapperTest {
 					IllegalAccessException,
 					InvocationTargetException {
 				throw new InvocationTargetException(
-						new ATestException());
+						new TestException());
 			}
 		};
-		tw.expectedExceptionName = ATestException.class.getName();
+		tw.expectedExceptionName = TestException.class.getName();
 
 		tw.runTest();
 	}
@@ -164,10 +155,10 @@ public class TestWrapperTest {
 					IllegalAccessException,
 					InvocationTargetException {
 				throw new InvocationTargetException(
-						new BTestException());
+						new OtherTestException());
 			}
 		};
-		tw.expectedExceptionName = ATestException.class.getName();
+		tw.expectedExceptionName = TestException.class.getName();
 
 		tw.runTest();
 	}
