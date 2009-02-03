@@ -13,7 +13,6 @@ package de.fzi.cjunit.jpf.util;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
@@ -41,20 +40,6 @@ public class ExceptionFactoryTest {
 				= ExceptionFactory.getCheckedConstructor(
 						Object.class, String.class);
 		assertThat(constructor, nullValue());
-	}
-
-	public class InnerExceptionClass extends Throwable {
-		private static final long serialVersionUID = 1L;
-		public InnerExceptionClass(String msg) { super(msg); }
-	}
-
-	@Ignore("known breakage")
-	@Test
-	public void testGetCheckedConstructorWorksOnInnerClass() {
-		Constructor<?> constructor
-				= ExceptionFactory.getCheckedConstructor(
-						InnerExceptionClass.class, String.class);
-		assertThat(constructor, not(nullValue()));
 	}
 
 	@Test
