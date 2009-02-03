@@ -47,8 +47,8 @@ public class TestObserver extends PropertyListenerAdapter {
 			SecurityException, InstantiationException,
 			IllegalAccessException, InvocationTargetException,
 			ClassNotFoundException {
-		return ExceptionFactory.createException(exceptionClassName,
-				exceptionMessage,
+		return new ExceptionFactory().createException(
+				exceptionClassName, exceptionMessage,
 				StackFrameConverter.toStackTrace(stackTrace));
 	}
 

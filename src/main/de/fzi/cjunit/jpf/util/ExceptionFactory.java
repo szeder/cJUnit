@@ -17,7 +17,7 @@ import static de.fzi.cjunit.util.LineSeparator.lineSeparator;
 
 public class ExceptionFactory {
 
-	public static Throwable createException(String exceptionClassName,
+	public Throwable createException(String exceptionClassName,
 			String exceptionMessage,
 			StackTraceElement[] stackTrace)
 			throws ClassNotFoundException, IllegalArgumentException,
@@ -42,7 +42,7 @@ public class ExceptionFactory {
 		return t;
 	}
 
-	public static Constructor<?> getExceptionConstructor(
+	protected Constructor<?> getExceptionConstructor(
 			Class<?> exceptionClass) {
 		Constructor<?> constructor = getCheckedConstructor(
 				exceptionClass, String.class);
@@ -52,7 +52,7 @@ public class ExceptionFactory {
 				exceptionClass, Object.class);
 	}
 
-	public static Constructor<?> getCheckedConstructor(
+	protected Constructor<?> getCheckedConstructor(
 			Class<?> exceptionClass, Class<?> constructorArg) {
 		Class<?>[] args = new Class[] { constructorArg };
 		try {
