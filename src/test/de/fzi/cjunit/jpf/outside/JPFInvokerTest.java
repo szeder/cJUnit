@@ -15,6 +15,8 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
 
+import de.fzi.cjunit.testexceptions.TestException;
+
 public class JPFInvokerTest {
 
 	@Test
@@ -43,7 +45,7 @@ public class JPFInvokerTest {
 		jpfInvoker.checkResult();
 	}
 
-	@Test(expected=RuntimeException.class)
+	@Test(expected=TestException.class)
 	public void checkResultOfFailedTest() throws Throwable {
 		JPFInvoker jpfInvoker = new JPFInvoker();
 		jpfInvoker.testObserver = new TestObserver() {
@@ -53,7 +55,7 @@ public class JPFInvokerTest {
 			}
 			@Override
 			public Throwable getException() {
-				return new RuntimeException();
+				return new TestException();
 			}
 		};
 
