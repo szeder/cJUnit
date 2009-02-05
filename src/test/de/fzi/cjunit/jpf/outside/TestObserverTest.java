@@ -19,7 +19,7 @@ import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.PropertyListenerAdapter;
 
-import static de.fzi.cjunit.jpf.inside.NotifierMethods.*;
+import de.fzi.cjunit.jpf.inside.NotifierMethods;
 import de.fzi.cjunit.jpf.util.ArgumentCreator;
 import de.fzi.cjunit.testexceptions.TestException;
 
@@ -54,7 +54,7 @@ public class TestObserverTest {
 
 	public static class FailingTestClass {
 		public static void main(String... args) {
-			testFailed();
+			NotifierMethods.testFailed();
 		}
 	}
 
