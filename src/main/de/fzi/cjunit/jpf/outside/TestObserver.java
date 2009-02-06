@@ -97,16 +97,20 @@ public class TestObserver extends PropertyListenerAdapter {
 		Instruction insn = vm.getLastInstruction();
 
 		if (insn instanceof InvokeInstruction) {
-			InvokeInstruction callInsn = (InvokeInstruction) insn;
-			ThreadInfo ti = vm.getLastThreadInfo();
+			handleInvokeInstruction(vm, (InvokeInstruction) insn);
+		}
+	}
 
-			MethodInfo callee = callInsn.getInvokedMethod(ti);
-			if (callee.getClassName().equals(
-					NotifierMethods.class.getName())) {
-				if (callee.getName().equals("testFailed")) {
-					testFailed();
-				}
-			}
+	public void handleInvokeInstruction(JVM vm, InvokeInstruction insn) {
+		ThreadInfo ti = vm.getLastThreadInfo();
+		MethodInfo callee = insn.getInvokedMethod(ti);
+		if (!callee.getClassName().equals(
+				NotifierMethods.class.getName())) {
+			return;
+		}
+
+		if (callee.getName().equals("testFailed")) {
+			testFailed();
 		}
 	}
 
