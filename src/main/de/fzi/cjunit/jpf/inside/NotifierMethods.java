@@ -10,7 +10,10 @@
 
 package de.fzi.cjunit.jpf.inside;
 
+import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
+
+
 public class NotifierMethods {
 
-	public static void testFailed() { }
+	public static void testFailed(ExceptionInfo exceptionInfo) { }
 }
