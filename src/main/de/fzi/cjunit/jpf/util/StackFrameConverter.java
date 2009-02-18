@@ -14,7 +14,28 @@ import java.io.File;
 
 import gov.nasa.jpf.jvm.StackFrame;
 
+import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfo;
+
+
 public class StackFrameConverter {
+
+	public StackTraceElement[] toStackTrace(
+			StackTraceElementInfo[] infoArray) {
+		StackTraceElement[] stackTrace
+				= new StackTraceElement[infoArray.length];
+		for (int i = 0; i < stackTrace.length; i++) {
+			stackTrace[i] = toStackTraceElement(infoArray[i]);
+		}
+		return stackTrace;
+	}
+
+	public StackTraceElement toStackTraceElement(
+			StackTraceElementInfo info) {
+		return new StackTraceElement(info.getClassName(),
+				info.getMethodName(),
+				sourceFileBasename(info.getFileName()),
+				info.getLineNumber());
+	}
 
 	public String sourceFileBasename(String filename) {
 		int idx = filename.lastIndexOf(File.separatorChar);
