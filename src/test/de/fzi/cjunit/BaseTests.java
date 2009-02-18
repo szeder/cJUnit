@@ -21,6 +21,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	de.fzi.cjunit.runners.ConcurrentRunnerTest.class,
 	de.fzi.cjunit.runners.statements.ConcurrentStatementTest.class,
 	de.fzi.cjunit.jpf.inside.TestWrapperTest.class,
+	de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfoDefaultImplTest.class,
 	de.fzi.cjunit.jpf.outside.JPFInvokerTest.class,
 	de.fzi.cjunit.jpf.util.ArgumentCreatorTest.class,
 	de.fzi.cjunit.jpf.util.StackFrameConverterTest.class,
