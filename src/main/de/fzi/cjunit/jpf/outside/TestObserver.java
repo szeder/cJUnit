@@ -14,18 +14,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Stack;
 
 import gov.nasa.jpf.PropertyListenerAdapter;
-import gov.nasa.jpf.jvm.ExceptionInfo;
 import gov.nasa.jpf.jvm.JVM;
 import gov.nasa.jpf.jvm.MethodInfo;
-import gov.nasa.jpf.jvm.StackFrame;
 import gov.nasa.jpf.jvm.ThreadInfo;
 import gov.nasa.jpf.jvm.bytecode.Instruction;
 import gov.nasa.jpf.jvm.bytecode.InvokeInstruction;
 import gov.nasa.jpf.search.Search;
 
+import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
+import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
 import de.fzi.cjunit.jpf.util.ExceptionFactory;
-import de.fzi.cjunit.jpf.util.StackFrameConverter;
 
 
 public class TestObserver extends PropertyListenerAdapter {
@@ -33,9 +32,7 @@ public class TestObserver extends PropertyListenerAdapter {
 	boolean result = true;
 	boolean testSucceeded = true;
 
-	String exceptionClassName;
-	String exceptionMessage;
-	StackFrame[] stackTrace;
+	ExceptionInfo exceptionInfo;
 	Throwable exception;
 
 	Stack<Boolean> stateStack = new Stack<Boolean>();
@@ -50,14 +47,25 @@ public class TestObserver extends PropertyListenerAdapter {
 			ClassNotFoundException {
 		if (exception == null) {
 			exception = new ExceptionFactory().createException(
-					exceptionClassName, exceptionMessage,
-					new StackFrameConverter().toStackTrace(
-							stackTrace));
+					exceptionInfo);
 		}
 		return exception;
 	}
 
-	public void testFailed() {
+	public void testFailed(JVM vm) {
+		try {
+			exceptionInfo = new ExceptionInfoDefaultImpl(
+					new ExceptionInfoCollector()
+							.collectFromStack(vm));
+		} catch (Throwable t) {
+			// JPF catches exceptions thrown in property listeners
+			// during execution and eats them.  But we would like
+			// to report the exception eventually thrown during
+			// the reconstruction of the exception thrown by the
+			// test.  Therefore, we store that exception here as if
+			// it would have been thrown in the test.
+			exception = t;
+		}
 		result = false;
 		testSucceeded = false;
 	};
@@ -74,29 +82,6 @@ public class TestObserver extends PropertyListenerAdapter {
 	}
 
 	// from VMListener
-	@Override
-	public void exceptionThrown(JVM vm) {
-		ThreadInfo ti = vm.getLastThreadInfo();
-		ExceptionInfo ei = vm.getPendingException();
-
-		if (testSucceeded) {
-			exceptionClassName = ei.getExceptionClassname();
-			String exceptionDetails = ei.getDetails();
-			// It seems that the string returned by
-			// ExceptionInfo.getDetails() looks like
-			// "<exception type> : <message>".  To get the original
-			// message we must strip the type prefix.
-			if (exceptionDetails.startsWith(
-					exceptionClassName + " : ")) {
-				exceptionMessage = exceptionDetails.substring(
-						exceptionClassName.length()+3);
-			} else {
-				exceptionMessage = exceptionDetails;
-			}
-			stackTrace = ti.dumpStack();
-		}
-	}
-
 	@Override
 	public void executeInstruction(JVM vm) {
 		Instruction insn = vm.getLastInstruction();
@@ -115,7 +100,7 @@ public class TestObserver extends PropertyListenerAdapter {
 		}
 
 		if (callee.getName().equals("testFailed")) {
-			testFailed();
+			testFailed(vm);
 		}
 	}
 

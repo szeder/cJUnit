@@ -55,9 +55,12 @@ public class TestObserverTest {
 
 	public static class FailingTestClass {
 		public static void main(String... args) {
-			NotifierMethods.testFailed(
-					new ExceptionInfoDefaultImpl(
-							new Throwable()));
+			try {
+				throw new TestException("asdf");
+			} catch (Throwable t) {
+				NotifierMethods.testFailed(
+						new ExceptionInfoDefaultImpl(t));
+			}
 		}
 	}
 
@@ -69,26 +72,10 @@ public class TestObserverTest {
 		assertThat(to.getTestResult(), equalTo(false));
 	}
 
-	public static class ExceptionThrowingClass {
-		public static void main(String... args) throws Throwable {
-			throw new TestException("asdf");
-		}
-	}
-
-	@Test
-	public void exceptionInfo() {
-		TestObserver to = new TestObserver();
-		createAndRunJPF(ExceptionThrowingClass.class, to);
-
-		assertThat(to.exceptionClassName, equalTo(
-				TestException.class.getName()));
-		assertThat(to.exceptionMessage, equalTo("asdf"));
-	}
-
 	@Test
 	public void getException() throws Throwable {
 		TestObserver to = new TestObserver();
-		createAndRunJPF(ExceptionThrowingClass.class, to);
+		createAndRunJPF(FailingTestClass.class, to);
 
 		Throwable t = to.getException();
 		assertThat(t, is(TestException.class));
