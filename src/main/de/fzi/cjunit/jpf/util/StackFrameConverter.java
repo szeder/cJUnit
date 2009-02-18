@@ -12,7 +12,6 @@ package de.fzi.cjunit.jpf.util;
 
 import java.io.File;
 
-import gov.nasa.jpf.jvm.StackFrame;
 
 import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfo;
 
@@ -43,24 +42,5 @@ public class StackFrameConverter {
 			return filename.substring(idx+1);
 		}
 		return filename;
-	}
-
-	public StackTraceElement toStackTraceElement(StackFrame stackFrame) {
-		return new StackTraceElement(stackFrame.getClassName(),
-				stackFrame.getMethodName(),
-				sourceFileBasename(stackFrame.getSourceFile()),
-				stackFrame.getLine());
-	}
-
-	public StackTraceElement[] toStackTrace(
-			StackFrame[] stackFrameArray) {
-		StackTraceElement[] stackTrace
-				= new StackTraceElement[stackFrameArray.length];
-		for (int i = 0, j = stackFrameArray.length-1;
-				i < stackTrace.length;
-				i++, j--) {
-			stackTrace[i] = toStackTraceElement(stackFrameArray[j]);
-		}
-		return stackTrace;
 	}
 }
