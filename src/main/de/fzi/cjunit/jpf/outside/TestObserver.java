@@ -51,7 +51,7 @@ public class TestObserver extends PropertyListenerAdapter {
 		if (exception == null) {
 			exception = new ExceptionFactory().createException(
 					exceptionClassName, exceptionMessage,
-					StackFrameConverter.toStackTrace(
+					new StackFrameConverter().toStackTrace(
 							stackTrace));
 		}
 		return exception;

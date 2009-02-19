@@ -32,7 +32,7 @@ public class StackFrameConverterTestWithJPF {
 		@Override
 		public void exceptionThrown(JVM vm) {
 			ThreadInfo ti = vm.getLastThreadInfo();
-			stackTrace = StackFrameConverter.toStackTrace(
+			stackTrace = new StackFrameConverter().toStackTrace(
 					ti.dumpStack());
 		}
 	}

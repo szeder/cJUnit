@@ -16,21 +16,21 @@ import static org.hamcrest.Matchers.*;
 import org.junit.Test;
 
 
-import static de.fzi.cjunit.jpf.util.StackFrameConverter.*;
-
 public class StackFrameConverterTest {
+
+	StackFrameConverter sfc = new StackFrameConverter();
 
 	@Test
 	public void sourceFileBasenameStripDirs() {
 		String filename = "Object.java";
-		assertThat(sourceFileBasename("java/lang/" + filename),
+		assertThat(sfc.sourceFileBasename("java/lang/" + filename),
 				equalTo(filename));
 	}
 
 	@Test
 	public void sourceFileBasenameNothingToStrip() {
 		String magicFilename = "<direct call>";
-		assertThat(sourceFileBasename(magicFilename),
+		assertThat(sfc.sourceFileBasename(magicFilename),
 				equalTo(magicFilename));
 	}
 }
