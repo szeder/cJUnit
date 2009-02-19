@@ -57,31 +57,6 @@ public class ExceptionFactory {
 		return t;
 	}
 
-	public Throwable createException(String exceptionClassName,
-			String exceptionMessage,
-			StackTraceElement[] stackTrace)
-			throws ClassNotFoundException, IllegalArgumentException,
-				InstantiationException, IllegalAccessException,
-				InvocationTargetException {
-		Class<?> exceptionClass = Class.forName(exceptionClassName);
-		Constructor<?> constructor = getExceptionConstructor(
-				exceptionClass);
-		if (constructor == null) {
-			throw new RuntimeException(
-					"exception with no suitable " +
-					"constructor thrown inside JPF" +
-					lineSeparator +
-					"type: " + exceptionClassName +
-					lineSeparator +
-					"message: " + exceptionMessage);
-		}
-
-		Throwable t = (Throwable) constructor.newInstance(
-				new Object[] { exceptionMessage });
-		t.setStackTrace(stackTrace);
-		return t;
-	}
-
 	protected Constructor<?> getExceptionConstructor(
 			Class<?> exceptionClass) {
 		Constructor<?> constructor = getCheckedConstructor(
