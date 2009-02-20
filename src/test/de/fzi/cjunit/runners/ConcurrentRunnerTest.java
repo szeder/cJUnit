@@ -182,13 +182,13 @@ public class ConcurrentRunnerTest {
 	}
 
 	@Test
-	public void returnStatementForTestMethod() throws Throwable {
+	public void methodBlockReturnStatementForTestMethod() throws Throwable {
 		ConcurrentRunner runner = new ConcurrentRunner(
 				MixedTestClass.class);
 		FrameworkMethod method = new FrameworkMethod(
 				MixedTestClass.class.getMethod(
 						"methodInMixed1"));
-		Statement statement = runner.methodInvoker(method, null);
+		Statement statement = runner.methodBlock(method);
 
 		assertThat(statement, instanceOf(Statement.class));
 		assertThat(statement,
@@ -196,14 +196,14 @@ public class ConcurrentRunnerTest {
 	}
 
 	@Test
-	public void returnConcurrentStatementForConcurrentTestMethod()
+	public void methodBlockReturnConcurrentStatementForConcurrentTestMethod()
 			throws Throwable {
 		ConcurrentRunner runner = new ConcurrentRunner(
 				MixedTestClass.class);
 		FrameworkMethod method = new ConcurrentFrameworkMethod(
 				MixedTestClass.class.getMethod(
 						"concurrentMethodInMixed1"));
-		Statement statement = runner.methodInvoker(method, null);
+		Statement statement = runner.methodBlock(method);
 
 		assertThat(statement, instanceOf(ConcurrentStatement.class));
 	}

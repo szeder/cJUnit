@@ -14,6 +14,8 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.internal.runners.model.ReflectiveCallable;
+import org.junit.internal.runners.statements.Fail;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
@@ -88,39 +90,59 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 			List<Throwable> errors) {
 		if (!getTestClass().getAnnotatedMethods(annotationClass)
 				.isEmpty()) {
-			String gripe = "@BeforeClass and @AfterClass " +
-					"annotations in test classes with " +
-					"concurrent tests are not possible";
+			String gripe = "@" + annotationClass.getSimpleName() +
+					" annotation in a test class with " +
+					"concurrent tests is not allowed";
 			errors.add(new Exception(gripe));
 		}
 	}
 
 	@Override
-	protected Statement methodInvoker(FrameworkMethod method, Object test) {
-		if (method.getClass() == ConcurrentFrameworkMethod.class) {
-			return new ConcurrentStatement(method, test);
-		} else {
-			return super.methodInvoker(method, test);
+	protected Statement methodBlock(FrameworkMethod method) {
+		if (!(method instanceof ConcurrentFrameworkMethod)) {
+			return super.methodBlock(method);
 		}
+
+		Object test;
+		try {
+			test = createTestObject();
+		} catch (Throwable e) {
+			return new Fail(e);
+		}
+		return buildStatements(method, test);
 	}
 
-	@Override
-	protected Statement possiblyExpectingExceptions(FrameworkMethod method,
-			Object test, Statement next) {
-		if (method.getClass() == ConcurrentFrameworkMethod.class) {
-			// if method is a ConcurrentFrameworkMethod, then the
-			// statement _must_ be a ConcurrentStatement
-			ConcurrentStatement statement
-					= (ConcurrentStatement) next;
-			ConcurrentTest annotation = method.getAnnotation(
-					ConcurrentTest.class);
-			if (annotation != null && annotation.expected() != None.class) {
-				statement.expectException(annotation.expected());
+	protected Object createTestObject() throws Throwable {
+		return new ReflectiveCallable() {
+			@Override
+			protected Object runReflectiveCall() throws Throwable {
+				return createTest();
 			}
-			return statement;
-		} else {
-			return super.possiblyExpectingExceptions(method, test,
-					next);
+		}.run();
+	}
+
+	protected Statement buildStatements(FrameworkMethod method,
+			Object test) {
+		ConcurrentStatement statement = concurrentMethodInvoker(
+				method, test);
+		statement = concurrentPossiblyExpectingExceptions(method,
+				test, statement);
+		return statement;
+	}
+
+	protected ConcurrentStatement concurrentMethodInvoker(
+			FrameworkMethod method, Object test) {
+		return new ConcurrentStatement(method, test);
+	}
+
+	protected ConcurrentStatement concurrentPossiblyExpectingExceptions(
+			FrameworkMethod method, Object test,
+			ConcurrentStatement statement) {
+		ConcurrentTest annotation = method.getAnnotation(
+				ConcurrentTest.class);
+		if (annotation != null && annotation.expected() != None.class) {
+			statement.expectException(annotation.expected());
 		}
+		return statement;
 	}
 }
