@@ -16,10 +16,12 @@ import java.util.List;
 
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
+import gov.nasa.jpf.report.Publisher;
 
 import de.fzi.cjunit.jpf.inside.TestWrapper;
 import de.fzi.cjunit.jpf.outside.TestObserver;
 import de.fzi.cjunit.jpf.util.ArgumentCreator;
+import de.fzi.cjunit.jpf.util.OnFailurePublisher;
 
 
 public class JPFInvoker {
@@ -48,7 +50,17 @@ public class JPFInvoker {
 		Config conf = JPF.createConfig(args);
 		JPF jpf = new JPF(conf);
 		jpf.addPropertyListener(testObserver);
+		registerTestObserverAtPublisher(jpf);
 		jpf.run();
+	}
+
+	void registerTestObserverAtPublisher(JPF jpf) {
+		for (Publisher p : jpf.getReporter().getPublishers()) {
+			if (p instanceof OnFailurePublisher) {
+				((OnFailurePublisher) p).setTestObserver(
+						testObserver);
+			}
+		}
 	}
 
 	public String[] createJPFArgs(Object target, Method method,
@@ -62,6 +74,12 @@ public class JPFInvoker {
 		}
 
 		return new ArgumentCreator()
+			.publisher(OnFailurePublisher.class)
+			.jpfArgs(new String[] {
+					"+jpf.report.console.start=",
+					"+jpf.report.console.finished=result",
+					"+jpf.report.console.show_steps=true"
+				})
 			.app(TestWrapper.class)
 			.appArgs(testArgs)
 			.getArgs();
