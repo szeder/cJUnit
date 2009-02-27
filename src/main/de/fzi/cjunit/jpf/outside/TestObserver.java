@@ -36,6 +36,7 @@ public class TestObserver extends PropertyListenerAdapter {
 	String exceptionClassName;
 	String exceptionMessage;
 	StackFrame[] stackTrace;
+	Throwable exception;
 
 	Stack<Boolean> stateStack = new Stack<Boolean>();
 
@@ -47,9 +48,13 @@ public class TestObserver extends PropertyListenerAdapter {
 			SecurityException, InstantiationException,
 			IllegalAccessException, InvocationTargetException,
 			ClassNotFoundException {
-		return new ExceptionFactory().createException(
-				exceptionClassName, exceptionMessage,
-				StackFrameConverter.toStackTrace(stackTrace));
+		if (exception == null) {
+			exception = new ExceptionFactory().createException(
+					exceptionClassName, exceptionMessage,
+					StackFrameConverter.toStackTrace(
+							stackTrace));
+		}
+		return exception;
 	}
 
 	public void testFailed() {
