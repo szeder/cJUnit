@@ -34,6 +34,21 @@ public class ExceptionInfoDefaultImpl implements ExceptionInfo {
 		}
 	}
 
+	public ExceptionInfoDefaultImpl(ExceptionInfo other) {
+		className = other.getClassName();
+		message = other.getMessage();
+		if (other.hasCause()) {
+			cause = new ExceptionInfoDefaultImpl(other.getCause());
+		}
+
+		StackTraceElementInfo[] origStackTrace = other.getStackTrace();
+		stackTrace = new StackTraceElementInfo[origStackTrace.length];
+		for (int i = 0; i < origStackTrace.length; i++) {
+			stackTrace[i] = new StackTraceElementInfoDefaultImpl(
+					origStackTrace[i]);
+		}
+	}
+
 	@Override
 	public String getClassName() {
 		return className;
