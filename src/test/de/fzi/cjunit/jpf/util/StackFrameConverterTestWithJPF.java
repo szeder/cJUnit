@@ -15,6 +15,8 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
 
+import de.fzi.cjunit.testexceptions.TestException;
+
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.ListenerAdapter;
@@ -30,13 +32,13 @@ public class StackFrameConverterTestWithJPF {
 		@Override
 		public void exceptionThrown(JVM vm) {
 			ThreadInfo ti = vm.getLastThreadInfo();
-			stackTrace = StackFrameConverter.toStackTrace(
+			stackTrace = new StackFrameConverter().toStackTrace(
 					ti.dumpStack());
 		}
 	}
 
 	@Test
-	public void toStackTraceTestWithJPF() {
+	public void toStackTraceTestWithJPF() throws Throwable {
 		ToStackTraceTestListener listener
 				= new ToStackTraceTestListener();
 		String[] jpfArgs = new ArgumentCreator()
@@ -52,7 +54,7 @@ public class StackFrameConverterTestWithJPF {
 		StackTraceElement[] expectedStackTrace = null;
 		try {
 			StackFrameConverterTestWithJPF.main((String[]) null);
-		} catch (RuntimeException ex) {
+		} catch (TestException ex) {
 			expectedStackTrace = ex.getStackTrace();
 		}
 		assertThat(listener.stackTrace[0],
@@ -66,8 +68,10 @@ public class StackFrameConverterTestWithJPF {
 	}
 
 	// for testing the above
-	public static void main(String... args) { methodA(); }
-	public static void methodA() { methodB(); }
-	public static void methodB() { methodC(); }
-	public static void methodC() { throw new RuntimeException(); }
+	public static void main(String... args) throws Throwable { methodA(); }
+	public static void methodA() throws Throwable { methodB(); }
+	public static void methodB() throws Throwable { methodC(); }
+	public static void methodC() throws Throwable {
+		throw new TestException();
+	}
 }

@@ -8,17 +8,9 @@
  * Framework Programme under grant agreement No. 216682.
  */
 
-package de.fzi.cjunit;
+package de.fzi.cjunit.testexceptions;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+public class ChildTestException extends ParentTestException {
 
-
-@RunWith(Suite.class)
-@SuiteClasses({
-	de.fzi.cjunit.jpf.outside.TestObserverTest.class,
-	de.fzi.cjunit.jpf.util.StackFrameConverterTestWithJPF.class
-})
-public class JPFTests {
+	private static final long serialVersionUID = 1L;
 }

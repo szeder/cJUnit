@@ -13,7 +13,6 @@ package de.fzi.cjunit.jpf.util;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
@@ -23,7 +22,7 @@ public class ExceptionFactoryTest {
 	@Test
 	public void testGetCheckedConstructorReturnConstructor() {
 		Constructor<?> constructor
-				= ExceptionFactory.getCheckedConstructor(
+				= new ExceptionFactory().getCheckedConstructor(
 						Throwable.class, String.class);
 		assertThat(constructor, not(nullValue()));
 		Class<?> declaringClass = constructor.getDeclaringClass();
@@ -38,30 +37,15 @@ public class ExceptionFactoryTest {
 	@Test
 	public void testGetCheckedConstructorReturnNull() {
 		Constructor<?> constructor
-				= ExceptionFactory.getCheckedConstructor(
+				= new ExceptionFactory().getCheckedConstructor(
 						Object.class, String.class);
 		assertThat(constructor, nullValue());
 	}
 
-	public class InnerExceptionClass extends Throwable {
-		private static final long serialVersionUID = 1L;
-		public InnerExceptionClass(String msg) { super(msg); }
-	}
-
-	@Ignore("known breakage")
-	@Test
-	public void testGetCheckedConstructorWorksOnInnerClass() {
-		Constructor<?> constructor
-				= ExceptionFactory.getCheckedConstructor(
-						InnerExceptionClass.class, String.class);
-		assertThat(constructor, not(nullValue()));
-	}
-
 	@Test
 	public void testGetExceptionConstructorFindStringConstructor() {
-		Constructor<?> constructor
-				= ExceptionFactory.getExceptionConstructor(
-						Exception.class);
+		Constructor<?> constructor = new ExceptionFactory()
+				.getExceptionConstructor(Exception.class);
 		assertThat(constructor, not(nullValue()));
 		assertThat(constructor.getParameterTypes().length,
 				equalTo(1));
@@ -71,9 +55,8 @@ public class ExceptionFactoryTest {
 
 	@Test
 	public void testGetExceptionConstructorFindObjectConstructor() {
-		Constructor<?> constructor
-				= ExceptionFactory.getExceptionConstructor(
-						AssertionError.class);
+		Constructor<?> constructor = new ExceptionFactory()
+				.getExceptionConstructor(AssertionError.class);
 		assertThat(constructor, not(nullValue()));
 		assertThat(constructor.getParameterTypes().length,
 				equalTo(1));

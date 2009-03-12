@@ -16,7 +16,7 @@ import gov.nasa.jpf.jvm.StackFrame;
 
 public class StackFrameConverter {
 
-	public static String sourceFileBasename(String filename) {
+	public String sourceFileBasename(String filename) {
 		int idx = filename.lastIndexOf(File.separatorChar);
 		if (0 <= idx) {
 			return filename.substring(idx+1);
@@ -24,14 +24,14 @@ public class StackFrameConverter {
 		return filename;
 	}
 
-	public static StackTraceElement toStackTraceElement(StackFrame stackFrame) {
+	public StackTraceElement toStackTraceElement(StackFrame stackFrame) {
 		return new StackTraceElement(stackFrame.getClassName(),
 				stackFrame.getMethodName(),
 				sourceFileBasename(stackFrame.getSourceFile()),
 				stackFrame.getLine());
 	}
 
-	public static StackTraceElement[] toStackTrace(
+	public StackTraceElement[] toStackTrace(
 			StackFrame[] stackFrameArray) {
 		StackTraceElement[] stackTrace
 				= new StackTraceElement[stackFrameArray.length];

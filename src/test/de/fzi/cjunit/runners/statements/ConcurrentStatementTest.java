@@ -12,11 +12,9 @@ package de.fzi.cjunit.runners.statements;
 
 import org.junit.Test;
 
-public class ConcurrentStatementTest {
+import de.fzi.cjunit.testexceptions.TestException;
 
-	public class TestException extends Throwable {
-		private static final long serialVersionUID = 1L;
-        }
+public class ConcurrentStatementTest {
 
 	// This also covers the case when the same exception is thrown in the
 	// test method as expected: invokeJPF() does not throw in that case.

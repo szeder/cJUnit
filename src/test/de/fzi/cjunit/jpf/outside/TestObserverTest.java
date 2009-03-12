@@ -19,8 +19,9 @@ import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.PropertyListenerAdapter;
 
-import static de.fzi.cjunit.jpf.inside.NotifierMethods.*;
+import de.fzi.cjunit.jpf.inside.NotifierMethods;
 import de.fzi.cjunit.jpf.util.ArgumentCreator;
+import de.fzi.cjunit.testexceptions.TestException;
 
 
 public class TestObserverTest {
@@ -53,7 +54,7 @@ public class TestObserverTest {
 
 	public static class FailingTestClass {
 		public static void main(String... args) {
-			testFailed();
+			NotifierMethods.testFailed();
 		}
 	}
 
@@ -66,8 +67,8 @@ public class TestObserverTest {
 	}
 
 	public static class ExceptionThrowingClass {
-		public static void main(String... args) {
-			throw new RuntimeException("asdf");
+		public static void main(String... args) throws Throwable {
+			throw new TestException("asdf");
 		}
 	}
 
@@ -77,7 +78,7 @@ public class TestObserverTest {
 		createAndRunJPF(ExceptionThrowingClass.class, to);
 
 		assertThat(to.exceptionClassName, equalTo(
-				"java.lang.RuntimeException"));
+				TestException.class.getName()));
 		assertThat(to.exceptionMessage, equalTo("asdf"));
 	}
 
@@ -87,7 +88,7 @@ public class TestObserverTest {
 		createAndRunJPF(ExceptionThrowingClass.class, to);
 
 		Throwable t = to.getException();
-		assertThat(t, is(RuntimeException.class));
+		assertThat(t, is(TestException.class));
 		assertThat(t.getMessage(), equalTo("asdf"));
 	}
 }

@@ -36,6 +36,7 @@ public class TestObserver extends PropertyListenerAdapter {
 	String exceptionClassName;
 	String exceptionMessage;
 	StackFrame[] stackTrace;
+	Throwable exception;
 
 	Stack<Boolean> stateStack = new Stack<Boolean>();
 
@@ -47,9 +48,13 @@ public class TestObserver extends PropertyListenerAdapter {
 			SecurityException, InstantiationException,
 			IllegalAccessException, InvocationTargetException,
 			ClassNotFoundException {
-		return ExceptionFactory.createException(exceptionClassName,
-				exceptionMessage,
-				StackFrameConverter.toStackTrace(stackTrace));
+		if (exception == null) {
+			exception = new ExceptionFactory().createException(
+					exceptionClassName, exceptionMessage,
+					new StackFrameConverter().toStackTrace(
+							stackTrace));
+		}
+		return exception;
 	}
 
 	public void testFailed() {
@@ -97,16 +102,20 @@ public class TestObserver extends PropertyListenerAdapter {
 		Instruction insn = vm.getLastInstruction();
 
 		if (insn instanceof InvokeInstruction) {
-			InvokeInstruction callInsn = (InvokeInstruction) insn;
-			ThreadInfo ti = vm.getLastThreadInfo();
+			handleInvokeInstruction(vm, (InvokeInstruction) insn);
+		}
+	}
 
-			MethodInfo callee = callInsn.getInvokedMethod(ti);
-			if (callee.getClassName().equals(
-					NotifierMethods.class.getName())) {
-				if (callee.getName().equals("testFailed")) {
-					testFailed();
-				}
-			}
+	public void handleInvokeInstruction(JVM vm, InvokeInstruction insn) {
+		ThreadInfo ti = vm.getLastThreadInfo();
+		MethodInfo callee = insn.getInvokedMethod(ti);
+		if (!callee.getClassName().equals(
+				NotifierMethods.class.getName())) {
+			return;
+		}
+
+		if (callee.getName().equals("testFailed")) {
+			testFailed();
 		}
 	}
 
