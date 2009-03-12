@@ -33,6 +33,9 @@ public class TestWrapperTest {
 	public void throwTestException() throws TestException {
 		throw new TestException();
 	}
+	public void throwOtherTestException() throws OtherTestException {
+		throw new OtherTestException();
+	}
 
 
 	@Test
@@ -58,6 +61,17 @@ public class TestWrapperTest {
 				tw.beforeMethodNames.size(), equalTo(2));
 		assertThat(tw.beforeMethodNames,
 				hasItems("toString", "hashCode"));
+	}
+
+	@Test
+	public void parseArgsAfterMethods() {
+		TestWrapper tw = new TestWrapper(new String[] {
+				"--aftermethod=wait",
+				"--aftermethod=notifyAll" });
+		assertThat("number of method names",
+				tw.afterMethodNames.size(), equalTo(2));
+		assertThat(tw.afterMethodNames,
+				hasItems("wait", "notifyAll"));
 	}
 
 	@Test
@@ -122,6 +136,18 @@ public class TestWrapperTest {
 		tw.createBeforeMethods();
 		assertThat("number of methods",
 				tw.beforeMethodNames.size(), equalTo(2));
+	}
+
+	@Test
+	public void createAfterMethods() throws Throwable {
+		TestWrapper tw = new TestWrapper(new String[] {
+				"--testclass=" + className,
+				"--aftermethod=wait",
+				"--aftermethod=notifyAll" });
+		tw.createTestObject();
+		tw.createAfterMethods();
+		assertThat("number of methods",
+				tw.afterMethodNames.size(), equalTo(2));
 	}
 
 	@Test
@@ -230,6 +256,9 @@ public class TestWrapperTest {
 		tw.runBeforeMethods();
 	}
 
+	// Can't put it inside the method, because it has to be final to be
+	// accessible from the inner class, but if it's final, then it can't be
+	// modified.  Catch-22.
 	boolean testMethodInvoked = false;
 
 	@Test
@@ -249,5 +278,86 @@ public class TestWrapperTest {
 		} catch (TestException te) {}
 
 		assertThat(testMethodInvoked, equalTo(false));
+	}
+
+	@Test
+	public void testRunAllAfterMethodsEvenIfOneThrows() throws Throwable {
+		final List<String> invokedMethodNames = new ArrayList<String>();
+		TestWrapper tw = new TestWrapper() {
+			protected void invokeMethodUnchainingException(Method m)
+					throws IllegalArgumentException,
+					IllegalAccessException, Throwable {
+				invokedMethodNames.add(m.getName());
+				super.invokeMethodUnchainingException(m);
+			}
+		};
+		tw.target = this;
+		tw.afterMethods.add(this.getClass().getMethod(
+				"throwTestException"));
+		tw.afterMethods.add(this.getClass().getMethod("throwNothing"));
+
+		tw.runAfterMethods();
+
+		assertThat("number of invoked methods",
+				invokedMethodNames.size(), equalTo(2));
+		assertThat("exception-thrower method is invoked first",
+				invokedMethodNames.get(0),
+				equalTo("throwTestException"));
+		assertThat("other method is invoked after", invokedMethodNames,
+				hasItem("throwNothing"));
+	}
+
+	@Test(expected=TestException.class)
+	public void testSingleError() throws Throwable {
+		TestWrapper tw = new TestWrapper();
+		tw.errors.add(new TestException());
+
+		tw.handleErrors();
+	}
+
+	@Test(expected=Exception.class)
+	public void testExceptionOnMultipleError() throws Throwable {
+		TestWrapper tw = new TestWrapper();
+		tw.errors.add(new TestException());
+		tw.errors.add(new OtherTestException());
+
+		tw.handleErrors();
+	}
+
+	@Test(expected=TestException.class)
+	public void testFirstErrorOnMultipleError() throws Throwable {
+		TestWrapper tw = new TestWrapper();
+		tw.errors.add(new TestException());
+		tw.errors.add(new OtherTestException());
+
+		try {
+			tw.handleErrors();
+		} catch (Exception e) {
+			throw e.getCause();
+		}
+	}
+
+	// this also implicitly tests that @After methods are invoked even if
+	// the test method throws an exception
+	@Test
+	public void testErrorsAreCollectedInOrder() throws Throwable {
+		TestWrapper tw = new TestWrapper();
+		tw.target = this;
+		tw.method = this.getClass().getMethod("throwTestException");
+		tw.afterMethods.add(this.getClass().getMethod(
+				"throwOtherTestException"));
+
+		try {
+			tw.runTest();
+		} catch (Exception e) {}
+
+		assertThat("number of exceptions", tw.errors.size(),
+				equalTo(2));
+		assertThat("test method's exception is the first",
+				tw.errors.get(0),
+				instanceOf(TestException.class));
+		assertThat("@After method's exception is second",
+				tw.errors.get(1),
+				instanceOf(OtherTestException.class));
 	}
 }

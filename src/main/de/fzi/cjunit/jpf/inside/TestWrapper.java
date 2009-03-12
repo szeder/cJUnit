@@ -23,15 +23,22 @@ public class TestWrapper {
 	protected String testClassName;
 	protected String testMethodName;
 	protected List<String> beforeMethodNames;
+	protected List<String> afterMethodNames;
 	protected String expectedExceptionName;
 
 	protected Object target;
 	protected Method method;
 	protected List<Method> beforeMethods;
+	protected List<Method> afterMethods;
+
+	protected List<Throwable> errors;
 
 	public TestWrapper(String... args) {
 		beforeMethodNames = new ArrayList<String>();
+		afterMethodNames = new ArrayList<String>();
 		beforeMethods = new ArrayList<Method>();
+		afterMethods = new ArrayList<Method>();
+		errors = new ArrayList<Throwable>();
 		parseArgs(args);
 	}
 
@@ -47,6 +54,8 @@ public class TestWrapper {
 				testMethodName = getArgumentValue(arg);
 			} else if (arg.startsWith("--beforemethod=")) {
 				beforeMethodNames.add(getArgumentValue(arg));
+			} else if (arg.startsWith("--aftermethod=")) {
+				afterMethodNames.add(getArgumentValue(arg));
 			} else if (arg.startsWith("--expectedexception=")) {
 				expectedExceptionName = getArgumentValue(arg);
 			} else {
@@ -85,12 +94,19 @@ public class TestWrapper {
 		createTestObject();
 		createTestMethod();
 		createBeforeMethods();
+		createAfterMethods();
 	}
 
 	protected void runTest() throws IllegalArgumentException,
 			IllegalAccessException, AssertionError, Throwable {
-		runBeforeMethods();
-		runTestMethod();
+		try {
+			runBeforeMethods();
+			runTestMethod();
+		} catch (Throwable t) {
+			errors.add(t);
+		}
+		runAfterMethods();
+		handleErrors();
 	}
 
 	protected void runBeforeMethods() throws IllegalArgumentException,
@@ -121,6 +137,26 @@ public class TestWrapper {
 					+ cause.getClass().getName() + ">";
 				throw new Exception(message, cause);
 			}
+		}
+	}
+
+	protected void runAfterMethods() {
+		for (Method afterMethod : afterMethods) {
+			try {
+				invokeMethodUnchainingException(afterMethod);
+			} catch (Throwable t) {
+				errors.add(t);
+			}
+		}
+	}
+
+	protected void handleErrors() throws Throwable, Exception {
+		if (errors.size() == 1) {
+			throw errors.get(0);
+		} else if (errors.size() > 1) {
+			throw new Exception("Multiple failures during test run;"
+					+ " only the first one is reported",
+					errors.get(0));
 		}
 	}
 
@@ -168,6 +204,13 @@ public class TestWrapper {
 			NoSuchMethodException {
 		for (String methodName : beforeMethodNames) {
 			beforeMethods.add(createMethod(methodName));
+		}
+	}
+
+	protected void createAfterMethods() throws SecurityException,
+			NoSuchMethodException {
+		for (String methodName : afterMethodNames) {
+			 afterMethods.add(createMethod(methodName));
 		}
 	}
 
