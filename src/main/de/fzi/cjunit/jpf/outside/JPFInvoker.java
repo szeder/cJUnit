@@ -33,11 +33,11 @@ public class JPFInvoker {
 	}
 
 	public void run(Object target, Method method,
-			List<Method> beforeMethods,
+			List<Method> beforeMethods, List<Method> afterMethods,
 			Class<? extends Throwable> exceptionClass)
 			throws Throwable {
 		runJPF(createJPFArgs(target, method, beforeMethods,
-				exceptionClass));
+				afterMethods, exceptionClass));
 
 		checkResult();
 	}
@@ -66,7 +66,7 @@ public class JPFInvoker {
 	}
 
 	public String[] createJPFArgs(Object target, Method method,
-			List<Method> beforeMethods,
+			List<Method> beforeMethods, List<Method> afterMethods,
 			Class<? extends Throwable> exceptionClass) {
 		List<String> testArgs = new ArrayList<String>();
 		testArgs.add("--testclass=" + target.getClass().getName());
@@ -74,6 +74,10 @@ public class JPFInvoker {
 		for (Method beforeMethod : beforeMethods) {
 			testArgs.add("--beforemethod=" +
 					beforeMethod.getName());
+		}
+		for (Method afterMethod : afterMethods) {
+			testArgs.add("--aftermethod=" +
+					afterMethod.getName());
 		}
 		if (exceptionClass != null) {
 			testArgs.add("--expectedexception=" +

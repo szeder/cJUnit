@@ -26,12 +26,14 @@ public class ConcurrentStatement extends Statement {
 	private final ConcurrentFrameworkMethod testMethod;
 	private Object target;
 	private List<FrameworkMethod> befores;
+	private List<FrameworkMethod> afters;
 	private Class<? extends Throwable> expectedExceptionClass;
 
 	public ConcurrentStatement(FrameworkMethod testMethod, Object target) {
 		this.testMethod = (ConcurrentFrameworkMethod) testMethod;
 		this.target = target;
 		befores = new ArrayList<FrameworkMethod>();
+		afters = new ArrayList<FrameworkMethod>();
 	}
 
 	@Override
@@ -42,6 +44,7 @@ public class ConcurrentStatement extends Statement {
 	void invokeJPF() throws Throwable {
 		new JPFInvoker().run(target, testMethod.getMethod(),
 				convertFrameworkMethodListToMethodList(befores),
+				convertFrameworkMethodListToMethodList(afters),
 				expectedExceptionClass);
 	}
 
@@ -51,6 +54,10 @@ public class ConcurrentStatement extends Statement {
 
 	public void addBefores(List<FrameworkMethod> befores) {
 		this.befores = befores;
+	}
+
+	public void addAfters(List<FrameworkMethod> afters) {
+		this.afters = afters;
 	}
 
 	List<Method> convertFrameworkMethodListToMethodList(

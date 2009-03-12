@@ -28,9 +28,12 @@ public class JPFInvokerTest {
 		List<Method> befores = new ArrayList<Method>();
 		befores.add(String.class.getMethod("hashCode"));
 		befores.add(String.class.getMethod("notify"));
+		List<Method> afters = new ArrayList<Method>();
+		afters.add(String.class.getMethod("notifyAll"));
+		afters.add(String.class.getMethod("wait"));
 		String[] args = new JPFInvoker().createJPFArgs(new String(),
 				String.class.getMethod("toString"),
-				befores, RuntimeException.class);
+				befores, afters, RuntimeException.class);
 		assertThat(args, hasItemInArray(
 				"de.fzi.cjunit.jpf.inside.TestWrapper"));
 		assertThat(args, hasItemInArray(
@@ -39,6 +42,8 @@ public class JPFInvokerTest {
 		assertThat(args, hasItemInArray("--expectedexception=java.lang.RuntimeException"));
 		assertThat(args, hasItemInArray("--beforemethod=hashCode"));
 		assertThat(args, hasItemInArray("--beforemethod=notify"));
+		assertThat(args, hasItemInArray("--aftermethod=notifyAll"));
+		assertThat(args, hasItemInArray("--aftermethod=wait"));
 	}
 
 	@Test
