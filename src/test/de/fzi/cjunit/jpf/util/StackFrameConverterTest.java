@@ -13,6 +13,8 @@ package de.fzi.cjunit.jpf.util;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import java.io.File;
+
 import org.junit.Test;
 
 
@@ -23,7 +25,9 @@ public class StackFrameConverterTest {
 	@Test
 	public void sourceFileBasenameStripDirs() {
 		String filename = "Object.java";
-		assertThat(sfc.sourceFileBasename("java/lang/" + filename),
+		String filenameWithPath = "java" + File.separatorChar
+				+ "lang/" + File.separatorChar + filename;
+		assertThat(sfc.sourceFileBasename(filenameWithPath),
 				equalTo(filename));
 	}
 
