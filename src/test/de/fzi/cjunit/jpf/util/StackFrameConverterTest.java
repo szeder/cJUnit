@@ -13,6 +13,8 @@ package de.fzi.cjunit.jpf.util;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import java.io.File;
+
 import org.junit.Test;
 
 import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfo;
@@ -42,7 +44,11 @@ public class StackFrameConverterTest {
 			public String getClassName() { return "class0"; }
 			public String getMethodName() { return "method0"; }
 			public String getFileName() {
-				return "/de/fzi/cjunit/test/Class0.java";
+				return File.separatorChar + "de"
+					+ File.separatorChar + "fzi"
+					+ File.separatorChar + "cjunit"
+					+ File.separatorChar + "test"
+					+ File.separatorChar + "Class0.java";
 			}
 			public int getLineNumber() { return 0; }
 		};
