@@ -21,11 +21,10 @@ public class ExceptionInfoCollector {
 
 	public ExceptionInfoCollector() { }
 
-	public ExceptionInfo collectFromStack(JVM vm) {
+	public ExceptionInfo collectFromStack(JVM vm) throws Exception {
 		int argRef = vm.getLastThreadInfo().peek();
 		if (argRef == -1) {
-			throw new RuntimeException(
-					"Cannot examine stack: " +
+			throw new Exception("Cannot examine stack: " +
 					"cannot collect ExceptionInfo");
 		}
 
