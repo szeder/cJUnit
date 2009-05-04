@@ -54,9 +54,7 @@ public class TestObserver extends PropertyListenerAdapter {
 
 	public void testFailed(JVM vm) {
 		try {
-			exceptionInfo = new ExceptionInfoDefaultImpl(
-					new ExceptionInfoCollector()
-							.collectFromStack(vm));
+			exceptionInfo = collectExceptionInfo(vm);
 		} catch (Throwable t) {
 			// JPF catches exceptions thrown in property listeners
 			// during execution and eats them.  But we would like
@@ -68,6 +66,13 @@ public class TestObserver extends PropertyListenerAdapter {
 		}
 		result = false;
 		testSucceeded = false;
+	}
+
+	public ExceptionInfoDefaultImpl collectExceptionInfo(JVM vm)
+			throws Exception {
+		return new ExceptionInfoDefaultImpl(
+				new ExceptionInfoCollector()
+						.collectFromStack(vm));
 	};
 
 	// from Property
