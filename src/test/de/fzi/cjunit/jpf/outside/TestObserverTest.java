@@ -65,20 +65,15 @@ public class TestObserverTest {
 	}
 
 	@Test
-	public void failingTest() {
+	public void failingTest() throws Throwable {
 		TestObserver to = new TestObserver();
 		createAndRunJPF(FailingTestClass.class, to);
 
-		assertThat(to.getTestResult(), equalTo(false));
-	}
-
-	@Test
-	public void getException() throws Throwable {
-		TestObserver to = new TestObserver();
-		createAndRunJPF(FailingTestClass.class, to);
+		assertThat("test result", to.getTestResult(), equalTo(false));
 
 		Throwable t = to.getException();
-		assertThat(t, is(TestException.class));
-		assertThat(t.getMessage(), equalTo("asdf"));
+		assertThat("exception type", t, is(TestException.class));
+		assertThat("exception message", t.getMessage(),
+				equalTo("asdf"));
 	}
 }
