@@ -18,6 +18,7 @@ import org.junit.Test;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.PropertyListenerAdapter;
+import gov.nasa.jpf.jvm.JVM;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
@@ -75,5 +76,25 @@ public class TestObserverTest {
 		assertThat("exception type", t, is(TestException.class));
 		assertThat("exception message", t.getMessage(),
 				equalTo("asdf"));
+	}
+
+	@Test
+	public void reportExceptionDuringCollectingExceptionInfo()
+			throws Throwable {
+		TestObserver to = new TestObserver() {
+			@Override
+			public ExceptionInfoDefaultImpl collectExceptionInfo(JVM vm)
+					throws Exception {
+				throw new Exception("exception in TestObserver");
+			}
+		};
+		createAndRunJPF(FailingTestClass.class, to);
+
+		assertThat("test result", to.getTestResult(), equalTo(false));
+
+		Throwable t = to.getException();
+		assertThat("exception type", t, is(Exception.class));
+		assertThat("exception message", t.getMessage(),
+				equalTo("exception in TestObserver"));
 	}
 }
