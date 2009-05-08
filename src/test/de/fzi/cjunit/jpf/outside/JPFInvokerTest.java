@@ -110,7 +110,7 @@ public class JPFInvokerTest {
 			}
 		};
 
-		jpfInvoker.checkResult();
+		jpfInvoker.checkProperties();
 	}
 
 	@Test(expected=TestException.class)
@@ -127,6 +127,6 @@ public class JPFInvokerTest {
 			}
 		};
 
-		jpfInvoker.checkResult();
+		jpfInvoker.checkProperties();
 	}
 }

@@ -41,7 +41,7 @@ public class JPFInvoker {
 			throws Throwable {
 		runJPF(createJPFArgs(target, method, exceptionClass));
 
-		checkResult();
+		checkProperties();
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class JPFInvoker {
 		return getJPFSearchErrors().size() == 0;
 	}
 
-	public void checkResult() throws Throwable {
+	public void checkProperties() throws Throwable {
 		if (testFailedProperty.getTestResult() == false) {
 			throw testFailedProperty.getException();
 		}
