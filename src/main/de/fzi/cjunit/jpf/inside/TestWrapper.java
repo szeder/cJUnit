@@ -13,6 +13,7 @@ package de.fzi.cjunit.jpf.inside;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
 
 
@@ -63,7 +64,8 @@ public class TestWrapper {
 			createTest();
 			runTest();
 		} catch (Throwable t) {
-			NotifierMethods.testFailed();
+			NotifierMethods.testFailed(
+					new ExceptionInfoDefaultImpl(t));
 		}
 	}
 

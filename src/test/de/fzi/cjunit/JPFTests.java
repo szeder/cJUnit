@@ -17,8 +17,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	de.fzi.cjunit.jpf.outside.TestObserverTest.class,
-	de.fzi.cjunit.jpf.util.StackFrameConverterTestWithJPF.class
+	de.fzi.cjunit.jpf.outside.TestObserverTest.class
 })
 public class JPFTests {
 }

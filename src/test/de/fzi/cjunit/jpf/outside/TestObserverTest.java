@@ -18,7 +18,9 @@ import org.junit.Test;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.PropertyListenerAdapter;
+import gov.nasa.jpf.jvm.JVM;
 
+import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
 import de.fzi.cjunit.jpf.util.ArgumentCreator;
 import de.fzi.cjunit.testexceptions.TestException;
@@ -54,41 +56,45 @@ public class TestObserverTest {
 
 	public static class FailingTestClass {
 		public static void main(String... args) {
-			NotifierMethods.testFailed();
+			try {
+				throw new TestException("asdf");
+			} catch (Throwable t) {
+				NotifierMethods.testFailed(
+						new ExceptionInfoDefaultImpl(t));
+			}
 		}
 	}
 
 	@Test
-	public void failingTest() {
+	public void failingTest() throws Throwable {
 		TestObserver to = new TestObserver();
 		createAndRunJPF(FailingTestClass.class, to);
 
-		assertThat(to.getTestResult(), equalTo(false));
-	}
-
-	public static class ExceptionThrowingClass {
-		public static void main(String... args) throws Throwable {
-			throw new TestException("asdf");
-		}
-	}
-
-	@Test
-	public void exceptionInfo() {
-		TestObserver to = new TestObserver();
-		createAndRunJPF(ExceptionThrowingClass.class, to);
-
-		assertThat(to.exceptionClassName, equalTo(
-				TestException.class.getName()));
-		assertThat(to.exceptionMessage, equalTo("asdf"));
-	}
-
-	@Test
-	public void getException() throws Throwable {
-		TestObserver to = new TestObserver();
-		createAndRunJPF(ExceptionThrowingClass.class, to);
+		assertThat("test result", to.getTestResult(), equalTo(false));
 
 		Throwable t = to.getException();
-		assertThat(t, is(TestException.class));
-		assertThat(t.getMessage(), equalTo("asdf"));
+		assertThat("exception type", t, is(TestException.class));
+		assertThat("exception message", t.getMessage(),
+				equalTo("asdf"));
+	}
+
+	@Test
+	public void reportExceptionDuringCollectingExceptionInfo()
+			throws Throwable {
+		TestObserver to = new TestObserver() {
+			@Override
+			public ExceptionInfoDefaultImpl collectExceptionInfo(JVM vm)
+					throws Exception {
+				throw new Exception("exception in TestObserver");
+			}
+		};
+		createAndRunJPF(FailingTestClass.class, to);
+
+		assertThat("test result", to.getTestResult(), equalTo(false));
+
+		Throwable t = to.getException();
+		assertThat("exception type", t, is(Exception.class));
+		assertThat("exception message", t.getMessage(),
+				equalTo("exception in TestObserver"));
 	}
 }

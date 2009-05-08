@@ -20,6 +20,12 @@ import java.lang.reflect.Constructor;
 public class ExceptionFactoryTest {
 
 	@Test
+	public void createExceptionHandlesNull() throws Throwable {
+		assertThat(new ExceptionFactory().createException(null),
+				equalTo(null));
+	}
+
+	@Test
 	public void testGetCheckedConstructorReturnConstructor() {
 		Constructor<?> constructor
 				= new ExceptionFactory().getCheckedConstructor(

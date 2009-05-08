@@ -15,15 +15,26 @@ import java.lang.reflect.InvocationTargetException;
 
 import static de.fzi.cjunit.util.LineSeparator.lineSeparator;
 
+import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
+
+
 public class ExceptionFactory {
 
-	public Throwable createException(String exceptionClassName,
-			String exceptionMessage,
-			StackTraceElement[] stackTrace)
+	public Throwable createException(ExceptionInfo exceptionInfo)
 			throws ClassNotFoundException, IllegalArgumentException,
 				InstantiationException, IllegalAccessException,
 				InvocationTargetException {
-		Class<?> exceptionClass = Class.forName(exceptionClassName);
+		if (exceptionInfo == null) {
+			return null;
+		}
+
+		Throwable cause = null;
+		if (exceptionInfo.hasCause()) {
+			cause = createException(exceptionInfo.getCause());
+		}
+
+		Class<?> exceptionClass = Class.forName(
+				exceptionInfo.getClassName());
 		Constructor<?> constructor = getExceptionConstructor(
 				exceptionClass);
 		if (constructor == null) {
@@ -31,14 +42,18 @@ public class ExceptionFactory {
 					"exception with no suitable " +
 					"constructor thrown inside JPF" +
 					lineSeparator +
-					"type: " + exceptionClassName +
+					"type: " +
+					exceptionInfo.getClassName() +
 					lineSeparator +
-					"message: " + exceptionMessage);
+					"message: " +
+					exceptionInfo.getMessage());
 		}
 
 		Throwable t = (Throwable) constructor.newInstance(
-				new Object[] { exceptionMessage });
-		t.setStackTrace(stackTrace);
+				new Object[] { exceptionInfo.getMessage() });
+		t.initCause(cause);
+		t.setStackTrace(new StackFrameConverter().toStackTrace(
+					exceptionInfo.getStackTrace()));
 		return t;
 	}
 
