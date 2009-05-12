@@ -65,7 +65,7 @@ public class JPFInvoker {
 		conf = JPF.createConfig(args);
 		jpf = new JPF(conf);
 		jpf.addPropertyListener(testObserver);
-		registerTestObserverAtPublisher();
+		registerAtPublisher();
 		jpf.run();
 	}
 
@@ -73,11 +73,10 @@ public class JPFInvoker {
 		return jpf.getSearchErrors();
 	}
 
-	protected void registerTestObserverAtPublisher() {
+	protected void registerAtPublisher() {
 		for (Publisher p : jpf.getReporter().getPublishers()) {
 			if (p instanceof OnFailurePublisher) {
-				((OnFailurePublisher) p).setTestObserver(
-						testObserver);
+				((OnFailurePublisher) p).setJPFInvoker(this);
 			}
 		}
 	}

@@ -16,19 +16,19 @@ import gov.nasa.jpf.Config;
 import gov.nasa.jpf.report.ConsolePublisher;
 import gov.nasa.jpf.report.Reporter;
 
-import de.fzi.cjunit.jpf.outside.TestObserver;
+import de.fzi.cjunit.jpf.outside.JPFInvoker;
 
 
 public class OnFailurePublisher extends ConsolePublisher {
 
-	TestObserver testObserver;
+	JPFInvoker jpfInvoker;
 
 	public OnFailurePublisher(Config conf, Reporter reporter) {
 		super(conf, reporter);
 	}
 
-	public void setTestObserver(TestObserver testObserver) {
-		this.testObserver = testObserver;
+	public void setJPFInvoker(JPFInvoker jpfInvoker) {
+		this.jpfInvoker = jpfInvoker;
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class OnFailurePublisher extends ConsolePublisher {
 	@Override
 	public void publishFinished() {
 		super.publishFinished();
-		if (testObserver.getTestResult() == false) {
+		if (jpfInvoker.getTestResult() == false) {
 			out.flush();
 		}
 	}
