@@ -26,6 +26,9 @@ import de.fzi.cjunit.jpf.util.OnFailurePublisher;
 
 public class JPFInvoker {
 
+	protected Config conf;
+	protected JPF jpf;
+
 	protected TestObserver testObserver;
 
 	public JPFInvoker() {
@@ -47,14 +50,14 @@ public class JPFInvoker {
 	}
 
 	protected void runJPF(String[] args) {
-		Config conf = JPF.createConfig(args);
-		JPF jpf = new JPF(conf);
+		conf = JPF.createConfig(args);
+		jpf = new JPF(conf);
 		jpf.addPropertyListener(testObserver);
-		registerTestObserverAtPublisher(jpf);
+		registerTestObserverAtPublisher();
 		jpf.run();
 	}
 
-	protected void registerTestObserverAtPublisher(JPF jpf) {
+	protected void registerTestObserverAtPublisher() {
 		for (Publisher p : jpf.getReporter().getPublishers()) {
 			if (p instanceof OnFailurePublisher) {
 				((OnFailurePublisher) p).setTestObserver(
