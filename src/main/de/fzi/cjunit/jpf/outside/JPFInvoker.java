@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gov.nasa.jpf.Config;
+import gov.nasa.jpf.Error;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.report.Publisher;
 
@@ -55,6 +56,10 @@ public class JPFInvoker {
 		jpf.addPropertyListener(testObserver);
 		registerTestObserverAtPublisher();
 		jpf.run();
+	}
+
+	protected List<Error> getJPFSearchErrors() {
+		return jpf.getSearchErrors();
 	}
 
 	protected void registerTestObserverAtPublisher() {
