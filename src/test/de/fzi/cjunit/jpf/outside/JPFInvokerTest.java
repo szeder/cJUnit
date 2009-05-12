@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import gov.nasa.jpf.Error;
 import gov.nasa.jpf.JPF;
+import gov.nasa.jpf.PropertyListenerAdapter;
 
 import de.fzi.cjunit.testexceptions.TestException;
 
@@ -63,6 +64,40 @@ public class JPFInvokerTest {
 				sameInstance(errors));
 		assertThat("same content", jpfInvoker.getJPFSearchErrors(),
 				equalTo(errorsBackup));
+	}
+
+	@Test
+	public void getTestResultOfSucceededTest() {
+		JPFInvoker jpfInvoker = new JPFInvoker() {
+			@Override
+			protected List<Error> getJPFSearchErrors() {
+				return new ArrayList<Error>();
+			}
+		};
+
+		assertThat("test result", jpfInvoker.getTestResult(),
+				equalTo(true));
+	}
+
+	@Test
+	public void getTestResultOfFailedTest() {
+		JPFInvoker jpfInvoker = new JPFInvoker() {
+			@Override
+			protected List<Error> getJPFSearchErrors() {
+				List<Error> list = new ArrayList<Error>();
+				// null reference is not enough, we need a
+				// PropertyListenerAdapter instance here,
+				// because Error's ctor calls
+				// property.getErrorMessage()
+				list.add(new Error(0,
+						new PropertyListenerAdapter(),
+						null, null));
+				return list;
+			}
+		};
+
+		assertThat("test result", jpfInvoker.getTestResult(),
+				equalTo(false));
 	}
 
 	@Test

@@ -44,6 +44,17 @@ public class JPFInvoker {
 		checkResult();
 	}
 
+	/**
+	 * Returns whether the test was successful (none of the properties was
+	 * violated) or failed (at least one of the properties was violated).
+	 *
+	 * @return	<tt>true</tt> if the test succeeded, <tt>false</tt> if
+	 *		failed.
+	 */
+	public boolean getTestResult() {
+		return getJPFSearchErrors().size() == 0;
+	}
+
 	public void checkResult() throws Throwable {
 		if (testObserver.getTestResult() == false) {
 			throw testObserver.getException();
