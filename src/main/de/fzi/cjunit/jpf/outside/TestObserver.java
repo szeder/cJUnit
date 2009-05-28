@@ -10,7 +10,6 @@
 
 package de.fzi.cjunit.jpf.outside;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Stack;
 
 import gov.nasa.jpf.PropertyListenerAdapter;
@@ -41,13 +40,14 @@ public class TestObserver extends PropertyListenerAdapter {
 		return testSucceeded;
 	}
 
-	public Throwable getException() throws IllegalArgumentException,
-			SecurityException, InstantiationException,
-			IllegalAccessException, InvocationTargetException,
-			ClassNotFoundException {
+	public Throwable getException() {
 		if (exception == null) {
-			exception = new ExceptionFactory().createException(
-					exceptionInfo);
+			try {
+				exception = new ExceptionFactory()
+					.createException(exceptionInfo);
+			} catch (Throwable t) {
+				exception = t;
+			}
 		}
 		return exception;
 	}
