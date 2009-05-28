@@ -26,7 +26,8 @@ import de.fzi.cjunit.jpf.inside.NotifierMethods;
 import de.fzi.cjunit.jpf.util.ExceptionFactory;
 
 
-public class TestObserver extends PropertyListenerAdapter {
+public class TestObserver extends PropertyListenerAdapter
+		implements TestProperty {
 
 	protected boolean result = true;
 	protected boolean testSucceeded = true;
@@ -36,10 +37,13 @@ public class TestObserver extends PropertyListenerAdapter {
 
 	protected Stack<Boolean> stateStack = new Stack<Boolean>();
 
+	// from TestProperty
+	@Override
 	public boolean getTestResult() {
 		return testSucceeded;
 	}
 
+	@Override
 	public Throwable getException() {
 		if (exception == null) {
 			try {
