@@ -53,9 +53,8 @@ public class ElementInfoWrapper {
 
 	public int getReferenceValueForField(String fieldName) {
 		FieldInfo fieldInfo = getFieldInfo(fieldName);
-		int refVal = elementInfo.getFields().getReferenceValue(
-				fieldInfo);
-		return refVal;
+		final int[] values = elementInfo.getFields().dumpRawValues();
+		return values[fieldInfo.getStorageOffset()];
 	}
 
 	public ElementInfo getElementInfoForField(String fieldName) {
@@ -84,7 +83,7 @@ public class ElementInfoWrapper {
 	public ElementInfo[] getReferenceArray(String fieldName) {
 		ElementInfo arrayElementInfo
 				= getElementInfoForField(fieldName);
-		if (!arrayElementInfo.isReferenceArray()) {
+		if (!arrayElementInfo.getClassInfo().isReferenceArray()) {
 			throw new RuntimeException(
 					"Not a reference array: " + fieldName);
 		}
