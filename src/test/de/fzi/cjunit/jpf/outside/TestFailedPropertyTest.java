@@ -26,7 +26,7 @@ import de.fzi.cjunit.jpf.util.ArgumentCreator;
 import de.fzi.cjunit.testexceptions.TestException;
 
 
-public class TestObserverTest {
+public class TestFailedPropertyTest {
 
 	void createAndRunJPF(Class<?> appClass,
 			PropertyListenerAdapter propertyListener) {
@@ -48,10 +48,10 @@ public class TestObserverTest {
 
 	@Test
 	public void succeedingTest() {
-		TestObserver to = new TestObserver();
-		createAndRunJPF(SucceedingTestClass.class, to);
+		TestFailedProperty tfp = new TestFailedProperty();
+		createAndRunJPF(SucceedingTestClass.class, tfp);
 
-		assertThat(to.getTestResult(), equalTo(true));
+		assertThat(tfp.getTestResult(), equalTo(true));
 	}
 
 	public static class FailingTestClass {
@@ -67,12 +67,12 @@ public class TestObserverTest {
 
 	@Test
 	public void failingTest() throws Throwable {
-		TestObserver to = new TestObserver();
-		createAndRunJPF(FailingTestClass.class, to);
+		TestFailedProperty tfp = new TestFailedProperty();
+		createAndRunJPF(FailingTestClass.class, tfp);
 
-		assertThat("test result", to.getTestResult(), equalTo(false));
+		assertThat("test result", tfp.getTestResult(), equalTo(false));
 
-		Throwable t = to.getException();
+		Throwable t = tfp.getException();
 		assertThat("exception type", t,
 				instanceOf(TestException.class));
 		assertThat("exception message", t.getMessage(),
@@ -82,21 +82,21 @@ public class TestObserverTest {
 	@Test
 	public void reportExceptionDuringCollectingExceptionInfo()
 			throws Throwable {
-		TestObserver to = new TestObserver() {
+		TestFailedProperty tfp = new TestFailedProperty() {
 			@Override
 			public ExceptionInfoDefaultImpl collectExceptionInfo(JVM vm)
 					throws Exception {
-				throw new Exception("exception in TestObserver");
+				throw new Exception("exception in TestFailedProperty");
 			}
 		};
-		createAndRunJPF(FailingTestClass.class, to);
+		createAndRunJPF(FailingTestClass.class, tfp);
 
-		assertThat("test result", to.getTestResult(), equalTo(false));
+		assertThat("test result", tfp.getTestResult(), equalTo(false));
 
-		Throwable t = to.getException();
+		Throwable t = tfp.getException();
 		assertThat("exception type", t, instanceOf(Exception.class));
 		assertThat("exception message", t.getMessage(),
-				equalTo("exception in TestObserver"));
+				equalTo("exception in TestFailedProperty"));
 	}
 
 	public static class TriggerNullCallee {
@@ -106,7 +106,7 @@ public class TestObserverTest {
 			// point, but it's intentional, because it will cause
 			// a null reference returned from
 			// InvokeInstruction.getInvokedmethod() in
-			// TestObserver.handleInvokeInstruction().
+			// TestFailedProperty.handleInvokeInstruction().
 			@SuppressWarnings({"null", "unused"})
 			int i = integer+1;
 		}
@@ -114,7 +114,7 @@ public class TestObserverTest {
 
 	@Test
 	public void handlesNullCallee() {
-		TestObserver to = new TestObserver();
+		TestFailedProperty to = new TestFailedProperty();
 		createAndRunJPF(TriggerNullCallee.class, to);
 	}
 }

@@ -26,7 +26,7 @@ import de.fzi.cjunit.jpf.inside.NotifierMethods;
 import de.fzi.cjunit.jpf.util.ExceptionFactory;
 
 
-public class TestObserver extends PropertyListenerAdapter
+public class TestFailedProperty extends PropertyListenerAdapter
 		implements TestProperty {
 
 	protected boolean result = true;
