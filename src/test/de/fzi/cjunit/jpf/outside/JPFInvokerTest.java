@@ -124,17 +124,26 @@ public class JPFInvokerTest {
 
 	@Test
 	public void checkResultOfSucceededTest() throws Throwable {
-		JPFInvoker jpfInvoker = new JPFInvoker();
-		jpfInvoker.testFailedProperty = createTestFailedProperty();
+		JPFInvoker jpfInvoker = new JPFInvoker() {
+			@Override
+			public void createTestProperties() {
+				testFailedProperty = createTestFailedProperty();
+			}
+		};
+		jpfInvoker.createTestProperties();
 
 		jpfInvoker.checkProperties();
 	}
 
 	@Test(expected=TestException.class)
 	public void checkResultOfFailedTest() throws Throwable {
-		JPFInvoker jpfInvoker = new JPFInvoker();
-		jpfInvoker.testFailedProperty
-				= createViolatedTestFailedProperty();
+		JPFInvoker jpfInvoker = new JPFInvoker() {
+			public void createTestProperties() {
+				testFailedProperty
+					= createViolatedTestFailedProperty();
+			}
+		};
+		jpfInvoker.createTestProperties();
 
 		jpfInvoker.checkProperties();
 	}
