@@ -46,7 +46,7 @@ public class JPFInvokerTest {
 
 		JPFInvoker jpfInvoker = new JPFInvoker() {
 			@Override
-			protected void runJPF(String[] args) {
+			protected void initJPF(String[] args) {
 				conf = JPF.createConfig(args);
 				jpf = new JPF(conf) {
 					@Override
@@ -58,7 +58,7 @@ public class JPFInvokerTest {
 		};
 		// JPF requires at least an application name during
 		// initialization, otherwise it errors out
-		jpfInvoker.runJPF(new String[] { "dummyapp" });
+		jpfInvoker.initJPF(new String[] { "dummyapp" });
 
 		assertThat("same instance", jpfInvoker.getJPFSearchErrors(),
 				sameInstance(errors));

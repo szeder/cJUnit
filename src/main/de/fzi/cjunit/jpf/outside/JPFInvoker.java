@@ -39,8 +39,9 @@ public class JPFInvoker {
 	public void run(Object target, Method method,
 			Class<? extends Throwable> exceptionClass)
 			throws Throwable {
-		runJPF(createJPFArgs(target, method, exceptionClass));
 
+		initJPF(createJPFArgs(target, method, exceptionClass));
+		runJPF();
 		checkProperties();
 	}
 
@@ -61,11 +62,14 @@ public class JPFInvoker {
 		}
 	}
 
-	protected void runJPF(String[] args) {
+	protected void initJPF(String[] args) {
 		conf = JPF.createConfig(args);
 		jpf = new JPF(conf);
 		jpf.addPropertyListener(testFailedProperty);
 		registerAtPublisher();
+	}
+
+	protected void runJPF() {
 		jpf.run();
 	}
 
