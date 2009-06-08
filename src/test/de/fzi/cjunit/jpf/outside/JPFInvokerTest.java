@@ -165,6 +165,9 @@ public class JPFInvokerTest {
 			public void createTestProperties() {
 				testFailedProperty = createTestFailedProperty();
 			}
+			public List<Error> getJPFSearchErrors() {
+				return new ArrayList<Error>();
+			}
 		};
 		jpfInvoker.createTestProperties();
 
@@ -177,6 +180,12 @@ public class JPFInvokerTest {
 			public void createTestProperties() {
 				testFailedProperty
 					= createViolatedTestFailedProperty();
+			}
+			public List<Error> getJPFSearchErrors() {
+				List<Error> errors = new ArrayList<Error>();
+				errors.add(new Error(0, testFailedProperty,
+						null, null));
+				return errors;
 			}
 		};
 		jpfInvoker.createTestProperties();

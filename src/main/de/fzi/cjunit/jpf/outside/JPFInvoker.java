@@ -55,8 +55,11 @@ public class JPFInvoker {
 	}
 
 	public void checkProperties() throws Throwable {
-		if (testFailedProperty.getTestResult() == false) {
-			throw testFailedProperty.getException();
+		List<Error> errors = getJPFSearchErrors();
+
+		if (errors.size() == 1) {
+			throw getExceptionFromProperty(
+					errors.get(0).getProperty());
 		}
 	}
 
