@@ -19,9 +19,14 @@ import java.util.List;
 import org.junit.Test;
 
 import gov.nasa.jpf.Error;
+import gov.nasa.jpf.GenericProperty;
 import gov.nasa.jpf.JPF;
+import gov.nasa.jpf.Property;
 import gov.nasa.jpf.PropertyListenerAdapter;
+import gov.nasa.jpf.search.Search;
+import gov.nasa.jpf.jvm.JVM;
 
+import de.fzi.cjunit.JPFPropertyViolated;
 import de.fzi.cjunit.testexceptions.TestException;
 
 public class JPFInvokerTest {
@@ -44,6 +49,19 @@ public class JPFInvokerTest {
 			@Override
 			public Throwable getException() {
 				return new TestException();
+			}
+		};
+	}
+
+	GenericProperty createViolatedGenericProeprty() {
+		return new GenericProperty() {
+			@Override
+			public boolean check(Search search, JVM jvm) {
+				return false;
+			}
+			@Override
+			public String getErrorMessage() {
+				return "something went wrong";
 			}
 		};
 	}
@@ -120,6 +138,24 @@ public class JPFInvokerTest {
 
 		assertThat("test result", jpfInvoker.getTestResult(),
 				equalTo(false));
+	}
+
+	@Test
+	public void getExceptionFromPropertyWithProperty() {
+		JPFInvoker jpfInvoker = new JPFInvoker();
+		Property property = createViolatedGenericProeprty();
+
+		assertThat(jpfInvoker.getExceptionFromProperty(property),
+				instanceOf(JPFPropertyViolated.class));
+	}
+
+	@Test
+	public void getExceptionFromPropertyWithTestProperty() {
+		JPFInvoker jpfInvoker = new JPFInvoker();
+		Property property = createViolatedTestFailedProperty();
+
+		assertThat(jpfInvoker.getExceptionFromProperty(property),
+				instanceOf(TestException.class));
 	}
 
 	@Test

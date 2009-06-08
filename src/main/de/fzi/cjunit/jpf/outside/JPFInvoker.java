@@ -17,8 +17,10 @@ import java.util.List;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.Error;
 import gov.nasa.jpf.JPF;
+import gov.nasa.jpf.Property;
 import gov.nasa.jpf.report.Publisher;
 
+import de.fzi.cjunit.JPFPropertyViolated;
 import de.fzi.cjunit.jpf.inside.TestWrapper;
 import de.fzi.cjunit.jpf.outside.TestFailedProperty;
 import de.fzi.cjunit.jpf.util.ArgumentCreator;
@@ -55,6 +57,14 @@ public class JPFInvoker {
 	public void checkProperties() throws Throwable {
 		if (testFailedProperty.getTestResult() == false) {
 			throw testFailedProperty.getException();
+		}
+	}
+
+	protected Throwable getExceptionFromProperty(Property property) {
+		if (property instanceof TestProperty) {
+			return ((TestProperty) property).getException();
+		} else {
+			return new JPFPropertyViolated(property);
 		}
 	}
 
