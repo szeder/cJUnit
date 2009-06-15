@@ -73,7 +73,8 @@ public class TestObserverTest {
 		assertThat("test result", to.getTestResult(), equalTo(false));
 
 		Throwable t = to.getException();
-		assertThat("exception type", t, is(TestException.class));
+		assertThat("exception type", t,
+				instanceOf(TestException.class));
 		assertThat("exception message", t.getMessage(),
 				equalTo("asdf"));
 	}
@@ -93,7 +94,7 @@ public class TestObserverTest {
 		assertThat("test result", to.getTestResult(), equalTo(false));
 
 		Throwable t = to.getException();
-		assertThat("exception type", t, is(Exception.class));
+		assertThat("exception type", t, instanceOf(Exception.class));
 		assertThat("exception message", t.getMessage(),
 				equalTo("exception in TestObserver"));
 	}
