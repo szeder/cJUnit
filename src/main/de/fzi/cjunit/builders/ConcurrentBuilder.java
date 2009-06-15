@@ -13,14 +13,13 @@ package de.fzi.cjunit.builders;
 import de.fzi.cjunit.ConcurrentTest;
 import de.fzi.cjunit.runners.ConcurrentRunner;
 
-import org.junit.runner.Runner;
 import org.junit.runners.model.RunnerBuilder;
 import org.junit.runners.model.TestClass;
 
 public class ConcurrentBuilder extends RunnerBuilder {
 
 	@Override
-	public Runner runnerForClass(Class<?> klass) throws Throwable {
+	public ConcurrentRunner runnerForClass(Class<?> klass) throws Throwable {
 		TestClass testClass = new TestClass(klass);
 		if (testClass.getAnnotatedMethods(
 					ConcurrentTest.class).size() != 0) {

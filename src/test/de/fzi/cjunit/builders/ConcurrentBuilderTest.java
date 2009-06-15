@@ -39,9 +39,8 @@ public class ConcurrentBuilderTest {
 	@Test
 	public void returnsConcurrentBuilderOnConcurrentTestClass()
 			throws Throwable {
-		Runner runner = new ConcurrentBuilder().runnerForClass(
+		ConcurrentRunner runner = new ConcurrentBuilder().runnerForClass(
 				ConcurrentTestClass.class);
 		assertThat(runner, notNullValue());
-		assertThat(runner, is(ConcurrentRunner.class));
 	}
 }
