@@ -26,6 +26,28 @@ import de.fzi.cjunit.testexceptions.TestException;
 
 public class JPFInvokerTest {
 
+	TestFailedProperty createTestFailedProperty() {
+		return new TestFailedProperty() {
+			@Override
+			public boolean getTestResult() {
+				return true;
+			}
+		};
+	}
+
+	TestFailedProperty createViolatedTestFailedProperty() {
+		return new TestFailedProperty() {
+			@Override
+			public boolean getTestResult() {
+				return false;
+			}
+			@Override
+			public Throwable getException() {
+				return new TestException();
+			}
+		};
+	}
+
 	@Test
 	public void createJPFArgs() throws Throwable {
 		String[] args = new JPFInvoker().createJPFArgs(new String(),
@@ -103,12 +125,7 @@ public class JPFInvokerTest {
 	@Test
 	public void checkResultOfSucceededTest() throws Throwable {
 		JPFInvoker jpfInvoker = new JPFInvoker();
-		jpfInvoker.testFailedProperty = new TestFailedProperty() {
-			@Override
-			public boolean getTestResult() {
-				return true;
-			}
-		};
+		jpfInvoker.testFailedProperty = createTestFailedProperty();
 
 		jpfInvoker.checkProperties();
 	}
@@ -116,16 +133,8 @@ public class JPFInvokerTest {
 	@Test(expected=TestException.class)
 	public void checkResultOfFailedTest() throws Throwable {
 		JPFInvoker jpfInvoker = new JPFInvoker();
-		jpfInvoker.testFailedProperty = new TestFailedProperty() {
-			@Override
-			public boolean getTestResult() {
-				return false;
-			}
-			@Override
-			public Throwable getException() {
-				return new TestException();
-			}
-		};
+		jpfInvoker.testFailedProperty
+				= createViolatedTestFailedProperty();
 
 		jpfInvoker.checkProperties();
 	}
