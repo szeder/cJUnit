@@ -99,7 +99,8 @@ public class TestObserver extends PropertyListenerAdapter {
 	public void handleInvokeInstruction(JVM vm, InvokeInstruction insn) {
 		ThreadInfo ti = vm.getLastThreadInfo();
 		MethodInfo callee = insn.getInvokedMethod(ti);
-		if (!callee.getClassName().equals(
+
+		if (callee == null || !callee.getClassName().equals(
 				NotifierMethods.class.getName())) {
 			return;
 		}

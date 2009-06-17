@@ -98,4 +98,23 @@ public class TestObserverTest {
 		assertThat("exception message", t.getMessage(),
 				equalTo("exception in TestObserver"));
 	}
+
+	public static class TriggerNullCallee {
+		public static void main(String... args) {
+			Integer integer = null;
+			// Yes, the  variable integer can only be null at this
+			// point, but it's intentional, because it will cause
+			// a null reference returned from
+			// InvokeInstruction.getInvokedmethod() in
+			// TestObserver.handleInvokeInstruction().
+			@SuppressWarnings({"null", "unused"})
+			int i = integer+1;
+		}
+	}
+
+	@Test
+	public void handlesNullCallee() {
+		TestObserver to = new TestObserver();
+		createAndRunJPF(TriggerNullCallee.class, to);
+	}
 }
