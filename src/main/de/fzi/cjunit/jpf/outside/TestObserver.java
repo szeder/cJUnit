@@ -29,13 +29,13 @@ import de.fzi.cjunit.jpf.util.ExceptionFactory;
 
 public class TestObserver extends PropertyListenerAdapter {
 
-	boolean result = true;
-	boolean testSucceeded = true;
+	protected boolean result = true;
+	protected boolean testSucceeded = true;
 
-	ExceptionInfo exceptionInfo;
-	Throwable exception;
+	protected  ExceptionInfo exceptionInfo;
+	protected Throwable exception;
 
-	Stack<Boolean> stateStack = new Stack<Boolean>();
+	protected Stack<Boolean> stateStack = new Stack<Boolean>();
 
 	public boolean getTestResult() {
 		return testSucceeded;
@@ -52,7 +52,7 @@ public class TestObserver extends PropertyListenerAdapter {
 		return exception;
 	}
 
-	public void testFailed(JVM vm) {
+	protected void testFailed(JVM vm) {
 		try {
 			exceptionInfo = collectExceptionInfo(vm);
 		} catch (Throwable t) {
@@ -68,7 +68,7 @@ public class TestObserver extends PropertyListenerAdapter {
 		testSucceeded = false;
 	}
 
-	public ExceptionInfoDefaultImpl collectExceptionInfo(JVM vm)
+	protected ExceptionInfoDefaultImpl collectExceptionInfo(JVM vm)
 			throws Exception {
 		return new ExceptionInfoDefaultImpl(
 				new ExceptionInfoCollector()
@@ -96,7 +96,7 @@ public class TestObserver extends PropertyListenerAdapter {
 		}
 	}
 
-	public void handleInvokeInstruction(JVM vm, InvokeInstruction insn) {
+	protected void handleInvokeInstruction(JVM vm, InvokeInstruction insn) {
 		ThreadInfo ti = vm.getLastThreadInfo();
 		MethodInfo callee = insn.getInvokedMethod(ti);
 
