@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gov.nasa.jpf.Config;
+import gov.nasa.jpf.Error;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.report.Publisher;
 
@@ -26,7 +27,10 @@ import de.fzi.cjunit.jpf.util.OnFailurePublisher;
 
 public class JPFInvoker {
 
-	TestObserver testObserver;
+	protected Config conf;
+	protected JPF jpf;
+
+	protected TestObserver testObserver;
 
 	public JPFInvoker() {
 		testObserver = new TestObserver();
@@ -40,30 +44,44 @@ public class JPFInvoker {
 		checkResult();
 	}
 
+	/**
+	 * Returns whether the test was successful (none of the properties was
+	 * violated) or failed (at least one of the properties was violated).
+	 *
+	 * @return	<tt>true</tt> if the test succeeded, <tt>false</tt> if
+	 *		failed.
+	 */
+	public boolean getTestResult() {
+		return getJPFSearchErrors().size() == 0;
+	}
+
 	public void checkResult() throws Throwable {
 		if (testObserver.getTestResult() == false) {
 			throw testObserver.getException();
 		}
 	}
 
-	public void runJPF(String[] args) {
-		Config conf = JPF.createConfig(args);
-		JPF jpf = new JPF(conf);
+	protected void runJPF(String[] args) {
+		conf = JPF.createConfig(args);
+		jpf = new JPF(conf);
 		jpf.addPropertyListener(testObserver);
-		registerTestObserverAtPublisher(jpf);
+		registerAtPublisher();
 		jpf.run();
 	}
 
-	void registerTestObserverAtPublisher(JPF jpf) {
+	protected List<Error> getJPFSearchErrors() {
+		return jpf.getSearchErrors();
+	}
+
+	protected void registerAtPublisher() {
 		for (Publisher p : jpf.getReporter().getPublishers()) {
 			if (p instanceof OnFailurePublisher) {
-				((OnFailurePublisher) p).setTestObserver(
-						testObserver);
+				((OnFailurePublisher) p).setJPFInvoker(this);
 			}
 		}
 	}
 
-	public String[] createJPFArgs(Object target, Method method,
+	protected String[] createJPFArgs(Object target, Method method,
 			Class<? extends Throwable> exceptionClass) {
 		List<String> testArgs = new ArrayList<String>();
 		testArgs.add("--testclass=" + target.getClass().getName());
