@@ -20,7 +20,7 @@ import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.report.Publisher;
 
 import de.fzi.cjunit.jpf.inside.TestWrapper;
-import de.fzi.cjunit.jpf.outside.TestObserver;
+import de.fzi.cjunit.jpf.outside.TestFailedProperty;
 import de.fzi.cjunit.jpf.util.ArgumentCreator;
 import de.fzi.cjunit.jpf.util.OnFailurePublisher;
 
@@ -30,10 +30,10 @@ public class JPFInvoker {
 	protected Config conf;
 	protected JPF jpf;
 
-	protected TestObserver testObserver;
+	protected TestFailedProperty testFailedProperty;
 
 	public JPFInvoker() {
-		testObserver = new TestObserver();
+		testFailedProperty = new TestFailedProperty();
 	}
 
 	public void run(Object target, Method method,
@@ -56,15 +56,15 @@ public class JPFInvoker {
 	}
 
 	public void checkResult() throws Throwable {
-		if (testObserver.getTestResult() == false) {
-			throw testObserver.getException();
+		if (testFailedProperty.getTestResult() == false) {
+			throw testFailedProperty.getException();
 		}
 	}
 
 	protected void runJPF(String[] args) {
 		conf = JPF.createConfig(args);
 		jpf = new JPF(conf);
-		jpf.addPropertyListener(testObserver);
+		jpf.addPropertyListener(testFailedProperty);
 		registerAtPublisher();
 		jpf.run();
 	}

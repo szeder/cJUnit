@@ -17,7 +17,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	de.fzi.cjunit.jpf.outside.TestObserverTest.class
+	de.fzi.cjunit.jpf.outside.TestFailedPropertyTest.class
 })
 public class JPFTests {
 }

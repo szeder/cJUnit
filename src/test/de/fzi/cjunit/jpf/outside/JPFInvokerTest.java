@@ -103,7 +103,7 @@ public class JPFInvokerTest {
 	@Test
 	public void checkResultOfSucceededTest() throws Throwable {
 		JPFInvoker jpfInvoker = new JPFInvoker();
-		jpfInvoker.testObserver = new TestObserver() {
+		jpfInvoker.testFailedProperty = new TestFailedProperty() {
 			@Override
 			public boolean getTestResult() {
 				return true;
@@ -116,7 +116,7 @@ public class JPFInvokerTest {
 	@Test(expected=TestException.class)
 	public void checkResultOfFailedTest() throws Throwable {
 		JPFInvoker jpfInvoker = new JPFInvoker();
-		jpfInvoker.testObserver = new TestObserver() {
+		jpfInvoker.testFailedProperty = new TestFailedProperty() {
 			@Override
 			public boolean getTestResult() {
 				return false;
