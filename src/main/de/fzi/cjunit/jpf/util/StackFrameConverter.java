@@ -37,6 +37,9 @@ public class StackFrameConverter {
 	}
 
 	public String sourceFileBasename(String filename) {
+		if (filename == null) {
+			return "(Unknown source)";
+		}
 		int idx = filename.lastIndexOf(File.separatorChar);
 		if (0 <= idx) {
 			return filename.substring(idx+1);

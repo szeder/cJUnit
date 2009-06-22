@@ -41,6 +41,13 @@ public class StackFrameConverterTest {
 	}
 
 	@Test
+	public void sourceFileBasenameHandlesNullReference() {
+		String nullFilename = null;
+		assertThat(sfc.sourceFileBasename(nullFilename),
+				equalTo("(Unknown source)"));
+	}
+
+	@Test
 	public void stackTraceElementConversion() {
 		StackTraceElementInfo info = new StackTraceElementInfo() {
 			public String getClassName() { return "class0"; }
