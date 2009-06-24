@@ -32,8 +32,6 @@ public class JPFInvoker {
 	protected Config conf;
 	protected JPF jpf;
 
-	protected TestFailedProperty testFailedProperty;
-
 	public void run(Object target, Method method,
 			Class<? extends Throwable> exceptionClass)
 			throws Throwable {
@@ -87,8 +85,7 @@ public class JPFInvoker {
 	}
 
 	void createTestProperties() {
-		testFailedProperty = new TestFailedProperty();
-		jpf.addPropertyListener(testFailedProperty);
+		jpf.addPropertyListener(new TestFailedProperty());
 	}
 
 	protected void registerAtPublisher() {

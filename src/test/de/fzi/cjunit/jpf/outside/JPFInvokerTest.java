@@ -163,7 +163,7 @@ public class JPFInvokerTest {
 		JPFInvoker jpfInvoker = new JPFInvoker() {
 			@Override
 			public void createTestProperties() {
-				testFailedProperty = createTestFailedProperty();
+				createTestFailedProperty();
 			}
 			public List<Error> getJPFSearchErrors() {
 				return new ArrayList<Error>();
@@ -177,14 +177,13 @@ public class JPFInvokerTest {
 	@Test(expected=TestException.class)
 	public void checkResultOfFailedTest() throws Throwable {
 		JPFInvoker jpfInvoker = new JPFInvoker() {
+			TestFailedProperty tfp;
 			public void createTestProperties() {
-				testFailedProperty
-					= createViolatedTestFailedProperty();
+				tfp = createViolatedTestFailedProperty();
 			}
 			public List<Error> getJPFSearchErrors() {
 				List<Error> errors = new ArrayList<Error>();
-				errors.add(new Error(0, testFailedProperty,
-						null, null));
+				errors.add(new Error(0, tfp, null, null));
 				return errors;
 			}
 		};
