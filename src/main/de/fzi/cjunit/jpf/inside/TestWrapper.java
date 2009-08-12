@@ -18,18 +18,18 @@ import de.fzi.cjunit.jpf.inside.NotifierMethods;
 
 public class TestWrapper {
 
-	String testClassName;
-	String testMethodName;
-	String expectedExceptionName;
+	protected String testClassName;
+	protected String testMethodName;
+	protected String expectedExceptionName;
 
-	Object target;
-	Method method;
+	protected Object target;
+	protected Method method;
 
 	public TestWrapper(String... args) {
 		parseArgs(args);
 	}
 
-	public void parseArgs(String... args) {
+	protected void parseArgs(String... args) {
 		if (args == null) {
 			throw new RuntimeException("no command line arguments");
 		}
@@ -48,7 +48,7 @@ public class TestWrapper {
 		}
 	}
 
-	String getArgumentValue(String arg) {
+	protected String getArgumentValue(String arg) {
 		String value = arg.substring(arg.indexOf('=')+1);
 		if (value.length() == 0) {
 			throw new RuntimeException(
@@ -58,7 +58,7 @@ public class TestWrapper {
 		return value;
 	}
 
-	public void run() {
+	protected void run() {
 		try {
 			createTest();
 			runTest();
@@ -67,7 +67,7 @@ public class TestWrapper {
 		}
 	}
 
-	public void createTest() throws IllegalArgumentException,
+	protected void createTest() throws IllegalArgumentException,
 			SecurityException, InstantiationException,
 			IllegalAccessException, InvocationTargetException,
 			NoSuchMethodException, ClassNotFoundException {
@@ -78,7 +78,7 @@ public class TestWrapper {
 		createTestMethod();
 	}
 
-	public void runTest() throws IllegalArgumentException,
+	protected void runTest() throws IllegalArgumentException,
 			IllegalAccessException, AssertionError, Throwable {
 		try {
 			invokeTestMethod();
@@ -102,22 +102,22 @@ public class TestWrapper {
 		}
 	}
 
-	public void invokeTestMethod() throws IllegalArgumentException,
+	protected void invokeTestMethod() throws IllegalArgumentException,
 			IllegalAccessException, InvocationTargetException {
 		method.invoke(target);
 	}
 
-	public boolean isExpectingException() {
+	protected boolean isExpectingException() {
 		return expectedExceptionName != null;
 	}
 
-	public boolean isExpectedException(Throwable t)
+	protected boolean isExpectedException(Throwable t)
 			throws ClassNotFoundException {
 		return Class.forName(expectedExceptionName)
 				.isAssignableFrom(t.getClass());
 	}
 
-	public void createTestObject() throws
+	protected void createTestObject() throws
 			IllegalArgumentException, SecurityException,
 			InstantiationException, IllegalAccessException,
 			InvocationTargetException, NoSuchMethodException,
@@ -127,12 +127,12 @@ public class TestWrapper {
 				.newInstance();
 	}
 
-	public void createTestMethod() throws SecurityException,
+	protected void createTestMethod() throws SecurityException,
 			NoSuchMethodException {
 		method = createMethod(testMethodName);
 	}
 
-	public Method createMethod(String methodName) throws SecurityException,
+	protected Method createMethod(String methodName) throws SecurityException,
 			NoSuchMethodException {
 		return target.getClass().getMethod(methodName);
 	}
