@@ -15,7 +15,6 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import de.fzi.cjunit.testexceptions.*;
@@ -26,6 +25,12 @@ public class TestWrapperTest {
 	String className = "java.lang.String";
 	String methodName = "toString";
 	String exceptionName = "java.lang.AssertionError";
+
+	public void throwNothing() { };
+	public void throwTestException() throws TestException {
+		throw new TestException();
+	}
+
 
 	@Test
 	public void parseArgsTestClass() {
@@ -119,13 +124,9 @@ public class TestWrapperTest {
 
 	@Test(expected=AssertionError.class)
 	public void testExpectingExceptionButNoneIsThrown() throws Throwable {
-		TestWrapper tw = new TestWrapper() {
-			public void invokeTestMethod() throws
-					IllegalArgumentException,
-					IllegalAccessException,
-					InvocationTargetException {
-			}
-		};
+		TestWrapper tw = new TestWrapper();
+		tw.target = this;
+		tw.method = this.getClass().getMethod("throwNothing");
 		tw.expectedExceptionName = TestException.class.getName();
 
 		tw.runTest();
@@ -133,15 +134,9 @@ public class TestWrapperTest {
 
 	@Test
 	public void testExpectedExceptionIsCatched() throws Throwable {
-		TestWrapper tw = new TestWrapper() {
-			public void invokeTestMethod() throws
-					IllegalArgumentException,
-					IllegalAccessException,
-					InvocationTargetException {
-				throw new InvocationTargetException(
-						new TestException());
-			}
-		};
+		TestWrapper tw = new TestWrapper();
+		tw.target = this;
+		tw.method = this.getClass().getMethod("throwTestException");
 		tw.expectedExceptionName = TestException.class.getName();
 
 		tw.runTest();
@@ -149,16 +144,10 @@ public class TestWrapperTest {
 
 	@Test(expected=Exception.class)
 	public void testUnexpectedExceptionIsThrown() throws Throwable {
-		TestWrapper tw = new TestWrapper() {
-			public void invokeTestMethod() throws
-					IllegalArgumentException,
-					IllegalAccessException,
-					InvocationTargetException {
-				throw new InvocationTargetException(
-						new OtherTestException());
-			}
-		};
-		tw.expectedExceptionName = TestException.class.getName();
+		TestWrapper tw = new TestWrapper();
+		tw.target = this;
+		tw.method = this.getClass().getMethod("throwTestException");
+		tw.expectedExceptionName = OtherTestException.class.getName();
 
 		tw.runTest();
 	}
