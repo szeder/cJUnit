@@ -15,6 +15,7 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import de.fzi.cjunit.testexceptions.*;
@@ -120,6 +121,26 @@ public class TestWrapperTest {
 		tw.expectedExceptionName = ParentTestException.class.getName();
 		assertThat(tw.isExpectedException(new ChildTestException()),
 				equalTo(true));
+	}
+
+	@Test(expected=InvocationTargetException.class)
+	public void testInvokeTestMethodThrowsInvocationTargetException()
+			throws Throwable {
+		TestWrapper tw = new TestWrapper();
+		tw.target = this;
+		tw.method = this.getClass().getMethod("throwTestException");
+
+		tw.invokeTestMethod();
+	}
+
+	@Test(expected=TestException.class)
+	public void testInvokeMethodUnchainingExceptionThrowsTestException()
+			throws Throwable {
+		TestWrapper tw = new TestWrapper();
+		tw.target = this;
+		tw.method = this.getClass().getMethod("throwTestException");
+
+		tw.invokeMethodUnchainingException(tw.method);
 	}
 
 	@Test(expected=AssertionError.class)
