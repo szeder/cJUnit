@@ -14,56 +14,100 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.internal.runners.model.MultipleFailureException;
+
 import gov.nasa.jpf.Config;
+import gov.nasa.jpf.Error;
 import gov.nasa.jpf.JPF;
+import gov.nasa.jpf.Property;
 import gov.nasa.jpf.report.Publisher;
 
+import de.fzi.cjunit.JPFPropertyViolated;
 import de.fzi.cjunit.jpf.inside.TestWrapper;
-import de.fzi.cjunit.jpf.outside.TestObserver;
+import de.fzi.cjunit.jpf.outside.TestFailedProperty;
 import de.fzi.cjunit.jpf.util.ArgumentCreator;
 import de.fzi.cjunit.jpf.util.OnFailurePublisher;
 
 
 public class JPFInvoker {
 
-	TestObserver testObserver;
-
-	public JPFInvoker() {
-		testObserver = new TestObserver();
-	}
+	protected Config conf;
+	protected JPF jpf;
 
 	public void run(Object target, Method method,
 			Class<? extends Throwable> exceptionClass)
 			throws Throwable {
-		runJPF(createJPFArgs(target, method, exceptionClass));
 
-		checkResult();
+		initJPF(createJPFArgs(target, method, exceptionClass));
+		runJPF();
+		checkProperties();
 	}
 
-	public void checkResult() throws Throwable {
-		if (testObserver.getTestResult() == false) {
-			throw testObserver.getException();
+	/**
+	 * Returns whether the test was successful (none of the properties was
+	 * violated) or failed (at least one of the properties was violated).
+	 *
+	 * @return	<tt>true</tt> if the test succeeded, <tt>false</tt> if
+	 *		failed.
+	 */
+	public boolean getTestResult() {
+		return getJPFSearchErrors().size() == 0;
+	}
+
+	public void checkProperties() throws Throwable {
+		List<Error> errors = getJPFSearchErrors();
+
+		if (errors.size() == 1) {
+			throw getExceptionFromProperty(
+					errors.get(0).getProperty());
+		} else if (errors.size() > 1) {
+			List<Throwable> exceptionList
+					= new ArrayList<Throwable>();
+			for (Error error : errors) {
+				Throwable t = getExceptionFromProperty(
+						error.getProperty());
+				exceptionList.add(t);
+			}
+			throw new MultipleFailureException(exceptionList);
 		}
 	}
 
-	public void runJPF(String[] args) {
-		Config conf = JPF.createConfig(args);
-		JPF jpf = new JPF(conf);
-		jpf.addPropertyListener(testObserver);
-		registerTestObserverAtPublisher(jpf);
+	protected Throwable getExceptionFromProperty(Property property) {
+		if (property instanceof TestProperty) {
+			return ((TestProperty) property).getException();
+		} else {
+			return new JPFPropertyViolated(property);
+		}
+	}
+
+	protected void initJPF(String[] args) {
+		conf = JPF.createConfig(args);
+		jpf = new JPF(conf);
+		createTestProperties();
+		registerAtPublisher();
+	}
+
+	protected void runJPF() {
 		jpf.run();
 	}
 
-	void registerTestObserverAtPublisher(JPF jpf) {
+	protected List<Error> getJPFSearchErrors() {
+		return jpf.getSearchErrors();
+	}
+
+	void createTestProperties() {
+		jpf.addPropertyListener(new TestFailedProperty());
+	}
+
+	protected void registerAtPublisher() {
 		for (Publisher p : jpf.getReporter().getPublishers()) {
 			if (p instanceof OnFailurePublisher) {
-				((OnFailurePublisher) p).setTestObserver(
-						testObserver);
+				((OnFailurePublisher) p).setJPFInvoker(this);
 			}
 		}
 	}
 
-	public String[] createJPFArgs(Object target, Method method,
+	protected String[] createJPFArgs(Object target, Method method,
 			Class<? extends Throwable> exceptionClass) {
 		List<String> testArgs = new ArrayList<String>();
 		testArgs.add("--testclass=" + target.getClass().getName());
