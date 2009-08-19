@@ -124,4 +124,9 @@ public class TestFailedProperty extends PropertyListenerAdapter
 	public void stateBacktracked(Search search) {
 		result = stateStack.pop();
 	}
+
+	@Override
+	public void searchStarted(Search search) {
+		// do not register as property
+	}
 }
