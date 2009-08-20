@@ -117,4 +117,12 @@ public class TestFailedPropertyTest {
 		TestFailedProperty to = new TestFailedProperty();
 		createAndRunJPF(TriggerNullCallee.class, to);
 	}
+
+	@Test
+	public void searchStartedDoesNotRegisterAtSearch() {
+		TestFailedProperty tfp = new TestFailedProperty();
+		// Registering at Search means invoking a method on a null
+		// reference, which would cause a NPE here.
+		tfp.searchStarted(null);
+	}
 }
