@@ -20,7 +20,9 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -127,6 +129,8 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 				method, test);
 		statement = concurrentPossiblyExpectingExceptions(method,
 				test, statement);
+		statement = concurrentWithBefores(method, test, statement);
+		statement = concurrentWithAfters(method, test, statement);
 		return statement;
 	}
 
@@ -143,6 +147,24 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 		if (annotation != null && annotation.expected() != None.class) {
 			statement.expectException(annotation.expected());
 		}
+		return statement;
+	}
+
+	protected ConcurrentStatement concurrentWithBefores(
+			FrameworkMethod method, Object target,
+			ConcurrentStatement statement) {
+		List<FrameworkMethod> befores = getTestClass()
+				.getAnnotatedMethods(Before.class);
+		statement.addBefores(befores);
+		return statement;
+	}
+
+	protected ConcurrentStatement concurrentWithAfters(
+			FrameworkMethod method, Object target,
+			ConcurrentStatement statement) {
+		List<FrameworkMethod> afters = getTestClass()
+				.getAnnotatedMethods(After.class);
+		statement.addAfters(afters);
 		return statement;
 	}
 }

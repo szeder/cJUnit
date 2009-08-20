@@ -12,6 +12,8 @@ package de.fzi.cjunit.jpf.inside;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
@@ -19,18 +21,29 @@ import de.fzi.cjunit.jpf.inside.NotifierMethods;
 
 public class TestWrapper {
 
-	String testClassName;
-	String testMethodName;
-	String expectedExceptionName;
+	protected String testClassName;
+	protected String testMethodName;
+	protected List<String> beforeMethodNames;
+	protected List<String> afterMethodNames;
+	protected String expectedExceptionName;
 
-	Object target;
-	Method method;
+	protected Object target;
+	protected Method method;
+	protected List<Method> beforeMethods;
+	protected List<Method> afterMethods;
+
+	protected List<Throwable> errors;
 
 	public TestWrapper(String... args) {
+		beforeMethodNames = new ArrayList<String>();
+		afterMethodNames = new ArrayList<String>();
+		beforeMethods = new ArrayList<Method>();
+		afterMethods = new ArrayList<Method>();
+		errors = new ArrayList<Throwable>();
 		parseArgs(args);
 	}
 
-	public void parseArgs(String... args) {
+	protected void parseArgs(String... args) {
 		if (args == null) {
 			throw new RuntimeException("no command line arguments");
 		}
@@ -40,6 +53,10 @@ public class TestWrapper {
 				testClassName = getArgumentValue(arg);
 			} else if (arg.startsWith("--testmethod=")) {
 				testMethodName = getArgumentValue(arg);
+			} else if (arg.startsWith("--beforemethod=")) {
+				beforeMethodNames.add(getArgumentValue(arg));
+			} else if (arg.startsWith("--aftermethod=")) {
+				afterMethodNames.add(getArgumentValue(arg));
 			} else if (arg.startsWith("--expectedexception=")) {
 				expectedExceptionName = getArgumentValue(arg);
 			} else {
@@ -49,7 +66,7 @@ public class TestWrapper {
 		}
 	}
 
-	String getArgumentValue(String arg) {
+	protected String getArgumentValue(String arg) {
 		String value = arg.substring(arg.indexOf('=')+1);
 		if (value.length() == 0) {
 			throw new RuntimeException(
@@ -59,7 +76,7 @@ public class TestWrapper {
 		return value;
 	}
 
-	public void run() {
+	protected void run() {
 		try {
 			createTest();
 			runTest();
@@ -69,7 +86,7 @@ public class TestWrapper {
 		}
 	}
 
-	public void createTest() throws IllegalArgumentException,
+	protected void createTest() throws IllegalArgumentException,
 			SecurityException, InstantiationException,
 			IllegalAccessException, InvocationTargetException,
 			NoSuchMethodException, ClassNotFoundException {
@@ -78,9 +95,30 @@ public class TestWrapper {
 		// throw any exceptions
 		createTestObject();
 		createTestMethod();
+		createBeforeMethods();
+		createAfterMethods();
 	}
 
-	public void runTest() throws IllegalArgumentException,
+	protected void runTest() throws IllegalArgumentException,
+			IllegalAccessException, AssertionError, Throwable {
+		try {
+			runBeforeMethods();
+			runTestMethod();
+		} catch (Throwable t) {
+			errors.add(t);
+		}
+		runAfterMethods();
+		handleErrors();
+	}
+
+	protected void runBeforeMethods() throws IllegalArgumentException,
+			IllegalAccessException, Throwable {
+		for (Method beforeMethod : beforeMethods) {
+			invokeMethodUnchainingException(beforeMethod);
+		}
+	}
+
+	protected void runTestMethod() throws IllegalArgumentException,
 			IllegalAccessException, AssertionError, Throwable {
 		try {
 			invokeTestMethod();
@@ -104,22 +142,52 @@ public class TestWrapper {
 		}
 	}
 
-	public void invokeTestMethod() throws IllegalArgumentException,
+	protected void runAfterMethods() {
+		for (Method afterMethod : afterMethods) {
+			try {
+				invokeMethodUnchainingException(afterMethod);
+			} catch (Throwable t) {
+				errors.add(t);
+			}
+		}
+	}
+
+	protected void handleErrors() throws Throwable, Exception {
+		if (errors.size() == 1) {
+			throw errors.get(0);
+		} else if (errors.size() > 1) {
+			throw new Exception("Multiple failures during test run;"
+					+ " only the first one is reported",
+					errors.get(0));
+		}
+	}
+
+	protected void invokeTestMethod() throws IllegalArgumentException,
 			IllegalAccessException, InvocationTargetException {
 		method.invoke(target);
 	}
 
-	public boolean isExpectingException() {
+	protected void invokeMethodUnchainingException(Method m) throws
+			IllegalArgumentException, IllegalAccessException,
+			Throwable {
+		try {
+			m.invoke(target);
+		} catch (InvocationTargetException e) {
+			throw e.getCause();
+		}
+	}
+
+	protected boolean isExpectingException() {
 		return expectedExceptionName != null;
 	}
 
-	public boolean isExpectedException(Throwable t)
+	protected boolean isExpectedException(Throwable t)
 			throws ClassNotFoundException {
 		return Class.forName(expectedExceptionName)
 				.isAssignableFrom(t.getClass());
 	}
 
-	public void createTestObject() throws
+	protected void createTestObject() throws
 			IllegalArgumentException, SecurityException,
 			InstantiationException, IllegalAccessException,
 			InvocationTargetException, NoSuchMethodException,
@@ -129,12 +197,26 @@ public class TestWrapper {
 				.newInstance();
 	}
 
-	public void createTestMethod() throws SecurityException,
+	protected void createTestMethod() throws SecurityException,
 			NoSuchMethodException {
 		method = createMethod(testMethodName);
 	}
 
-	public Method createMethod(String methodName) throws SecurityException,
+	protected void createBeforeMethods() throws SecurityException,
+			NoSuchMethodException {
+		for (String methodName : beforeMethodNames) {
+			beforeMethods.add(createMethod(methodName));
+		}
+	}
+
+	protected void createAfterMethods() throws SecurityException,
+			NoSuchMethodException {
+		for (String methodName : afterMethodNames) {
+			 afterMethods.add(createMethod(methodName));
+		}
+	}
+
+	protected Method createMethod(String methodName) throws SecurityException,
 			NoSuchMethodException {
 		return target.getClass().getMethod(methodName);
 	}
