@@ -31,6 +31,32 @@ import de.fzi.cjunit.ConcurrentTest.None;
 import de.fzi.cjunit.runners.model.ConcurrentFrameworkMethod;
 import de.fzi.cjunit.runners.statements.ConcurrentStatement;
 
+/**
+ * Subclasses <code>org.junit.runners.BlockJUnit4ClassRunner</code> to add
+ * support for handling concurrent tests. To use it, annotate a test class with
+ * <code>\@RunWith(ConcurrentRunner.class)</code>.
+ * Using <code>ConcurrentRunner</code> as a runner allows the use of the
+ * <code>\@ConcurrentTest</code> annotation to mark concurrent tests.
+ * <p>
+ * Otherwise it supports the annotations supported by the
+ * <code>BlockJUnit4ClassRunner</code> class, namely <code>\@Test</code>,
+ * <code>\@BeforeClass</code>, <code>\@Before</code>, <code>\@After</code>, and
+ * <code>\@AfterClass</code>.
+ * <p>
+ * An example test class might look like this:
+ * <pre>
+ * \@RunWith(ConcurrentRunner.class)
+ * public class TestClass {
+ *     &#064;Test
+ *     public void sequentialTestCase() {
+ *         // do something sequential
+ *     }
+ *     &#064ConcurrentTest
+ *     public void concurrentTestCase() {
+ *         // do something in multiple threads
+ *     }
+ * </pre>
+ */
 public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 
 	List<FrameworkMethod> testMethods;
