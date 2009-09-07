@@ -15,7 +15,11 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
 
+import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
+import de.fzi.cjunit.testutils.TestException;
+
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 public class ExceptionFactoryTest {
 
@@ -68,5 +72,17 @@ public class ExceptionFactoryTest {
 				equalTo(1));
 		Class<?> parameterType = constructor.getParameterTypes()[0];
 		assertThat(parameterType.equals(Object.class), equalTo(true));
+	}
+
+	@Test(expected=NoSuchMethodException.class)
+	public void testExceptionOnNonExistingConstructor() throws Throwable {
+		ExceptionFactory ef = new ExceptionFactory() {
+			@Override
+			protected Constructor<?> getExceptionConstructor(
+					Class<?> exceptionClass) {
+				return null;
+			}
+		};
+		ef.createException(new ExceptionInfoDefaultImpl(new TestException()));
 	}
 }

@@ -23,7 +23,8 @@ public class ExceptionFactory {
 	public Throwable createException(ExceptionInfo exceptionInfo)
 			throws ClassNotFoundException, IllegalArgumentException,
 				InstantiationException, IllegalAccessException,
-				InvocationTargetException {
+				InvocationTargetException,
+				NoSuchMethodException {
 		if (exceptionInfo == null) {
 			return null;
 		}
@@ -38,7 +39,7 @@ public class ExceptionFactory {
 		Constructor<?> constructor = getExceptionConstructor(
 				exceptionClass);
 		if (constructor == null) {
-			throw new RuntimeException(
+			throw new NoSuchMethodException(
 					"exception with no suitable " +
 					"constructor thrown inside JPF" +
 					lineSeparator +
