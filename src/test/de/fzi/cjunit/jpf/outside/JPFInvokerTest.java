@@ -30,7 +30,7 @@ import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.jvm.JVM;
 
 import de.fzi.cjunit.JPFPropertyViolated;
-import de.fzi.cjunit.testexceptions.TestException;
+import de.fzi.cjunit.testutils.TestException;
 
 public class JPFInvokerTest {
 

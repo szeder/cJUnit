@@ -12,7 +12,7 @@ package de.fzi.cjunit.runners.statements;
 
 import org.junit.Test;
 
-import de.fzi.cjunit.testexceptions.TestException;
+import de.fzi.cjunit.testutils.TestException;
 
 public class ConcurrentStatementTest {
 

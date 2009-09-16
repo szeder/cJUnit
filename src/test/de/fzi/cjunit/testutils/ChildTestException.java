@@ -8,7 +8,8 @@
  * Framework Programme under grant agreement No. 216682.
  */
 
-package de.fzi.cjunit.testexceptions;
+package de.fzi.cjunit.testutils;
+
 
 public class ChildTestException extends ParentTestException {
 

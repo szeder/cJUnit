@@ -20,8 +20,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.fzi.cjunit.testexceptions.*;
-import de.fzi.cjunit.testutils.Counter;
+import de.fzi.cjunit.testutils.*;
 
 
 public class TestWrapperTest {

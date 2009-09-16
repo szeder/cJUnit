@@ -8,23 +8,9 @@
  * Framework Programme under grant agreement No. 216682.
  */
 
-package de.fzi.cjunit.testexceptions;
+package de.fzi.cjunit.testutils;
 
-public class OtherTestException extends Throwable {
+public class ParentTestException extends Throwable {
 
 	private static final long serialVersionUID = 1L;
-
-	public OtherTestException() { }
-
-	public OtherTestException(String msg) {
-		super(msg);
-	}
-
-	public OtherTestException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
-
-	public OtherTestException(Throwable t) {
-		super(t);
-	}
 }

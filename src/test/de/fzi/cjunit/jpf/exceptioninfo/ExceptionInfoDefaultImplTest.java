@@ -16,8 +16,8 @@ import static org.hamcrest.Matchers.*;
 import org.junit.Test;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
-import de.fzi.cjunit.testexceptions.OtherTestException;
-import de.fzi.cjunit.testexceptions.TestException;
+import de.fzi.cjunit.testutils.OtherTestException;
+import de.fzi.cjunit.testutils.TestException;
 
 
 public class ExceptionInfoDefaultImplTest {
