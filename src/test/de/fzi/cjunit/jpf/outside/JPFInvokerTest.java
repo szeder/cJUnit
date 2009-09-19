@@ -17,9 +17,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hamcrest.Matcher;
 import org.junit.Test;
-import org.junit.internal.runners.model.MultipleFailureException;
 
 import gov.nasa.jpf.Error;
 import gov.nasa.jpf.GenericProperty;
@@ -203,49 +201,5 @@ public class JPFInvokerTest {
 		jpfInvoker.createTestProperties();
 
 		jpfInvoker.checkProperties();
-	}
-
-	@Test(expected=MultipleFailureException.class)
-	public void checkResultOfFailedTestWithMultiplePropertyViolations()
-			throws Throwable {
-		JPFInvoker jpfInvoker = new JPFInvoker() {
-			TestFailedProperty tfp;
-			public void createTestProperties() {
-				tfp = createViolatedTestFailedProperty();
-			}
-			public List<Error> getJPFSearchErrors() {
-				List<Error> errors = new ArrayList<Error>();
-				errors.add(new Error(0, tfp, null, null));
-				errors.add(new Error(1,
-						createViolatedGenericProeprty(),
-						null, null));
-				return errors;
-			}
-		};
-		jpfInvoker.createTestProperties();
-
-		try {
-			jpfInvoker.checkProperties();
-		} catch (MultipleFailureException ex) {
-			List<Throwable> exceptions = ex.getFailures();
-
-			assertThat("count", exceptions.size(), equalTo(2));
-
-			@SuppressWarnings("unchecked")
-			Matcher<Throwable> matchTestException
-					= (Matcher) instanceOf(
-						TestException.class);
-			assertThat("has TestException", exceptions,
-					hasItem(matchTestException));
-
-			@SuppressWarnings("unchecked")
-			Matcher<Throwable> matchJPFViolatedProperty
-					= (Matcher) instanceOf(
-						JPFPropertyViolated.class);
-			assertThat("has JPFPropertyViolated", exceptions,
-					hasItem(matchJPFViolatedProperty));
-
-			throw ex;
-		}
 	}
 }

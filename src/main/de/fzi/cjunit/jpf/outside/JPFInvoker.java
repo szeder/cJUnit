@@ -14,8 +14,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.internal.runners.model.MultipleFailureException;
-
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.Error;
 import gov.nasa.jpf.JPF;
@@ -61,15 +59,6 @@ public class JPFInvoker {
 		if (errors.size() == 1) {
 			throw getExceptionFromProperty(
 					errors.get(0).getProperty());
-		} else if (errors.size() > 1) {
-			List<Throwable> exceptionList
-					= new ArrayList<Throwable>();
-			for (Error error : errors) {
-				Throwable t = getExceptionFromProperty(
-						error.getProperty());
-				exceptionList.add(t);
-			}
-			throw new MultipleFailureException(exceptionList);
 		}
 	}
 
