@@ -8,9 +8,17 @@
  * Framework Programme under grant agreement No. 216682.
  */
 
-package de.fzi.cjunit.testexceptions;
+package de.fzi.cjunit.testutils;
 
-public class ChildTestException extends ParentTestException {
+public class Counter {
 
-	private static final long serialVersionUID = 1L;
+	int value;
+
+	public void increment() {
+		value++;
+	}
+
+	public int getValue() {
+		return value;
+	}
 }

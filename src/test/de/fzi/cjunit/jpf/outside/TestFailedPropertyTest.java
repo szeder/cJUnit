@@ -23,7 +23,7 @@ import gov.nasa.jpf.jvm.JVM;
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
 import de.fzi.cjunit.jpf.util.ArgumentCreator;
-import de.fzi.cjunit.testexceptions.TestException;
+import de.fzi.cjunit.testutils.TestException;
 
 
 public class TestFailedPropertyTest {

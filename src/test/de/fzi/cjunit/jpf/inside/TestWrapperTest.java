@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.fzi.cjunit.testexceptions.*;
+import de.fzi.cjunit.testutils.*;
 
 
 public class TestWrapperTest {
@@ -256,17 +256,13 @@ public class TestWrapperTest {
 		tw.runBeforeMethods();
 	}
 
-	// Can't put it inside the method, because it has to be final to be
-	// accessible from the inner class, but if it's final, then it can't be
-	// modified.  Catch-22.
-	boolean testMethodInvoked = false;
-
 	@Test
 	public void testMethodIsNotInvokedIfABeforeMethodFails()
 			throws Throwable {
+		final Counter invocationCounter = new Counter();
 		TestWrapper tw = new TestWrapper() {
 			protected void invokeTestMethod() {
-				testMethodInvoked = true;
+				invocationCounter.increment();
 			}
 		};
 		tw.target = this;
@@ -277,7 +273,8 @@ public class TestWrapperTest {
 			tw.runTest();
 		} catch (TestException te) {}
 
-		assertThat(testMethodInvoked, equalTo(false));
+		assertThat("not invoked", invocationCounter.getValue(),
+				equalTo(0));
 	}
 
 	@Test
