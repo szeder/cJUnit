@@ -8,18 +8,20 @@
  * Framework Programme under grant agreement No. 216682.
  */
 
-package de.fzi.cjunit;
+package de.fzi.cjunit.integration.testclasses;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.junit.Test;
+
+import de.fzi.cjunit.testutils.TestException;
 
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	de.fzi.cjunit.BaseTests.class,
-	de.fzi.cjunit.JPFTests.class,
-	de.fzi.cjunit.IntegrationTests.class
-})
-public class AllTests {
+public class SequentialTestWithFailure {
+
+	public static boolean invoked = false;
+
+	@Test
+	public void testMethod() throws TestException {
+		invoked = true;
+		throw new TestException();
+	}
 }
