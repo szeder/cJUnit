@@ -131,6 +131,19 @@ public class TestFailedPropertyTest {
 	}
 
 	@Test
+	public void testFailedSetsErrorMessage() {
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected Throwable reconstructException(JVM vm) {
+				return null;
+			}
+		};
+		tfp.testFailed(null);
+		assertThat("errorMessage is set", tfp.errorMessage,
+				equalTo("test failed"));
+	}
+
+	@Test
 	public void reportExceptionDuringCollectingExceptionInfo()
 			throws Throwable {
 		TestFailedProperty tfp = new TestFailedProperty() {

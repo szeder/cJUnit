@@ -32,6 +32,7 @@ public class TestFailedProperty extends PropertyListenerAdapter
 	protected boolean testSucceeded = true;
 
 	protected Throwable exception;
+	protected String errorMessage;
 
 	protected Stack<Boolean> stateStack = new Stack<Boolean>();
 
@@ -62,6 +63,7 @@ public class TestFailedProperty extends PropertyListenerAdapter
 		}
 		result = false;
 		testSucceeded = false;
+		errorMessage = "test failed";
 	}
 
 	protected Throwable reconstructException(JVM vm) throws Exception {
@@ -82,7 +84,7 @@ public class TestFailedProperty extends PropertyListenerAdapter
 
 	@Override
 	public String getErrorMessage() {
-		return "test failed";
+		return errorMessage;
 	}
 
 	// from VMListener
