@@ -23,6 +23,7 @@ import de.fzi.cjunit.jpf.inside.TestWrapper;
 import de.fzi.cjunit.jpf.outside.TestFailedProperty;
 import de.fzi.cjunit.jpf.util.ArgumentCreator;
 import de.fzi.cjunit.jpf.util.OnFailurePublisher;
+import de.fzi.cjunit.jpf.util.TestReporter;
 
 
 public class JPFInvoker {
@@ -75,7 +76,7 @@ public class JPFInvoker {
 
 	void createTestProperties() {
 		jpf.addPropertyListener(new TestFailedProperty());
-		rc = new ResultCollector();
+		rc = new ResultCollector(jpf.getReporter());
 		jpf.addListener(rc);
 	}
 
@@ -108,6 +109,7 @@ public class JPFInvoker {
 
 		return new ArgumentCreator()
 			.publisher(OnFailurePublisher.class)
+			.reporter(TestReporter.class)
 			.jpfArgs(new String[] {
 					"+jpf.report.console.start=",
 					"+jpf.report.console.finished=result",

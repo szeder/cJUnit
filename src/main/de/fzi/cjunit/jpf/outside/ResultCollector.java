@@ -12,15 +12,23 @@ package de.fzi.cjunit.jpf.outside;
 
 import gov.nasa.jpf.Error;
 import gov.nasa.jpf.Property;
+import gov.nasa.jpf.report.Reporter;
 import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.search.SearchListener;
 
 import de.fzi.cjunit.JPFPropertyViolated;
+import de.fzi.cjunit.jpf.util.TestReporter;
 
 
 public class ResultCollector implements TestProperty, SearchListener {
 
+	protected TestReporter reporter;
+
 	protected Throwable exception;
+
+	public ResultCollector(Reporter reporter) {
+		this.reporter = (TestReporter) reporter;
+	}
 
 	// from TestProperty
 	@Override
@@ -36,8 +44,9 @@ public class ResultCollector implements TestProperty, SearchListener {
 	// from SearchListener
 	@Override
 	public void propertyViolated(Search search) {
-		exception = getExceptionFromProperty(
-				getLastSearchError(search).getProperty());
+		Error error = getLastSearchError(search);
+		exception = getExceptionFromProperty(error.getProperty());
+		reporter.publishError(error);
 	}
 
 	protected Throwable getExceptionFromProperty(Property property) {
