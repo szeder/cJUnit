@@ -15,5 +15,6 @@ import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
 
 public class NotifierMethods {
 
+	public static void testSucceeded() { }
 	public static void testFailed(ExceptionInfo exceptionInfo) { }
 }

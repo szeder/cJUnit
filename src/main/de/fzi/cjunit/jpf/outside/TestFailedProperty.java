@@ -42,6 +42,9 @@ public class TestFailedProperty extends PropertyListenerAdapter
 		return exception;
 	}
 
+	protected void testSucceeded(JVM vm) {
+	}
+
 	protected void testFailed(JVM vm) {
 		try {
 			exception = reconstructException(vm);
@@ -113,6 +116,8 @@ public class TestFailedProperty extends PropertyListenerAdapter
 
 		if (callee.getName().equals("testFailed")) {
 			testFailed(vm);
+		} else if (callee.getName().equals("testSucceeded")) {
+			testSucceeded(vm);
 		}
 	}
 
