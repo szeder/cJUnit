@@ -43,6 +43,19 @@ public class TestFailedPropertyTest {
 	}
 
 	@Test
+	public void checkNotViolated() {
+		TestFailedProperty tfp = new TestFailedProperty();
+		assertThat(tfp.check(null, null), equalTo(true));
+	}
+
+	@Test
+	public void checkWhenViolated() {
+		TestFailedProperty tfp = new TestFailedProperty();
+		tfp.exception = new TestException();
+		assertThat(tfp.check(null, null), equalTo(false));
+	}
+
+	@Test
 	public void handleInstructionInvokesHandleInvokeInstruction() {
 		final Counter invocationCounter = new Counter();
 		TestFailedProperty tfp = new TestFailedProperty() {

@@ -28,8 +28,6 @@ import de.fzi.cjunit.jpf.util.ExceptionFactory;
 public class TestFailedProperty extends PropertyListenerAdapter
 		implements TestProperty {
 
-	protected boolean result = true;
-
 	protected Throwable exception;
 	protected String errorMessage;
 
@@ -58,7 +56,6 @@ public class TestFailedProperty extends PropertyListenerAdapter
 					"could not reconstruct the exception "
 					+ "thrown during the test", t);
 		}
-		result = false;
 		errorMessage = createErrorMessage();
 	}
 
@@ -81,7 +78,7 @@ public class TestFailedProperty extends PropertyListenerAdapter
 	// from Property
 	@Override
 	public boolean check(Search search, JVM jvm) {
-		return result;
+		return getTestResult();
 	}
 
 	@Override
