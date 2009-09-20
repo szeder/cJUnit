@@ -102,6 +102,12 @@ public class TestFailedProperty extends PropertyListenerAdapter
 		return errorMessage;
 	}
 
+	@Override
+	public void reset() {
+		exception = null;
+		errorMessage = null;
+	}
+
 	// from VMListener
 	@Override
 	public void executeInstruction(JVM vm) {

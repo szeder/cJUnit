@@ -286,4 +286,15 @@ public class TestFailedPropertyTest {
 		// reference, which would cause a NPE here.
 		tfp.searchStarted(null);
 	}
+
+	@Test
+	public void testReset() {
+		TestFailedProperty tfp = new TestFailedProperty();
+		tfp.exception = new TestException();
+		tfp.errorMessage = "asdf";
+		tfp.reset();
+		assertThat("exception cleared", tfp.exception, nullValue());
+		assertThat("error message cleared", tfp.errorMessage,
+				nullValue());
+	}
 }
