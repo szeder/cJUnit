@@ -235,6 +235,26 @@ public class TestFailedPropertyTest {
 	}
 
 	@Test
+	public void testSucceededSetsFoundSucceededPath() {
+		TestFailedProperty tfp = new TestFailedProperty();
+		tfp.testSucceeded(null);
+		assertThat(tfp.foundSucceededPath, is(true));
+	}
+
+	@Test
+	public void testFailedSetsFoundFailedPath() {
+		final TestException testException = new TestException("asdf");
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected Throwable reconstructException(JVM vm) {
+				return testException;
+			}
+		};
+		tfp.testFailed(null);
+		assertThat(tfp.foundFailedPath, is(true));
+	}
+
+	@Test
 	public void reportExceptionDuringCollectingExceptionInfo()
 			throws Throwable {
 		TestFailedProperty tfp = new TestFailedProperty() {

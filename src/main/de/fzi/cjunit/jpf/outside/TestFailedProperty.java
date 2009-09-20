@@ -28,8 +28,19 @@ import de.fzi.cjunit.jpf.util.ExceptionFactory;
 public class TestFailedProperty extends PropertyListenerAdapter
 		implements TestProperty {
 
+	protected boolean foundFailedPath = false;
+	protected boolean foundSucceededPath = false;
+
 	protected Throwable exception;
 	protected String errorMessage;
+
+	public boolean foundFailedPath() {
+		return foundFailedPath;
+	}
+
+	public boolean foundSucceededPath() {
+		return foundSucceededPath;
+	}
 
 	// from TestProperty
 	@Override
@@ -43,9 +54,11 @@ public class TestFailedProperty extends PropertyListenerAdapter
 	}
 
 	protected void testSucceeded(JVM vm) {
+		foundSucceededPath = true;
 	}
 
 	protected void testFailed(JVM vm) {
+		foundFailedPath = true;
 		try {
 			exception = reconstructException(vm);
 		} catch (Throwable t) {
