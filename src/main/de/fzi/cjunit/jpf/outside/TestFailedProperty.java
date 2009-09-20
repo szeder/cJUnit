@@ -28,11 +28,21 @@ import de.fzi.cjunit.jpf.util.ExceptionFactory;
 public class TestFailedProperty extends PropertyListenerAdapter
 		implements TestProperty {
 
+	public final static String errorMessageOnSuccessAfterFailure
+			= "Test succeeded after previous failure";
+
+	protected boolean reportSuccessAsFailure = false;
+
 	protected boolean foundFailedPath = false;
 	protected boolean foundSucceededPath = false;
 
 	protected Throwable exception;
 	protected String errorMessage;
+
+
+	public void reportSuccessAsFailure() {
+		reportSuccessAsFailure = true;
+	}
 
 	public boolean foundFailedPath() {
 		return foundFailedPath;
@@ -53,8 +63,16 @@ public class TestFailedProperty extends PropertyListenerAdapter
 		return exception;
 	}
 
+	public class TestSucceededException extends Exception {
+		private static final long serialVersionUID = 1L;
+	}
+
 	protected void testSucceeded(JVM vm) {
 		foundSucceededPath = true;
+		if (reportSuccessAsFailure) {
+			exception = new TestSucceededException();
+			errorMessage = errorMessageOnSuccessAfterFailure;
+		}
 	}
 
 	protected void testFailed(JVM vm) {

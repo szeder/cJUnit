@@ -23,6 +23,7 @@ import gov.nasa.jpf.jvm.bytecode.InvokeInstruction;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
+import de.fzi.cjunit.jpf.outside.TestFailedProperty.TestSucceededException;
 import de.fzi.cjunit.testutils.Counter;
 import de.fzi.cjunit.testutils.TestException;
 
@@ -296,5 +297,15 @@ public class TestFailedPropertyTest {
 		assertThat("exception cleared", tfp.exception, nullValue());
 		assertThat("error message cleared", tfp.errorMessage,
 				nullValue());
+	}
+
+	@Test
+	public void testReportSuccessAsFailure() {
+		TestFailedProperty tfp = new TestFailedProperty();
+		tfp.reportSuccessAsFailure();
+		tfp.testSucceeded(null);
+		assertThat(tfp.exception,
+				instanceOf(TestSucceededException.class));
+		assertThat(tfp.errorMessage, notNullValue());
 	}
 }
