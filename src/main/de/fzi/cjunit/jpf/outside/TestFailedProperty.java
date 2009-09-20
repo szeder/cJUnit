@@ -10,6 +10,8 @@
 
 package de.fzi.cjunit.jpf.outside;
 
+import static de.fzi.cjunit.util.LineSeparator.lineSeparator;
+
 import java.util.Stack;
 
 import gov.nasa.jpf.PropertyListenerAdapter;
@@ -63,7 +65,13 @@ public class TestFailedProperty extends PropertyListenerAdapter
 		}
 		result = false;
 		testSucceeded = false;
-		errorMessage = "test failed";
+		errorMessage = createErrorMessage();
+	}
+
+	protected String createErrorMessage() {
+		return "test failed: " + lineSeparator
+				+ exception.getClass().getName() + ":"
+				+ lineSeparator + exception.getMessage();
 	}
 
 	protected Throwable reconstructException(JVM vm) throws Exception {

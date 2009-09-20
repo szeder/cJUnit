@@ -132,15 +132,19 @@ public class TestFailedPropertyTest {
 
 	@Test
 	public void testFailedSetsErrorMessage() {
+		final TestException testException = new TestException("asdf");
 		TestFailedProperty tfp = new TestFailedProperty() {
 			@Override
 			protected Throwable reconstructException(JVM vm) {
-				return null;
+				return testException;
 			}
 		};
 		tfp.testFailed(null);
-		assertThat("errorMessage is set", tfp.errorMessage,
-				equalTo("test failed"));
+		assertThat(tfp.errorMessage, containsString("test failed"));
+		assertThat(tfp.errorMessage,
+				containsString(tfp.exception.getClass().getName()));
+		assertThat(tfp.errorMessage,
+				containsString(tfp.exception.getMessage()));
 	}
 
 	@Test
