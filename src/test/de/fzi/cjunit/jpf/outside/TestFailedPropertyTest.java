@@ -145,8 +145,13 @@ public class TestFailedPropertyTest {
 		assertThat("test result", tfp.getTestResult(), equalTo(false));
 
 		Throwable t = tfp.getException();
-		assertThat("exception type", t, instanceOf(Exception.class));
-		assertThat("exception message", t.getMessage(),
+		assertThat("exception type", t, instanceOf(
+				ExceptionReconstructionException.class));
+		assertThat("has cause", t.getCause(), notNullValue());
+		assertThat("causing exception's type", t.getCause(),
+				instanceOf(Exception.class));
+		assertThat("causing exception's message",
+				t.getCause().getMessage(),
 				equalTo("exception in TestFailedProperty"));
 	}
 

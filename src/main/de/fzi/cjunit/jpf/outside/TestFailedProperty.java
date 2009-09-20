@@ -56,7 +56,9 @@ public class TestFailedProperty extends PropertyListenerAdapter
 			// the reconstruction of the exception thrown by the
 			// test.  Therefore, we store that exception here as if
 			// it would have been thrown in the test.
-			exception = t;
+			exception = new ExceptionReconstructionException(
+					"could not reconstruct the exception "
+					+ "thrown during the test", t);
 		}
 		result = false;
 		testSucceeded = false;
