@@ -182,7 +182,7 @@ public class TestFailedPropertyTest {
 				throw new Exception("exception in TestFailedProperty");
 			}
 		};
-		createAndRunJPF(FailingTestClass.class, tfp);
+		tfp.testFailed(null);
 
 		assertThat("test result", tfp.getTestResult(), equalTo(false));
 
