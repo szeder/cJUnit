@@ -22,6 +22,8 @@ import de.fzi.cjunit.jpf.util.TestReporter;
 
 public class ResultCollector implements TestProperty, SearchListener {
 
+	protected Search search;
+
 	protected TestReporter reporter;
 
 	protected Throwable exception;
@@ -44,7 +46,7 @@ public class ResultCollector implements TestProperty, SearchListener {
 	// from SearchListener
 	@Override
 	public void propertyViolated(Search search) {
-		Error error = getLastSearchError(search);
+		Error error = getLastSearchError();
 		exception = getExceptionFromProperty(error.getProperty());
 		reporter.publishError(error);
 	}
@@ -57,7 +59,7 @@ public class ResultCollector implements TestProperty, SearchListener {
 		}
 	}
 
-	protected Error getLastSearchError(Search search) {
+	protected Error getLastSearchError() {
 		return search.getLastError();
 	}
 
@@ -65,7 +67,9 @@ public class ResultCollector implements TestProperty, SearchListener {
 	public void searchFinished(Search search) {}
 
 	@Override
-	public void searchStarted(Search search) {}
+	public void searchStarted(Search search) {
+		this.search = search;
+	}
 
 	@Override
 	public void searchConstraintHit(Search search) {}
