@@ -29,7 +29,6 @@ public class TestFailedProperty extends PropertyListenerAdapter
 		implements TestProperty {
 
 	protected boolean result = true;
-	protected boolean testSucceeded = true;
 
 	protected Throwable exception;
 	protected String errorMessage;
@@ -37,7 +36,7 @@ public class TestFailedProperty extends PropertyListenerAdapter
 	// from TestProperty
 	@Override
 	public boolean getTestResult() {
-		return testSucceeded;
+		return exception == null;
 	}
 
 	@Override
@@ -60,7 +59,6 @@ public class TestFailedProperty extends PropertyListenerAdapter
 					+ "thrown during the test", t);
 		}
 		result = false;
-		testSucceeded = false;
 		errorMessage = createErrorMessage();
 	}
 

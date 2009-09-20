@@ -30,6 +30,19 @@ import de.fzi.cjunit.testutils.TestException;
 public class TestFailedPropertyTest {
 
 	@Test
+	public void testResultWhenNotViolated() {
+		TestFailedProperty tfp = new TestFailedProperty();
+		assertThat(tfp.getTestResult(), equalTo(true));
+	}
+
+	@Test
+	public void testResultWhenViolated() {
+		TestFailedProperty tfp = new TestFailedProperty();
+		tfp.exception = new TestException();
+		assertThat(tfp.getTestResult(), equalTo(false));
+	}
+
+	@Test
 	public void handleInstructionInvokesHandleInvokeInstruction() {
 		final Counter invocationCounter = new Counter();
 		TestFailedProperty tfp = new TestFailedProperty() {
