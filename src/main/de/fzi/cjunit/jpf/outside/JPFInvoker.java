@@ -17,10 +17,8 @@ import java.util.List;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.Error;
 import gov.nasa.jpf.JPF;
-import gov.nasa.jpf.Property;
 import gov.nasa.jpf.report.Publisher;
 
-import de.fzi.cjunit.JPFPropertyViolated;
 import de.fzi.cjunit.jpf.inside.TestWrapper;
 import de.fzi.cjunit.jpf.outside.TestFailedProperty;
 import de.fzi.cjunit.jpf.util.ArgumentCreator;
@@ -31,6 +29,7 @@ public class JPFInvoker {
 
 	protected Config conf;
 	protected JPF jpf;
+	protected ResultCollector rc;
 
 	public void run(Object target, Method method,
 			List<Method> beforeMethods, List<Method> afterMethods,
@@ -39,7 +38,7 @@ public class JPFInvoker {
 		initJPF(createJPFArgs(target, method, beforeMethods,
 				afterMethods, exceptionClass));
 		runJPF();
-		checkProperties();
+		checkResult();
 	}
 
 	/**
@@ -50,23 +49,12 @@ public class JPFInvoker {
 	 *		failed.
 	 */
 	public boolean getTestResult() {
-		return getJPFSearchErrors().size() == 0;
+		return rc.getTestResult();
 	}
 
-	public void checkProperties() throws Throwable {
-		List<Error> errors = getJPFSearchErrors();
-
-		if (errors.size() == 1) {
-			throw getExceptionFromProperty(
-					errors.get(0).getProperty());
-		}
-	}
-
-	protected Throwable getExceptionFromProperty(Property property) {
-		if (property instanceof TestProperty) {
-			return ((TestProperty) property).getException();
-		} else {
-			return new JPFPropertyViolated(property);
+	public void checkResult() throws Throwable {
+		if (rc.getTestResult() == false) {
+			throw rc.getException();
 		}
 	}
 
@@ -87,6 +75,8 @@ public class JPFInvoker {
 
 	void createTestProperties() {
 		jpf.addPropertyListener(new TestFailedProperty());
+		rc = new ResultCollector();
+		jpf.addListener(rc);
 	}
 
 	protected void registerAtPublisher() {
