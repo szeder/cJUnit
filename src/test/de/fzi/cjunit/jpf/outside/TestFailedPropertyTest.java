@@ -19,6 +19,7 @@ import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.PropertyListenerAdapter;
 import gov.nasa.jpf.jvm.JVM;
+import gov.nasa.jpf.jvm.MethodInfo;
 import gov.nasa.jpf.jvm.bytecode.ATHROW;
 import gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL;
 import gov.nasa.jpf.jvm.bytecode.InvokeInstruction;
@@ -60,6 +61,64 @@ public class TestFailedPropertyTest {
 		tfp.handleInstruction(null, new ATHROW());
 		assertThat("handleInvokeInstruction() not invoked",
 				invocationCounter.getValue(), equalTo(0));
+	}
+
+	@Test
+	public void handleMethodInvocationNotFailsWithNullCallee() {
+		final Counter invocationCounter = new Counter();
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected void testFailed(JVM vm) {
+				invocationCounter.increment();
+			}
+		};
+		tfp.handleMethodInvocation(null, null);
+		assertThat("testFailed() not invoked",
+				invocationCounter.getValue(), equalTo(0));
+	}
+
+	@Test
+	public void handleMethodInvocationWhenNotNotifierMethod() {
+		final class NotNotifierMethodInfo extends MethodInfo {
+			@Override
+			public String getClassName() {
+				return "some random invalid class";
+			}
+		}
+		final Counter invocationCounter = new Counter();
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected void testFailed(JVM vm) {
+				invocationCounter.increment();
+			}
+		};
+		tfp.handleMethodInvocation(null, new NotNotifierMethodInfo());
+		assertThat("testFailed() not invoked",
+				invocationCounter.getValue(), equalTo(0));
+	}
+
+	@Test
+	public void handleMethodInvocationInvokesTestFailed() {
+		final class TestFailedMethodInfo extends MethodInfo {
+			@Override
+			public String getClassName() {
+				return NotifierMethods.class.getName();
+			}
+			@Override
+			public String getName() {
+				return "testFailed";
+			}
+		}
+		final Counter invocationCounter = new Counter();
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected void testFailed(JVM vm) {
+				invocationCounter.increment();
+			}
+		};
+		tfp.handleMethodInvocation(null, new TestFailedMethodInfo());
+		assertThat("testFailed() invoked", invocationCounter.getValue(),
+				equalTo(1));
 	}
 
 	void createAndRunJPF(Class<?> appClass,
@@ -131,25 +190,6 @@ public class TestFailedPropertyTest {
 		assertThat("exception type", t, instanceOf(Exception.class));
 		assertThat("exception message", t.getMessage(),
 				equalTo("exception in TestFailedProperty"));
-	}
-
-	public static class TriggerNullCallee {
-		public static void main(String... args) {
-			Integer integer = null;
-			// Yes, the  variable integer can only be null at this
-			// point, but it's intentional, because it will cause
-			// a null reference returned from
-			// InvokeInstruction.getInvokedmethod() in
-			// TestFailedProperty.handleInvokeInstruction().
-			@SuppressWarnings({"null", "unused"})
-			int i = integer+1;
-		}
-	}
-
-	@Test
-	public void handlesNullCallee() {
-		TestFailedProperty to = new TestFailedProperty();
-		createAndRunJPF(TriggerNullCallee.class, to);
 	}
 
 	@Test

@@ -106,6 +106,10 @@ public class TestFailedProperty extends PropertyListenerAdapter
 		ThreadInfo ti = vm.getLastThreadInfo();
 		MethodInfo callee = insn.getInvokedMethod(ti);
 
+		handleMethodInvocation(vm, callee);
+	}
+
+	protected void handleMethodInvocation(JVM vm, MethodInfo callee) {
 		if (callee == null || !callee.getClassName().equals(
 				NotifierMethods.class.getName())) {
 			return;
