@@ -28,13 +28,13 @@ public class ResultCollectorTest {
 
 	@Test
 	public void getTestResultOfSucceededTest() {
-		ResultCollector rc = new ResultCollector(null);
+		ResultCollector rc = new ResultCollector(null, null);
 		assertThat("test result", rc.getTestResult(), equalTo(true));
 	}
 
 	@Test
 	public void getTestResultOfFailedTest() {
-		ResultCollector rc = new ResultCollector(null);
+		ResultCollector rc = new ResultCollector(null, null);
 		rc.exception = new TestException();
 		assertThat("test result", rc.getTestResult(),
 				equalTo(false));
@@ -42,7 +42,7 @@ public class ResultCollectorTest {
 
 	@Test
 	public void getExceptionFromPropertyWithProperty() {
-		ResultCollector rc = new ResultCollector(null);
+		ResultCollector rc = new ResultCollector(null, null);
 		Property property = new GenericProperty() {
 			@Override
 			public boolean check(Search search, JVM jvm) {
@@ -60,7 +60,7 @@ public class ResultCollectorTest {
 
 	@Test
 	public void getExceptionFromPropertyWithTestProperty() {
-		ResultCollector rc = new ResultCollector(null);
+		ResultCollector rc = new ResultCollector(null, null);
 		Property property = new TestFailedProperty() {
 			@Override
 			public boolean getTestResult() {

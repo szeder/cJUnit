@@ -79,7 +79,7 @@ public class JPFInvokerTest {
 	@Test
 	public void getTestResultOfSucceededTest() {
 		JPFInvoker jpfInvoker = new JPFInvoker();
-		jpfInvoker.rc = new ResultCollector(null) {
+		jpfInvoker.rc = new ResultCollector(null, null) {
 			@Override
 			public boolean getTestResult() {
 				return true;
@@ -93,7 +93,7 @@ public class JPFInvokerTest {
 	@Test
 	public void getTestResultOfFailedTest() {
 		JPFInvoker jpfInvoker = new JPFInvoker();
-		jpfInvoker.rc = new ResultCollector(null) {
+		jpfInvoker.rc = new ResultCollector(null, null) {
 			@Override
 			public boolean getTestResult() {
 				return false;
@@ -107,7 +107,7 @@ public class JPFInvokerTest {
 	@Test
 	public void checkResultOfSucceededTest() throws Throwable {
 		JPFInvoker jpfInvoker = new JPFInvoker();
-		jpfInvoker.rc = new ResultCollector(null) {
+		jpfInvoker.rc = new ResultCollector(null, null) {
 			@Override
 			public boolean getTestResult() {
 				return true;
@@ -120,7 +120,7 @@ public class JPFInvokerTest {
 	@Test(expected=TestException.class)
 	public void checkResultOfFailedTest() throws Throwable {
 		JPFInvoker jpfInvoker = new JPFInvoker();
-		jpfInvoker.rc = new ResultCollector(null) {
+		jpfInvoker.rc = new ResultCollector(null, null) {
 			@Override
 			public boolean getTestResult() {
 				return false;

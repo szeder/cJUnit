@@ -25,11 +25,13 @@ public class ResultCollector implements TestProperty, SearchListener {
 	protected Search search;
 
 	protected TestReporter reporter;
+	protected TestFailedProperty tfp;
 
 	protected Throwable exception;
 
-	public ResultCollector(Reporter reporter) {
+	public ResultCollector(Reporter reporter, TestFailedProperty tfp) {
 		this.reporter = (TestReporter) reporter;
+		this.tfp = tfp;
 	}
 
 	// from TestProperty

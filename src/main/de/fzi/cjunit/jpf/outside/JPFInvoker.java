@@ -75,8 +75,9 @@ public class JPFInvoker {
 	}
 
 	void createTestProperties() {
-		jpf.addPropertyListener(new TestFailedProperty());
-		rc = new ResultCollector(jpf.getReporter());
+		TestFailedProperty tfp = new TestFailedProperty();
+		jpf.addPropertyListener(tfp);
+		rc = new ResultCollector(jpf.getReporter(), tfp);
 		jpf.addListener(rc);
 	}
 
