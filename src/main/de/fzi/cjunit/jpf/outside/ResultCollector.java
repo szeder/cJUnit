@@ -12,11 +12,13 @@ package de.fzi.cjunit.jpf.outside;
 
 import gov.nasa.jpf.Error;
 import gov.nasa.jpf.Property;
+import gov.nasa.jpf.jvm.NotDeadlockedProperty;
 import gov.nasa.jpf.report.Reporter;
 import gov.nasa.jpf.search.Search;
 import gov.nasa.jpf.search.SearchListener;
 
 import de.fzi.cjunit.ConcurrentError;
+import de.fzi.cjunit.DeadlockError;
 import de.fzi.cjunit.JPFPropertyViolated;
 import de.fzi.cjunit.jpf.util.ExceptionComparator;
 import de.fzi.cjunit.jpf.util.TestReporter;
@@ -65,7 +67,9 @@ public class ResultCollector implements TestProperty, SearchListener {
 			Throwable currentException) {
 		error = currentError;
 		exception = currentException;
-		if (tfp.foundSucceededPath()) {
+		if (fromNotDeadlockedProperty(error)) {
+			foundConcurrencyBug();
+		} else if (tfp.foundSucceededPath()) {
 			foundConcurrencyBug();
 		} else {
 			tfp.reportSuccessAsFailure();
@@ -82,12 +86,21 @@ public class ResultCollector implements TestProperty, SearchListener {
 	}
 
 	protected void foundConcurrencyBug() {
-		exception = new ConcurrentError(exception);
+		if (fromNotDeadlockedProperty(error)) {
+			exception = new DeadlockError(
+					error.getProperty().getErrorMessage());
+		} else {
+			exception = new ConcurrentError(exception);
+		}
 		terminateSearch();
 	}
 
 	protected void terminateSearch() {
 		search.terminate();
+	}
+
+	protected boolean fromNotDeadlockedProperty(Error error) {
+		return error.getProperty() instanceof NotDeadlockedProperty;
 	}
 
 	protected Throwable getExceptionFromProperty(Property property) {

@@ -20,9 +20,11 @@ import gov.nasa.jpf.GenericProperty;
 import gov.nasa.jpf.Property;
 import gov.nasa.jpf.PropertyListenerAdapter;
 import gov.nasa.jpf.jvm.JVM;
+import gov.nasa.jpf.jvm.NotDeadlockedProperty;
 import gov.nasa.jpf.search.Search;
 
 import de.fzi.cjunit.ConcurrentError;
+import de.fzi.cjunit.DeadlockError;
 import de.fzi.cjunit.JPFPropertyViolated;
 import de.fzi.cjunit.testutils.OtherTestException;
 import de.fzi.cjunit.testutils.TestException;
@@ -146,6 +148,25 @@ public class ResultCollectorTest {
 	}
 
 	@Test
+	public void testHandleFirstErrorWithDeadlock() {
+		final Counter invocationCounter = new Counter();
+		ResultCollector rc
+				= createResultCollectorToTestErrorHandlers(
+						null, invocationCounter);
+		Property ndlp = new NotDeadlockedProperty(null, null) {
+			@Override
+			public String getErrorMessage() {
+				return "asdf";
+			}
+		};
+		Error error = new Error(0, ndlp, null, null);
+		rc.handleFirstError(error, null);
+		assertThat("error stored", rc.error, equalTo(error));
+		assertThat("foundConcurrencyBug() invoked",
+				invocationCounter.getValue(), equalTo(1));
+	}
+
+	@Test
 	public void testHandleFurtherErrorWithDifferentError() {
 		final Counter invocationCounter = new Counter();
 		ResultCollector rc
@@ -197,10 +218,32 @@ public class ResultCollectorTest {
 		};
 		Throwable t = new TestException();
 		rc.exception = t;
+		rc.error = new Error(0, new PropertyListenerAdapter(), null,
+				null);
 		rc.foundConcurrencyBug();
 		assertThat("wrapped into ConcurrentError", rc.exception,
 				instanceOf(ConcurrentError.class));
 		assertThat("cause", rc.exception.getCause(), equalTo(t));
+	}
+
+	@Test
+	public void testFoundConcurrencyBugWithDeadlock() {
+		ResultCollector rc = new ResultCollector(null, null) {
+			@Override
+			public void terminateSearch() {}
+		};
+		Throwable t = new TestException();
+		rc.exception = t;
+		Property ndlp = new NotDeadlockedProperty(null, null) {
+			@Override
+			public String getErrorMessage() {
+				return "asdf";
+			}
+		};
+		rc.error = new Error(0, ndlp, null, null);
+		rc.foundConcurrencyBug();
+		assertThat(rc.exception, instanceOf(DeadlockError.class));
+		assertThat("no cause", rc.exception.getCause(), nullValue());
 	}
 
 	protected ResultCollector createResultCollectorToTestSearchFinished(
