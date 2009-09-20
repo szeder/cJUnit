@@ -12,8 +12,6 @@ package de.fzi.cjunit.jpf.outside;
 
 import static de.fzi.cjunit.util.LineSeparator.lineSeparator;
 
-import java.util.Stack;
-
 import gov.nasa.jpf.PropertyListenerAdapter;
 import gov.nasa.jpf.jvm.JVM;
 import gov.nasa.jpf.jvm.MethodInfo;
@@ -35,8 +33,6 @@ public class TestFailedProperty extends PropertyListenerAdapter
 
 	protected Throwable exception;
 	protected String errorMessage;
-
-	protected Stack<Boolean> stateStack = new Stack<Boolean>();
 
 	// from TestProperty
 	@Override
@@ -126,16 +122,6 @@ public class TestFailedProperty extends PropertyListenerAdapter
 	}
 
 	// from SearchListener
-	@Override
-	public void stateAdvanced(Search search) {
-		stateStack.push(result);
-	}
-
-	@Override
-	public void stateBacktracked(Search search) {
-		result = stateStack.pop();
-	}
-
 	@Override
 	public void searchStarted(Search search) {
 		// do not register as property
