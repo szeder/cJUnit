@@ -24,6 +24,7 @@ import gov.nasa.jpf.jvm.bytecode.InvokeInstruction;
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
 import de.fzi.cjunit.testutils.Counter;
+import de.fzi.cjunit.testutils.TestException;
 
 
 public class TestFailedPropertyTest {
@@ -114,6 +115,19 @@ public class TestFailedPropertyTest {
 		tfp.handleMethodInvocation(null, new TestFailedMethodInfo());
 		assertThat("testFailed() invoked", invocationCounter.getValue(),
 				equalTo(1));
+	}
+
+	@Test
+	public void testFailedSetsException() {
+		final Throwable testException = new TestException("asdf");
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected Throwable reconstructException(JVM vm) {
+				return testException;
+			}
+		};
+		tfp.testFailed(null);
+		assertThat(tfp.exception, equalTo(testException));
 	}
 
 	@Test

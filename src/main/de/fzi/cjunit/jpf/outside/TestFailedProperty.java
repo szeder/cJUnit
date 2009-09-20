@@ -21,7 +21,6 @@ import gov.nasa.jpf.jvm.bytecode.InvokeInstruction;
 import gov.nasa.jpf.search.Search;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
-import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
 import de.fzi.cjunit.jpf.util.ExceptionFactory;
 
@@ -32,7 +31,6 @@ public class TestFailedProperty extends PropertyListenerAdapter
 	protected boolean result = true;
 	protected boolean testSucceeded = true;
 
-	protected  ExceptionInfo exceptionInfo;
 	protected Throwable exception;
 
 	protected Stack<Boolean> stateStack = new Stack<Boolean>();
@@ -45,20 +43,12 @@ public class TestFailedProperty extends PropertyListenerAdapter
 
 	@Override
 	public Throwable getException() {
-		if (exception == null) {
-			try {
-				exception = new ExceptionFactory()
-					.createException(exceptionInfo);
-			} catch (Throwable t) {
-				exception = t;
-			}
-		}
 		return exception;
 	}
 
 	protected void testFailed(JVM vm) {
 		try {
-			exceptionInfo = collectExceptionInfo(vm);
+			exception = reconstructException(vm);
 		} catch (Throwable t) {
 			// JPF catches exceptions thrown in property listeners
 			// during execution and eats them.  But we would like
@@ -72,11 +62,14 @@ public class TestFailedProperty extends PropertyListenerAdapter
 		testSucceeded = false;
 	}
 
-	protected ExceptionInfoDefaultImpl collectExceptionInfo(JVM vm)
+	protected Throwable reconstructException(JVM vm) throws Exception {
+		return new ExceptionFactory().createException(
+				collectExceptionInfo(vm));
+	}
+
+	protected ExceptionInfo collectExceptionInfo(JVM vm)
 			throws Exception {
-		return new ExceptionInfoDefaultImpl(
-				new ExceptionInfoCollector()
-						.collectFromStack(vm));
+		return new ExceptionInfoCollector().collectFromStack(vm);
 	};
 
 	// from Property
