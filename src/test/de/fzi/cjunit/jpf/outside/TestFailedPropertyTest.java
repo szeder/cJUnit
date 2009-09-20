@@ -19,14 +19,48 @@ import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.PropertyListenerAdapter;
 import gov.nasa.jpf.jvm.JVM;
+import gov.nasa.jpf.jvm.bytecode.ATHROW;
+import gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL;
+import gov.nasa.jpf.jvm.bytecode.InvokeInstruction;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
 import de.fzi.cjunit.jpf.util.ArgumentCreator;
+import de.fzi.cjunit.testutils.Counter;
 import de.fzi.cjunit.testutils.TestException;
 
 
 public class TestFailedPropertyTest {
+
+	@Test
+	public void handleInstructionInvokesHandleInvokeInstruction() {
+		final Counter invocationCounter = new Counter();
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected void handleInvokeInstruction(JVM vm,
+					InvokeInstruction insn) {
+				invocationCounter.increment();
+			}
+		};
+		tfp.handleInstruction(null, new INVOKEVIRTUAL());
+		assertThat("handleInvokeInstruction() invoked",
+				invocationCounter.getValue(), equalTo(1));
+	}
+
+	@Test
+	public void handleInstructionDoesNotInvokeHandleInvokeInstruction() {
+		final Counter invocationCounter = new Counter();
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected void handleInvokeInstruction(JVM vm,
+					InvokeInstruction insn) {
+				invocationCounter.increment();
+			}
+		};
+		tfp.handleInstruction(null, new ATHROW());
+		assertThat("handleInvokeInstruction() not invoked",
+				invocationCounter.getValue(), equalTo(0));
+	}
 
 	void createAndRunJPF(Class<?> appClass,
 			PropertyListenerAdapter propertyListener) {

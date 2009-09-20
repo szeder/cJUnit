@@ -93,8 +93,10 @@ public class TestFailedProperty extends PropertyListenerAdapter
 	// from VMListener
 	@Override
 	public void executeInstruction(JVM vm) {
-		Instruction insn = vm.getLastInstruction();
+		handleInstruction(vm, vm.getLastInstruction());
+	}
 
+	protected void handleInstruction(JVM vm, Instruction insn) {
 		if (insn instanceof InvokeInstruction) {
 			handleInvokeInstruction(vm, (InvokeInstruction) insn);
 		}
