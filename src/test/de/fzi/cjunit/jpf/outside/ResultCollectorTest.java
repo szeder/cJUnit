@@ -15,13 +15,18 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
 
+import gov.nasa.jpf.Error;
 import gov.nasa.jpf.GenericProperty;
 import gov.nasa.jpf.Property;
+import gov.nasa.jpf.PropertyListenerAdapter;
 import gov.nasa.jpf.jvm.JVM;
 import gov.nasa.jpf.search.Search;
 
+import de.fzi.cjunit.ConcurrentError;
 import de.fzi.cjunit.JPFPropertyViolated;
+import de.fzi.cjunit.testutils.OtherTestException;
 import de.fzi.cjunit.testutils.TestException;
+import de.fzi.cjunit.testutils.Counter;
 
 
 public class ResultCollectorTest {
@@ -74,5 +79,161 @@ public class ResultCollectorTest {
 
 		assertThat(rc.getExceptionFromProperty(property),
 				instanceOf(TestException.class));
+	}
+
+	protected ResultCollector createResultCollectorToTestErrorHandlers(
+			TestFailedProperty tfp,
+			final Counter invocationCounter) {
+		return new ResultCollector(null, tfp) {
+			@Override
+			public void foundConcurrencyBug() {
+				invocationCounter.increment();
+			}
+		};
+	}
+
+	@Test
+	public void testHandleFirstError() {
+		final Counter reportSuccessCounter = new Counter();
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			public boolean foundSucceededPath() {
+				return false;
+			}
+			@Override
+			public void reportSuccessAsFailure() {
+				reportSuccessCounter.increment();
+			}
+		};
+		final Counter invocationCounter = new Counter();
+		ResultCollector rc
+				= createResultCollectorToTestErrorHandlers(
+						tfp, invocationCounter);
+		Error error = new Error(0, new PropertyListenerAdapter(), null,
+				null);
+		Throwable exception = new TestException();
+		rc.handleFirstError(error, exception);
+		assertThat("error stored", rc.error, equalTo(error));
+		assertThat("exception stored", rc.exception,
+				equalTo(exception));
+		assertThat("foundConcurrencyBug() not invoked",
+				invocationCounter.getValue(), equalTo(0));
+		assertThat("tfp.reportSuccessAsFailure() invoked",
+				reportSuccessCounter.getValue(), equalTo(1));
+	}
+
+	@Test
+	public void testHandleFirstErrorWhenPreviouslySucceeded() {
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			public boolean foundSucceededPath() {
+				return true;
+			}
+		};
+		final Counter invocationCounter = new Counter();
+		ResultCollector rc
+				= createResultCollectorToTestErrorHandlers(
+						tfp, invocationCounter);
+		Error error = new Error(0, new PropertyListenerAdapter(), null,
+				null);
+		Throwable exception = new TestException();
+		rc.handleFirstError(error, exception);
+		assertThat("error stored", rc.error, equalTo(error));
+		assertThat("exception stored", rc.exception,
+				equalTo(exception));
+		assertThat("foundConcurrencyBug() invoked",
+				invocationCounter.getValue(), equalTo(1));
+	}
+
+	@Test
+	public void testHandleFurtherErrorWithDifferentError() {
+		final Counter invocationCounter = new Counter();
+		ResultCollector rc
+				= createResultCollectorToTestErrorHandlers(
+						null, invocationCounter);
+		rc.error = new Error(0, new PropertyListenerAdapter(), null,
+				null);
+		rc.exception = new TestException();
+		Error error = new Error(0, new TestFailedProperty(), null,
+				null);
+		rc.handleFurtherError(error, rc.exception);
+		assertThat("foundConcurrencyBug() invoked",
+				invocationCounter.getValue(), equalTo(1));
+	}
+
+	@Test
+	public void testHandleFurtherErrorWithDifferentException() {
+		final Counter invocationCounter = new Counter();
+		ResultCollector rc
+				= createResultCollectorToTestErrorHandlers(
+						null, invocationCounter);
+		rc.error = new Error(0, new PropertyListenerAdapter(), null,
+				null);
+		rc.exception = new TestException();
+		rc.handleFurtherError(rc.error, new OtherTestException());
+		assertThat("foundConcurrencyBug() invoked",
+				invocationCounter.getValue(), equalTo(1));
+	}
+
+	@Test
+	public void testHandleFurtherErrorWithSameViolation() {
+		final Counter invocationCounter = new Counter();
+		ResultCollector rc
+				= createResultCollectorToTestErrorHandlers(
+						null, invocationCounter);
+		rc.error = new Error(0, new PropertyListenerAdapter(), null,
+				null);
+		rc.exception = new TestException();
+		rc.handleFurtherError(rc.error, rc.exception);
+		assertThat("foundConcurrencyBug() not invoked",
+				invocationCounter.getValue(), equalTo(0));
+	}
+
+	@Test
+	public void testFoundConcurrencyBug() {
+		ResultCollector rc = new ResultCollector(null, null) {
+			@Override
+			public void terminateSearch() {}
+		};
+		Throwable t = new TestException();
+		rc.exception = t;
+		rc.foundConcurrencyBug();
+		assertThat("wrapped into ConcurrentError", rc.exception,
+				instanceOf(ConcurrentError.class));
+		assertThat("cause", rc.exception.getCause(), equalTo(t));
+	}
+
+	protected ResultCollector createResultCollectorToTestSearchFinished(
+			final Counter invocationCounter) {
+		return new ResultCollector(null, null) {
+			@Override
+			public void publishError() {
+				invocationCounter.increment();
+			}
+		};
+	}
+
+	@Test
+	public void searchFinishedPublishesOnError() {
+		final Counter invocationCounter = new Counter();
+		ResultCollector rc
+				= createResultCollectorToTestSearchFinished(
+						invocationCounter);
+		rc.error = new Error(0, new PropertyListenerAdapter(), null,
+				null);
+		rc.searchFinished(null);
+		assertThat("publishError() invoked once",
+				invocationCounter.getValue(), equalTo(1));
+	}
+
+	@Test
+	public void searchFinishedDoesNotPublishWithoutError() {
+		final Counter invocationCounter = new Counter();
+		ResultCollector rc
+				= createResultCollectorToTestSearchFinished(
+						invocationCounter);
+		rc.searchFinished(null);
+		assertThat("publishError() is not invoked",
+				invocationCounter.getValue(), equalTo(0));
 	}
 }
