@@ -245,4 +245,26 @@ public class ConcurrentRunnerTest {
 		ConcurrentRunner runner = new ConcurrentRunner(
 				TestClassWithBeforeClassAndAfterClass.class);
 	}
+
+	static public class TestClassWithNegativeThreadCount {
+		@ConcurrentTest(threadCount=-1) public void testMethod() { }
+	}
+
+	@Test(expected=InitializationError.class)
+	public void testNegativeThreadCount() throws Throwable {
+		@SuppressWarnings("unused")
+		ConcurrentRunner runner = new ConcurrentRunner(
+				TestClassWithNegativeThreadCount.class);
+	}
+
+	static public class TestClassWithZeroThreadCount {
+		@ConcurrentTest(threadCount=0) public void testMethod() { }
+	}
+
+	@Test(expected=InitializationError.class)
+	public void testZeroThreadCount() throws Throwable {
+		@SuppressWarnings("unused")
+		ConcurrentRunner runner = new ConcurrentRunner(
+				TestClassWithZeroThreadCount.class);
+	}
 }

@@ -110,6 +110,11 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 						"exclusive";
 				errors.add(new Exception(gripe));
 			}
+			if (eachMethod.getAnnotation(ConcurrentTest.class)
+					.threadCount() < 1) {
+				String gripe = "positive threadCount required";
+				errors.add(new Exception(gripe));
+			}
 		}
 	}
 
