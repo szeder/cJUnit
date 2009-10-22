@@ -23,11 +23,11 @@ import de.fzi.cjunit.jpf.outside.JPFInvoker;
 
 public class ConcurrentStatement extends Statement {
 
-	private final ConcurrentFrameworkMethod testMethod;
-	private Object target;
-	private List<FrameworkMethod> befores;
-	private List<FrameworkMethod> afters;
-	private Class<? extends Throwable> expectedExceptionClass;
+	protected ConcurrentFrameworkMethod testMethod;
+	protected Object target;
+	protected List<FrameworkMethod> befores;
+	protected List<FrameworkMethod> afters;
+	protected Class<? extends Throwable> expectedExceptionClass;
 
 	public ConcurrentStatement(FrameworkMethod testMethod, Object target) {
 		this.testMethod = (ConcurrentFrameworkMethod) testMethod;
@@ -41,7 +41,7 @@ public class ConcurrentStatement extends Statement {
 		invokeJPF();
 	}
 
-	void invokeJPF() throws Throwable {
+	protected void invokeJPF() throws Throwable {
 		new JPFInvoker().run(target, testMethod.getMethod(),
 				convertFrameworkMethodListToMethodList(befores),
 				convertFrameworkMethodListToMethodList(afters),
@@ -60,7 +60,7 @@ public class ConcurrentStatement extends Statement {
 		this.afters = afters;
 	}
 
-	List<Method> convertFrameworkMethodListToMethodList(
+	protected List<Method> convertFrameworkMethodListToMethodList(
 			List<FrameworkMethod> frameworkMethods) {
 		List<Method> methods = new ArrayList<Method>();
 		for (FrameworkMethod method : frameworkMethods) {

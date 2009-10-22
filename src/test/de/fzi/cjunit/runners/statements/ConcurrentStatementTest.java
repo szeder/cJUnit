@@ -21,7 +21,7 @@ public class ConcurrentStatementTest {
 	@Test
 	public void testNotThrowsWhenNotExpecting() throws Throwable {
 		ConcurrentStatement s = new ConcurrentStatement(null, null) {
-			void invokeJPF() throws Throwable { }
+			protected void invokeJPF() throws Throwable { }
 		};
 		s.evaluate();
 	}
@@ -35,7 +35,7 @@ public class ConcurrentStatementTest {
 	@Test(expected=TestException.class)
 	public void testThrowsWhenNotExpecting() throws Throwable {
 		ConcurrentStatement s = new ConcurrentStatement(null, null) {
-			void invokeJPF() throws Throwable {
+			protected void invokeJPF() throws Throwable {
 				throw new TestException();
 			}
 		};
