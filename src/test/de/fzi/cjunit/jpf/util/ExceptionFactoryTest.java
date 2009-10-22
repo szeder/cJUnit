@@ -15,11 +15,11 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
 
+import java.lang.reflect.Constructor;
+
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.testutils.TestException;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 public class ExceptionFactoryTest {
 
