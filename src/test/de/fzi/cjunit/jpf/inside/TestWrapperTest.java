@@ -135,7 +135,7 @@ public class TestWrapperTest {
 		tw.createTestObject();
 		tw.createBeforeMethods();
 		assertThat("number of methods",
-				tw.beforeMethodNames.size(), equalTo(2));
+				tw.beforeMethods.size(), equalTo(2));
 	}
 
 	@Test
@@ -147,7 +147,7 @@ public class TestWrapperTest {
 		tw.createTestObject();
 		tw.createAfterMethods();
 		assertThat("number of methods",
-				tw.afterMethodNames.size(), equalTo(2));
+				tw.afterMethods.size(), equalTo(2));
 	}
 
 	@Test
