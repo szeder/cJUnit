@@ -128,26 +128,24 @@ public class TestWrapperTest {
 
 	@Test
 	public void createBeforeMethods() throws Throwable {
-		TestWrapper tw = new TestWrapper(new String[] {
-				"--testclass=" + className,
-				"--beforemethod=toString",
-				"--beforemethod=hashCode" });
-		tw.createTestObject();
+		TestWrapper tw = new TestWrapper();
+		tw.target = new String();
+		tw.beforeMethodNames.add("toString");
+		tw.beforeMethodNames.add("hashCode");
 		tw.createBeforeMethods();
 		assertThat("number of methods",
-				tw.beforeMethodNames.size(), equalTo(2));
+				tw.beforeMethods.size(), equalTo(2));
 	}
 
 	@Test
 	public void createAfterMethods() throws Throwable {
-		TestWrapper tw = new TestWrapper(new String[] {
-				"--testclass=" + className,
-				"--aftermethod=wait",
-				"--aftermethod=notifyAll" });
-		tw.createTestObject();
+		TestWrapper tw = new TestWrapper();
+		tw.target = new String();
+		tw.afterMethodNames.add("wait");
+		tw.afterMethodNames.add("notify");
 		tw.createAfterMethods();
 		assertThat("number of methods",
-				tw.afterMethodNames.size(), equalTo(2));
+				tw.afterMethods.size(), equalTo(2));
 	}
 
 	@Test
