@@ -10,7 +10,7 @@
 
 package de.fzi.cjunit.jpf.outside;
 
-import static de.fzi.cjunit.util.LineSeparator.lineSeparator;
+import static de.fzi.cjunit.internal.util.LineSeparator.lineSeparator;
 
 import gov.nasa.jpf.PropertyListenerAdapter;
 import gov.nasa.jpf.jvm.JVM;

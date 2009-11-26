@@ -8,7 +8,7 @@
  * Framework Programme under grant agreement No. 216682.
  */
 
-package de.fzi.cjunit.util;
+package de.fzi.cjunit.internal.util;
 
 public class LineSeparator {
 	public static String lineSeparator = System.getProperty("line.separator");

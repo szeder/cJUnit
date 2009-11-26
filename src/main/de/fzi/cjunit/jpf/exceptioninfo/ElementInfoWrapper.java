@@ -15,7 +15,7 @@ import gov.nasa.jpf.jvm.DynamicArea;
 import gov.nasa.jpf.jvm.ElementInfo;
 import gov.nasa.jpf.jvm.FieldInfo;
 
-import static de.fzi.cjunit.util.LineSeparator.lineSeparator;
+import static de.fzi.cjunit.internal.util.LineSeparator.lineSeparator;
 
 
 public class ElementInfoWrapper {
