@@ -8,16 +8,14 @@
  * Framework Programme under grant agreement No. 216682.
  */
 
-package de.fzi.cjunit;
+package de.fzi.cjunit.jpf.outside;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+public class ExceptionReconstructionException extends Exception {
 
+	private static final long serialVersionUID = 1L;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	de.fzi.cjunit.jpf.outside.AssumptionsAboutJPF.class
-})
-public class JPFTests {
+	public ExceptionReconstructionException(String message,
+			Throwable cause) {
+		super(message, cause);
+	}
 }

@@ -24,6 +24,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImplTest.class,
 	de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfoDefaultImplTest.class,
 	de.fzi.cjunit.jpf.outside.JPFInvokerTest.class,
+	de.fzi.cjunit.jpf.outside.TestFailedPropertyTest.class,
 	de.fzi.cjunit.jpf.util.ArgumentCreatorTest.class,
 	de.fzi.cjunit.jpf.util.StackFrameConverterTest.class,
 	de.fzi.cjunit.jpf.util.ExceptionFactoryTest.class

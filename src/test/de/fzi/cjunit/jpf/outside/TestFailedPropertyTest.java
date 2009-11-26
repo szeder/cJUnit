@@ -15,68 +15,162 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
 
-import gov.nasa.jpf.Config;
-import gov.nasa.jpf.JPF;
-import gov.nasa.jpf.PropertyListenerAdapter;
 import gov.nasa.jpf.jvm.JVM;
+import gov.nasa.jpf.jvm.MethodInfo;
+import gov.nasa.jpf.jvm.bytecode.ATHROW;
+import gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL;
+import gov.nasa.jpf.jvm.bytecode.InvokeInstruction;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
-import de.fzi.cjunit.jpf.util.ArgumentCreator;
+import de.fzi.cjunit.testutils.Counter;
 import de.fzi.cjunit.testutils.TestException;
 
 
 public class TestFailedPropertyTest {
 
-	void createAndRunJPF(Class<?> appClass,
-			PropertyListenerAdapter propertyListener) {
-		String[] jpfArgs = new ArgumentCreator()
-				.app(appClass)
-				.defaultJPFTestArgs()
-				.getArgs();
-
-		Config conf = JPF.createConfig(jpfArgs);
-		JPF jpf = new JPF(conf);
-		jpf.addPropertyListener(propertyListener);
-		jpf.run();
-	}
-
-	public static class SucceedingTestClass {
-		public static void main(String... args) {
-		}
-	}
-
 	@Test
-	public void succeedingTest() {
+	public void testResultWhenNotViolated() {
 		TestFailedProperty tfp = new TestFailedProperty();
-		createAndRunJPF(SucceedingTestClass.class, tfp);
-
 		assertThat(tfp.getTestResult(), equalTo(true));
 	}
 
-	public static class FailingTestClass {
-		public static void main(String... args) {
-			try {
-				throw new TestException("asdf");
-			} catch (Throwable t) {
-				NotifierMethods.testFailed(
-						new ExceptionInfoDefaultImpl(t));
-			}
-		}
+	@Test
+	public void testResultWhenViolated() {
+		TestFailedProperty tfp = new TestFailedProperty();
+		tfp.exception = new TestException();
+		assertThat(tfp.getTestResult(), equalTo(false));
 	}
 
 	@Test
-	public void failingTest() throws Throwable {
+	public void checkNotViolated() {
 		TestFailedProperty tfp = new TestFailedProperty();
-		createAndRunJPF(FailingTestClass.class, tfp);
+		assertThat(tfp.check(null, null), equalTo(true));
+	}
 
-		assertThat("test result", tfp.getTestResult(), equalTo(false));
+	@Test
+	public void checkWhenViolated() {
+		TestFailedProperty tfp = new TestFailedProperty();
+		tfp.exception = new TestException();
+		assertThat(tfp.check(null, null), equalTo(false));
+	}
 
-		Throwable t = tfp.getException();
-		assertThat("exception type", t,
-				instanceOf(TestException.class));
-		assertThat("exception message", t.getMessage(),
-				equalTo("asdf"));
+	@Test
+	public void handleInstructionInvokesHandleInvokeInstruction() {
+		final Counter invocationCounter = new Counter();
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected void handleInvokeInstruction(JVM vm,
+					InvokeInstruction insn) {
+				invocationCounter.increment();
+			}
+		};
+		tfp.handleInstruction(null, new INVOKEVIRTUAL());
+		assertThat("handleInvokeInstruction() invoked",
+				invocationCounter.getValue(), equalTo(1));
+	}
+
+	@Test
+	public void handleInstructionDoesNotInvokeHandleInvokeInstruction() {
+		final Counter invocationCounter = new Counter();
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected void handleInvokeInstruction(JVM vm,
+					InvokeInstruction insn) {
+				invocationCounter.increment();
+			}
+		};
+		tfp.handleInstruction(null, new ATHROW());
+		assertThat("handleInvokeInstruction() not invoked",
+				invocationCounter.getValue(), equalTo(0));
+	}
+
+	@Test
+	public void handleMethodInvocationNotFailsWithNullCallee() {
+		final Counter invocationCounter = new Counter();
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected void testFailed(JVM vm) {
+				invocationCounter.increment();
+			}
+		};
+		tfp.handleMethodInvocation(null, null);
+		assertThat("testFailed() not invoked",
+				invocationCounter.getValue(), equalTo(0));
+	}
+
+	@Test
+	public void handleMethodInvocationWhenNotNotifierMethod() {
+		final class NotNotifierMethodInfo extends MethodInfo {
+			@Override
+			public String getClassName() {
+				return "some random invalid class";
+			}
+		}
+		final Counter invocationCounter = new Counter();
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected void testFailed(JVM vm) {
+				invocationCounter.increment();
+			}
+		};
+		tfp.handleMethodInvocation(null, new NotNotifierMethodInfo());
+		assertThat("testFailed() not invoked",
+				invocationCounter.getValue(), equalTo(0));
+	}
+
+	@Test
+	public void handleMethodInvocationInvokesTestFailed() {
+		final class TestFailedMethodInfo extends MethodInfo {
+			@Override
+			public String getClassName() {
+				return NotifierMethods.class.getName();
+			}
+			@Override
+			public String getName() {
+				return "testFailed";
+			}
+		}
+		final Counter invocationCounter = new Counter();
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected void testFailed(JVM vm) {
+				invocationCounter.increment();
+			}
+		};
+		tfp.handleMethodInvocation(null, new TestFailedMethodInfo());
+		assertThat("testFailed() invoked", invocationCounter.getValue(),
+				equalTo(1));
+	}
+
+	@Test
+	public void testFailedSetsException() {
+		final Throwable testException = new TestException("asdf");
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected Throwable reconstructException(JVM vm) {
+				return testException;
+			}
+		};
+		tfp.testFailed(null);
+		assertThat(tfp.exception, equalTo(testException));
+	}
+
+	@Test
+	public void testFailedSetsErrorMessage() {
+		final TestException testException = new TestException("asdf");
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected Throwable reconstructException(JVM vm) {
+				return testException;
+			}
+		};
+		tfp.testFailed(null);
+		assertThat(tfp.errorMessage, containsString("test failed"));
+		assertThat(tfp.errorMessage,
+				containsString(tfp.exception.getClass().getName()));
+		assertThat(tfp.errorMessage,
+				containsString(tfp.exception.getMessage()));
 	}
 
 	@Test
@@ -89,33 +183,19 @@ public class TestFailedPropertyTest {
 				throw new Exception("exception in TestFailedProperty");
 			}
 		};
-		createAndRunJPF(FailingTestClass.class, tfp);
+		tfp.testFailed(null);
 
 		assertThat("test result", tfp.getTestResult(), equalTo(false));
 
 		Throwable t = tfp.getException();
-		assertThat("exception type", t, instanceOf(Exception.class));
-		assertThat("exception message", t.getMessage(),
+		assertThat("exception type", t, instanceOf(
+				ExceptionReconstructionException.class));
+		assertThat("has cause", t.getCause(), notNullValue());
+		assertThat("causing exception's type", t.getCause(),
+				instanceOf(Exception.class));
+		assertThat("causing exception's message",
+				t.getCause().getMessage(),
 				equalTo("exception in TestFailedProperty"));
-	}
-
-	public static class TriggerNullCallee {
-		public static void main(String... args) {
-			Integer integer = null;
-			// Yes, the  variable integer can only be null at this
-			// point, but it's intentional, because it will cause
-			// a null reference returned from
-			// InvokeInstruction.getInvokedmethod() in
-			// TestFailedProperty.handleInvokeInstruction().
-			@SuppressWarnings({"null", "unused"})
-			int i = integer+1;
-		}
-	}
-
-	@Test
-	public void handlesNullCallee() {
-		TestFailedProperty to = new TestFailedProperty();
-		createAndRunJPF(TriggerNullCallee.class, to);
 	}
 
 	@Test
