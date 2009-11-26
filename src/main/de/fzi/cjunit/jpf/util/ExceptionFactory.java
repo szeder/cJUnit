@@ -13,7 +13,7 @@ package de.fzi.cjunit.jpf.util;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import static de.fzi.cjunit.util.LineSeparator.lineSeparator;
+import static de.fzi.cjunit.internal.util.LineSeparator.lineSeparator;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
 
