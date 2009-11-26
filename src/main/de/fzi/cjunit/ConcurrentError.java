@@ -8,13 +8,18 @@
  * Framework Programme under grant agreement No. 216682.
  */
 
-package de.fzi.cjunit.jpf.inside;
+package de.fzi.cjunit;
 
-import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
+public class ConcurrentError extends Error {
 
+	private static final long serialVersionUID = 1L;
 
-public class NotifierMethods {
+	public ConcurrentError(Throwable cause) {
+		super(cause);
+		setStackTrace(cause.getStackTrace());
+	}
 
-	public static void testSucceeded() { }
-	public static void testFailed(ExceptionInfo exceptionInfo) { }
+	public ConcurrentError(String message) {
+		super(message);
+	}
 }

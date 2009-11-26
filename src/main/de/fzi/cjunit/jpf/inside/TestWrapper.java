@@ -80,6 +80,7 @@ public class TestWrapper {
 		try {
 			createTest();
 			runTest();
+			NotifierMethods.testSucceeded();
 		} catch (Throwable t) {
 			NotifierMethods.testFailed(
 					new ExceptionInfoDefaultImpl(t));

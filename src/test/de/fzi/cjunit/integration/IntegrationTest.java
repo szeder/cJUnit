@@ -22,8 +22,9 @@ import org.junit.Test;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
+import de.fzi.cjunit.ConcurrentError;
 import de.fzi.cjunit.ConcurrentJUnit;
-import de.fzi.cjunit.JPFPropertyViolated;
+import de.fzi.cjunit.DeadlockError;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithConcurrencyBug;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithDeadlock;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithSequentialBug;
@@ -100,6 +101,9 @@ public class IntegrationTest {
 				equalTo(1));
 		Failure failure = result.getFailures().get(0);
 		assertThat("exception's type", failure.getException(),
+				instanceOf(ConcurrentError.class));
+		assertThat("causing exception's type",
+				failure.getException().getCause(),
 				instanceOf(AssertionError.class));
 	}
 
@@ -114,6 +118,6 @@ public class IntegrationTest {
 				equalTo(1));
 		Failure failure = result.getFailures().get(0);
 		assertThat("exception's type", failure.getException(),
-				instanceOf(JPFPropertyViolated.class));
+				instanceOf(DeadlockError.class));
 	}
 }

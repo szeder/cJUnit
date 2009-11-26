@@ -8,13 +8,13 @@
  * Framework Programme under grant agreement No. 216682.
  */
 
-package de.fzi.cjunit.jpf.inside;
+package de.fzi.cjunit;
 
-import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
+public class DeadlockError extends ConcurrentError {
 
+	private static final long serialVersionUID = 1L;
 
-public class NotifierMethods {
-
-	public static void testSucceeded() { }
-	public static void testFailed(ExceptionInfo exceptionInfo) { }
+	public DeadlockError(String msg) {
+		super("Deadlock detected: " + msg);
+	}
 }

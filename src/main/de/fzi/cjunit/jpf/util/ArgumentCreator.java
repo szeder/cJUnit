@@ -22,6 +22,7 @@ public class ArgumentCreator {
 	private List<String> appArgs = new ArrayList<String>();
 	private Class<?> propertyClass;
 	private Class<?> publisherClass;
+	private Class<?> reporterClass;
 	private List<String> jpfargs = new ArrayList<String>();
 
 	public ArgumentCreator() {
@@ -56,6 +57,11 @@ public class ArgumentCreator {
 		return this;
 	}
 
+	public ArgumentCreator reporter(Class<?> reporterClass) {
+		this.reporterClass = reporterClass;
+		return this;
+	}
+
 	public ArgumentCreator jpfArgs(String... args) {
 		jpfargs = Arrays.asList(args);
 		return this;
@@ -78,6 +84,9 @@ public class ArgumentCreator {
 			args.add("+jpf.report." +
 					publisherClass.getSimpleName() +
 					".class=" + publisherClass.getName());
+		}
+		if (reporterClass != null) {
+			args.add("+jpf.report.class="+reporterClass.getName());
 		}
 		if (jpfargs != null && !jpfargs.isEmpty()) {
 			args.addAll(jpfargs);

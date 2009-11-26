@@ -64,6 +64,17 @@ public class ArgumentCreatorTest {
 	}
 
 	@Test
+	public void testReporter() {
+		String[] args = new ArgumentCreator()
+				.reporter(TestReporter.class)
+				.getArgs();
+		assertThat(args.length, equalTo(1));
+		assertThat(args, hasItemInArray(
+				"+jpf.report.class=" +
+				"de.fzi.cjunit.jpf.util.TestReporter"));
+	}
+
+	@Test
 	public void testJpfArgsStringArray() {
 		String[] args = new ArgumentCreator()
 			.jpfArgs(new String[] { "asdf", "ghjk" })

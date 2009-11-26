@@ -28,8 +28,29 @@ import de.fzi.cjunit.jpf.util.ExceptionFactory;
 public class TestFailedProperty extends PropertyListenerAdapter
 		implements TestProperty {
 
+	public final static String errorMessageOnSuccessAfterFailure
+			= "Test succeeded after previous failure";
+
+	protected boolean reportSuccessAsFailure = false;
+
+	protected boolean foundFailedPath = false;
+	protected boolean foundSucceededPath = false;
+
 	protected Throwable exception;
 	protected String errorMessage;
+
+
+	public void reportSuccessAsFailure() {
+		reportSuccessAsFailure = true;
+	}
+
+	public boolean foundFailedPath() {
+		return foundFailedPath;
+	}
+
+	public boolean foundSucceededPath() {
+		return foundSucceededPath;
+	}
 
 	// from TestProperty
 	@Override
@@ -42,7 +63,20 @@ public class TestFailedProperty extends PropertyListenerAdapter
 		return exception;
 	}
 
+	public class TestSucceededException extends Exception {
+		private static final long serialVersionUID = 1L;
+	}
+
+	protected void testSucceeded(JVM vm) {
+		foundSucceededPath = true;
+		if (reportSuccessAsFailure) {
+			exception = new TestSucceededException();
+			errorMessage = errorMessageOnSuccessAfterFailure;
+		}
+	}
+
 	protected void testFailed(JVM vm) {
+		foundFailedPath = true;
 		try {
 			exception = reconstructException(vm);
 		} catch (Throwable t) {
@@ -86,6 +120,12 @@ public class TestFailedProperty extends PropertyListenerAdapter
 		return errorMessage;
 	}
 
+	@Override
+	public void reset() {
+		exception = null;
+		errorMessage = null;
+	}
+
 	// from VMListener
 	@Override
 	public void executeInstruction(JVM vm) {
@@ -113,6 +153,8 @@ public class TestFailedProperty extends PropertyListenerAdapter
 
 		if (callee.getName().equals("testFailed")) {
 			testFailed(vm);
+		} else if (callee.getName().equals("testSucceeded")) {
+			testSucceeded(vm);
 		}
 	}
 

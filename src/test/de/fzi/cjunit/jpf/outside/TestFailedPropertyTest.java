@@ -23,6 +23,7 @@ import gov.nasa.jpf.jvm.bytecode.InvokeInstruction;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
+import de.fzi.cjunit.jpf.outside.TestFailedProperty.TestSucceededException;
 import de.fzi.cjunit.testutils.Counter;
 import de.fzi.cjunit.testutils.TestException;
 
@@ -87,16 +88,25 @@ public class TestFailedPropertyTest {
 
 	@Test
 	public void handleMethodInvocationNotFailsWithNullCallee() {
-		final Counter invocationCounter = new Counter();
+		final Counter failureInvocationCounter = new Counter();
+		final Counter successInvocationCounter = new Counter();
 		TestFailedProperty tfp = new TestFailedProperty() {
 			@Override
 			protected void testFailed(JVM vm) {
-				invocationCounter.increment();
+				failureInvocationCounter.increment();
+			}
+			@Override
+			protected void testSucceeded(JVM vm) {
+				successInvocationCounter.increment();
 			}
 		};
 		tfp.handleMethodInvocation(null, null);
 		assertThat("testFailed() not invoked",
-				invocationCounter.getValue(), equalTo(0));
+				failureInvocationCounter.getValue(),
+				equalTo(0));
+		assertThat("testSucceeded() not invoked",
+				successInvocationCounter.getValue(),
+				equalTo(0));
 	}
 
 	@Test
@@ -107,16 +117,25 @@ public class TestFailedPropertyTest {
 				return "some random invalid class";
 			}
 		}
-		final Counter invocationCounter = new Counter();
+		final Counter failureInvocationCounter = new Counter();
+		final Counter successInvocationCounter = new Counter();
 		TestFailedProperty tfp = new TestFailedProperty() {
 			@Override
 			protected void testFailed(JVM vm) {
-				invocationCounter.increment();
+				failureInvocationCounter.increment();
+			}
+			@Override
+			protected void testSucceeded(JVM vm) {
+				successInvocationCounter.increment();
 			}
 		};
 		tfp.handleMethodInvocation(null, new NotNotifierMethodInfo());
 		assertThat("testFailed() not invoked",
-				invocationCounter.getValue(), equalTo(0));
+				failureInvocationCounter.getValue(),
+				equalTo(0));
+		assertThat("testSucceeded() not invoked",
+				successInvocationCounter.getValue(),
+				equalTo(0));
 	}
 
 	@Test
@@ -131,16 +150,59 @@ public class TestFailedPropertyTest {
 				return "testFailed";
 			}
 		}
-		final Counter invocationCounter = new Counter();
+		final Counter failureInvocationCounter = new Counter();
+		final Counter successInvocationCounter = new Counter();
 		TestFailedProperty tfp = new TestFailedProperty() {
 			@Override
 			protected void testFailed(JVM vm) {
-				invocationCounter.increment();
+				failureInvocationCounter.increment();
+			}
+			@Override
+			protected void testSucceeded(JVM vm) {
+				successInvocationCounter.increment();
 			}
 		};
 		tfp.handleMethodInvocation(null, new TestFailedMethodInfo());
-		assertThat("testFailed() invoked", invocationCounter.getValue(),
+		assertThat("testFailed() invoked",
+				failureInvocationCounter.getValue(),
 				equalTo(1));
+		assertThat("testSucceeded() not invoked",
+				successInvocationCounter.getValue(),
+				equalTo(0));
+	}
+
+	@Test
+	public void handleInvokeInstructionInvokesTestSucceededOnSuccess() {
+		final class TestSucceededMethodInfo extends MethodInfo {
+			@Override
+			public String getClassName() {
+				return NotifierMethods.class.getName();
+			}
+			@Override
+			public String getName() {
+				return "testSucceeded";
+			}
+		}
+		final Counter failureInvocationCounter = new Counter();
+		final Counter successInvocationCounter = new Counter();
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected void testFailed(JVM vm) {
+				failureInvocationCounter.increment();
+			}
+			@Override
+			protected void testSucceeded(JVM vm) {
+				successInvocationCounter.increment();
+			}
+		};
+		tfp.handleMethodInvocation(null, new TestSucceededMethodInfo());
+		assertThat("testFailed() not invoked",
+				failureInvocationCounter.getValue(),
+				equalTo(0));
+		assertThat("testSucceeded() invoked",
+				successInvocationCounter.getValue(),
+				equalTo(1));
+
 	}
 
 	@Test
@@ -174,6 +236,26 @@ public class TestFailedPropertyTest {
 	}
 
 	@Test
+	public void testSucceededSetsFoundSucceededPath() {
+		TestFailedProperty tfp = new TestFailedProperty();
+		tfp.testSucceeded(null);
+		assertThat(tfp.foundSucceededPath, is(true));
+	}
+
+	@Test
+	public void testFailedSetsFoundFailedPath() {
+		final TestException testException = new TestException("asdf");
+		TestFailedProperty tfp = new TestFailedProperty() {
+			@Override
+			protected Throwable reconstructException(JVM vm) {
+				return testException;
+			}
+		};
+		tfp.testFailed(null);
+		assertThat(tfp.foundFailedPath, is(true));
+	}
+
+	@Test
 	public void reportExceptionDuringCollectingExceptionInfo()
 			throws Throwable {
 		TestFailedProperty tfp = new TestFailedProperty() {
@@ -204,5 +286,26 @@ public class TestFailedPropertyTest {
 		// Registering at Search means invoking a method on a null
 		// reference, which would cause a NPE here.
 		tfp.searchStarted(null);
+	}
+
+	@Test
+	public void testReset() {
+		TestFailedProperty tfp = new TestFailedProperty();
+		tfp.exception = new TestException();
+		tfp.errorMessage = "asdf";
+		tfp.reset();
+		assertThat("exception cleared", tfp.exception, nullValue());
+		assertThat("error message cleared", tfp.errorMessage,
+				nullValue());
+	}
+
+	@Test
+	public void testReportSuccessAsFailure() {
+		TestFailedProperty tfp = new TestFailedProperty();
+		tfp.reportSuccessAsFailure();
+		tfp.testSucceeded(null);
+		assertThat(tfp.exception,
+				instanceOf(TestSucceededException.class));
+		assertThat(tfp.errorMessage, notNullValue());
 	}
 }

@@ -20,52 +20,11 @@ import java.util.List;
 import org.junit.Test;
 
 import gov.nasa.jpf.Error;
-import gov.nasa.jpf.GenericProperty;
 import gov.nasa.jpf.JPF;
-import gov.nasa.jpf.Property;
-import gov.nasa.jpf.PropertyListenerAdapter;
-import gov.nasa.jpf.search.Search;
-import gov.nasa.jpf.jvm.JVM;
 
-import de.fzi.cjunit.JPFPropertyViolated;
 import de.fzi.cjunit.testutils.TestException;
 
 public class JPFInvokerTest {
-
-	TestFailedProperty createTestFailedProperty() {
-		return new TestFailedProperty() {
-			@Override
-			public boolean getTestResult() {
-				return true;
-			}
-		};
-	}
-
-	TestFailedProperty createViolatedTestFailedProperty() {
-		return new TestFailedProperty() {
-			@Override
-			public boolean getTestResult() {
-				return false;
-			}
-			@Override
-			public Throwable getException() {
-				return new TestException();
-			}
-		};
-	}
-
-	GenericProperty createViolatedGenericProeprty() {
-		return new GenericProperty() {
-			@Override
-			public boolean check(Search search, JVM jvm) {
-				return false;
-			}
-			@Override
-			public String getErrorMessage() {
-				return "something went wrong";
-			}
-		};
-	}
 
 	@Test
 	public void createJPFArgs() throws Throwable {
@@ -119,10 +78,11 @@ public class JPFInvokerTest {
 
 	@Test
 	public void getTestResultOfSucceededTest() {
-		JPFInvoker jpfInvoker = new JPFInvoker() {
+		JPFInvoker jpfInvoker = new JPFInvoker();
+		jpfInvoker.rc = new ResultCollector(null, null) {
 			@Override
-			protected List<Error> getJPFSearchErrors() {
-				return new ArrayList<Error>();
+			public boolean getTestResult() {
+				return true;
 			}
 		};
 
@@ -132,18 +92,11 @@ public class JPFInvokerTest {
 
 	@Test
 	public void getTestResultOfFailedTest() {
-		JPFInvoker jpfInvoker = new JPFInvoker() {
+		JPFInvoker jpfInvoker = new JPFInvoker();
+		jpfInvoker.rc = new ResultCollector(null, null) {
 			@Override
-			protected List<Error> getJPFSearchErrors() {
-				List<Error> list = new ArrayList<Error>();
-				// null reference is not enough, we need a
-				// PropertyListenerAdapter instance here,
-				// because Error's ctor calls
-				// property.getErrorMessage()
-				list.add(new Error(0,
-						new PropertyListenerAdapter(),
-						null, null));
-				return list;
+			public boolean getTestResult() {
+				return false;
 			}
 		};
 
@@ -152,54 +105,32 @@ public class JPFInvokerTest {
 	}
 
 	@Test
-	public void getExceptionFromPropertyWithProperty() {
-		JPFInvoker jpfInvoker = new JPFInvoker();
-		Property property = createViolatedGenericProeprty();
-
-		assertThat(jpfInvoker.getExceptionFromProperty(property),
-				instanceOf(JPFPropertyViolated.class));
-	}
-
-	@Test
-	public void getExceptionFromPropertyWithTestProperty() {
-		JPFInvoker jpfInvoker = new JPFInvoker();
-		Property property = createViolatedTestFailedProperty();
-
-		assertThat(jpfInvoker.getExceptionFromProperty(property),
-				instanceOf(TestException.class));
-	}
-
-	@Test
 	public void checkResultOfSucceededTest() throws Throwable {
-		JPFInvoker jpfInvoker = new JPFInvoker() {
+		JPFInvoker jpfInvoker = new JPFInvoker();
+		jpfInvoker.rc = new ResultCollector(null, null) {
 			@Override
-			public void createTestProperties() {
-				createTestFailedProperty();
-			}
-			public List<Error> getJPFSearchErrors() {
-				return new ArrayList<Error>();
+			public boolean getTestResult() {
+				return true;
 			}
 		};
-		jpfInvoker.createTestProperties();
 
-		jpfInvoker.checkProperties();
+		jpfInvoker.checkResult();
 	}
 
 	@Test(expected=TestException.class)
 	public void checkResultOfFailedTest() throws Throwable {
-		JPFInvoker jpfInvoker = new JPFInvoker() {
-			TestFailedProperty tfp;
-			public void createTestProperties() {
-				tfp = createViolatedTestFailedProperty();
+		JPFInvoker jpfInvoker = new JPFInvoker();
+		jpfInvoker.rc = new ResultCollector(null, null) {
+			@Override
+			public boolean getTestResult() {
+				return false;
 			}
-			public List<Error> getJPFSearchErrors() {
-				List<Error> errors = new ArrayList<Error>();
-				errors.add(new Error(0, tfp, null, null));
-				return errors;
+			@Override
+			public Throwable getException() {
+				return new TestException();
 			}
 		};
-		jpfInvoker.createTestProperties();
 
-		jpfInvoker.checkProperties();
+		jpfInvoker.checkResult();
 	}
 }
