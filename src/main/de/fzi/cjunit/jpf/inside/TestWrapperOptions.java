@@ -14,6 +14,8 @@ public class TestWrapperOptions {
 
 	public static final String TestClassOpt = "--testclass=";
 	public static final String TestOpt = "--test=";
+	public static final String MethodSubOpt = "method=";
+	public static final String ExceptionSubOpt = "exception=";
 	public static final String BeforeMethodOpt = "--beforemethod=";
 	public static final String AfterMethodOpt = "--aftermethod=";
 	public static final String ExpectedExceptionOpt = "--expectedexception=";

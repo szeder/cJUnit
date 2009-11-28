@@ -96,7 +96,9 @@ public class JPFInvoker {
 			Class<? extends Throwable> exceptionClass) {
 		List<String> testArgs = new ArrayList<String>();
 		testArgs.add(TestClassOpt + target.getClass().getName());
-		testArgs.add(TestOpt + method.getName());
+		testArgs.add(TestOpt + MethodSubOpt + method.getName()
+				+ "," + ExceptionSubOpt
+				+ getExceptionClassName(exceptionClass));
 		for (Method beforeMethod : beforeMethods) {
 			testArgs.add(BeforeMethodOpt +
 					beforeMethod.getName());
@@ -104,10 +106,6 @@ public class JPFInvoker {
 		for (Method afterMethod : afterMethods) {
 			testArgs.add(AfterMethodOpt +
 					afterMethod.getName());
-		}
-		if (exceptionClass != null) {
-			testArgs.add(ExpectedExceptionOpt +
-					exceptionClass.getName());
 		}
 
 		return new ArgumentCreator()
@@ -123,5 +121,14 @@ public class JPFInvoker {
 			.app(TestWrapper.class)
 			.appArgs(testArgs)
 			.getArgs();
+	}
+
+	protected String getExceptionClassName(
+			Class<? extends Throwable> exceptionClass) {
+		if (exceptionClass == null) {
+			return "";
+		} else {
+			return exceptionClass.getName();
+		}
 	}
 }

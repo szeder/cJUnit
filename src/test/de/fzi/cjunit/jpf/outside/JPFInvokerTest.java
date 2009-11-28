@@ -24,6 +24,18 @@ import de.fzi.cjunit.testutils.TestException;
 public class JPFInvokerTest {
 
 	@Test
+	public void getExceptionClassName() {
+		assertThat(new JPFInvoker().getExceptionClassName(RuntimeException.class),
+				equalTo(RuntimeException.class.getName()));
+	}
+
+	@Test
+	public void getExceptionClassNameWithNullArgument() {
+		assertThat(new JPFInvoker().getExceptionClassName(null),
+				equalTo(""));
+	}
+
+	@Test
 	public void createJPFArgs() throws Throwable {
 		List<Method> befores = new ArrayList<Method>();
 		befores.add(String.class.getMethod("hashCode"));
@@ -33,13 +45,13 @@ public class JPFInvokerTest {
 		afters.add(String.class.getMethod("wait"));
 		String[] args = new JPFInvoker().createJPFArgs(new String(),
 				String.class.getMethod("toString"),
-				befores, afters, RuntimeException.class);
+				befores, afters, Exception.class);
 		assertThat(args, hasItemInArray(
 				"de.fzi.cjunit.jpf.inside.TestWrapper"));
 		assertThat(args, hasItemInArray(
 				"--testclass=java.lang.String"));
-		assertThat(args, hasItemInArray("--test=toString"));
-		assertThat(args, hasItemInArray("--expectedexception=java.lang.RuntimeException"));
+		assertThat(args, hasItemInArray(
+			"--test=method=toString,exception=java.lang.Exception"));
 		assertThat(args, hasItemInArray("--beforemethod=hashCode"));
 		assertThat(args, hasItemInArray("--beforemethod=notify"));
 		assertThat(args, hasItemInArray("--aftermethod=notifyAll"));

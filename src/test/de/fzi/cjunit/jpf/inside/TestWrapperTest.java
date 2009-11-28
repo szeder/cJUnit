@@ -73,10 +73,14 @@ public class TestWrapperTest {
 	}
 
 	@Test
-	public void parseArgsTesMethod() {
+	public void parseArgsTest() {
 		TestWrapper tw = new TestWrapper(new String[] {
-				TestOpt + methodName });
-		assertThat(tw.testMethodName, equalTo(methodName));
+				TestOpt + MethodSubOpt + methodName + ","
+					+ ExceptionSubOpt + exceptionName});
+		assertThat("method name", tw.testMethodName,
+				equalTo(methodName));
+		assertThat("exception name", tw.expectedExceptionName,
+				equalTo(exceptionName));
 	}
 
 	@Test
@@ -99,13 +103,6 @@ public class TestWrapperTest {
 				tw.afterMethodNames.size(), equalTo(2));
 		assertThat(tw.afterMethodNames,
 				hasItems("wait", "notifyAll"));
-	}
-
-	@Test
-	public void parseArgsExpectedException() {
-		TestWrapper tw = new TestWrapper(new String[] {
-				ExpectedExceptionOpt + exceptionName });
-		assertThat(tw.expectedExceptionName, equalTo(exceptionName));
 	}
 
 	@Test(expected=RuntimeException.class)
