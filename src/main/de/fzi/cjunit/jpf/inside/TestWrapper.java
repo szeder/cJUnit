@@ -25,21 +25,19 @@ public class TestWrapper {
 
 	protected String testClassName;
 	protected String testMethodName;
-	protected List<String> beforeMethodNames;
+	protected List<ReflectiveMethod> beforeMethods;
 	protected List<String> afterMethodNames;
 	protected String expectedExceptionName;
 
 	protected Object target;
 	protected Method method;
-	protected List<Method> beforeMethods;
 	protected List<Method> afterMethods;
 
 	protected List<Throwable> errors;
 
 	public TestWrapper(String... args) {
-		beforeMethodNames = new ArrayList<String>();
 		afterMethodNames = new ArrayList<String>();
-		beforeMethods = new ArrayList<Method>();
+		beforeMethods = new ArrayList<ReflectiveMethod>();
 		afterMethods = new ArrayList<Method>();
 		errors = new ArrayList<Throwable>();
 		parseArgs(args);
@@ -56,8 +54,8 @@ public class TestWrapper {
 			} else if (arg.startsWith(TestOpt)) {
 				parseTestOpt(getRequiredArgumentValue(arg));
 			} else if (arg.startsWith(BeforeMethodOpt)) {
-				beforeMethodNames.add(
-						getRequiredArgumentValue(arg));
+				beforeMethods.add(new ReflectiveMethod(
+						getRequiredArgumentValue(arg)));
 			} else if (arg.startsWith(AfterMethodOpt)) {
 				afterMethodNames.add(
 						getRequiredArgumentValue(arg));
@@ -140,8 +138,8 @@ public class TestWrapper {
 
 	protected void runBeforeMethods() throws IllegalArgumentException,
 			IllegalAccessException, Throwable {
-		for (Method beforeMethod : beforeMethods) {
-			invokeMethodUnchainingException(beforeMethod);
+		for (ReflectiveMethod beforeMethod : beforeMethods) {
+			beforeMethod.invoke();
 		}
 	}
 
@@ -231,8 +229,8 @@ public class TestWrapper {
 
 	protected void createBeforeMethods() throws SecurityException,
 			NoSuchMethodException {
-		for (String methodName : beforeMethodNames) {
-			beforeMethods.add(createMethod(methodName));
+		for (ReflectiveMethod beforeMethod : beforeMethods) {
+			beforeMethod.createMethod(target);
 		}
 	}
 
