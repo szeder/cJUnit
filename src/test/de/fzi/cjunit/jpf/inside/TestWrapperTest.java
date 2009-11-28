@@ -307,7 +307,9 @@ public class TestWrapperTest {
 		TestWrapper tw = new TestWrapper();
 		tw.testMethod = new TestMethod() {
 			@Override
-			public void invoke() throws Throwable {
+			public void invoke() {}
+			@Override
+			public void checkException() throws Throwable {
 				throw new TestException();
 			}
 		};

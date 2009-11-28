@@ -22,15 +22,47 @@ import de.fzi.cjunit.testutils.*;
 
 public class TestMethodTest {
 
-	@Test(expected=IllegalArgumentException.class)
-	public void testInvokeThrows() throws Throwable {
+	@Test
+	public void testInvokedMethodThrowsNothing() throws Throwable {
 		TestMethod tm = new TestMethod() {
 			@Override
-			public void invokeMethod() {
-				throw new IllegalArgumentException();
+			public void invokeMethod() {}
+		};
+		tm.invoke();
+		assertThat("no exception stored", tm.exception, nullValue());
+	}
+
+	@Test
+	public void testInvokedMethodThrows() throws Throwable {
+		final InvocationTargetException e
+				= new InvocationTargetException(
+						new TestException());
+		TestMethod tm = new TestMethod() {
+			@Override
+			public void invokeMethod()
+					throws InvocationTargetException {
+				throw e;
 			}
 		};
 		tm.invoke();
+		assertThat("exception stored", tm.exception, notNullValue());
+		assertThat(tm.exception, equalTo((Throwable) e));
+	}
+
+	@Test
+	public void testInvokeThrows() throws Throwable {
+		final IllegalArgumentException e
+				= new IllegalArgumentException();
+		TestMethod tm = new TestMethod() {
+			@Override
+			public void invokeMethod()
+					throws IllegalArgumentException {
+				throw e;
+			}
+		};
+		tm.invoke();
+		assertThat("exception stored", tm.exception, notNullValue());
+		assertThat(tm.exception, equalTo((Throwable) e));
 	}
 
 	@Test
@@ -63,42 +95,38 @@ public class TestMethodTest {
 
 	@Test(expected=AssertionError.class)
 	public void testExpectingExceptionButNoneIsThrown() throws Throwable {
-		TestMethod tm = new TestMethod() {
-			@Override
-			public void invokeMethod() {}
-		};
+		TestMethod tm = new TestMethod();
 		tm.setExpectedExceptionName(TestException.class.getName());
+		tm.exception = null;
 
-		tm.invoke();
+		tm.checkException();
 	}
 
 	@Test
-	public void testExpectedExceptionIsCatched() throws Throwable {
-		TestMethod tm = new TestMethod() {
-			@Override
-			public void invokeMethod()
-					throws InvocationTargetException {
-				throw new InvocationTargetException(
-						new TestException());
-			}
-		};
+	public void testExpectedExceptionIsCaught() throws Throwable {
+		TestMethod tm = new TestMethod();
 		tm.setExpectedExceptionName(TestException.class.getName());
+		tm.exception = new InvocationTargetException(
+				new TestException());
 
-		tm.invoke();
+		tm.checkException();
 	}
 
 	@Test(expected=Exception.class)
 	public void testUnexpectedExceptionIsThrown() throws Throwable {
-		TestMethod tm = new TestMethod() {
-			@Override
-			public void invokeMethod()
-					throws InvocationTargetException {
-				throw new InvocationTargetException(
-						new TestException());
-			}
-		};
+		TestMethod tm = new TestMethod();
 		tm.setExpectedExceptionName(OtherTestException.class.getName());
+		tm.exception = new InvocationTargetException(
+				new TestException());
 
-		tm.invoke();
+		tm.checkException();
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void testExceptionFromInvoke() throws Throwable {
+		TestMethod tm = new TestMethod();
+		tm.exception = new IllegalArgumentException();
+
+		tm.checkException();
 	}
 }

@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 public class TestMethod extends ReflectiveMethod {
 
 	protected String expectedExceptionName;
+	protected Throwable exception;
 
 	public void setMethodName(String methodName) {
 		this.methodName = methodName;
@@ -28,19 +29,30 @@ public class TestMethod extends ReflectiveMethod {
 		return expectedExceptionName;
 	}
 
+	public Throwable getException() {
+		return exception;
+	}
+
 	@Override
-	public void invoke() throws IllegalArgumentException,
-			IllegalAccessException, Exception, AssertionError,
-			Throwable {
+	public void invoke() {
 		try {
 			invokeMethod();
+			exception = null;
+		} catch (Throwable t) {
+			exception = t;
+		}
+	}
+
+	public void checkException() throws ClassNotFoundException,
+			AssertionError, Exception, Throwable {
+		if (exception == null) {
 			if (isExpectingException()) {
 				throw new AssertionError(
 						"Expected exception: " +
 						expectedExceptionName);
 			}
-		} catch (InvocationTargetException e) {
-			Throwable cause = e.getCause();
+		} else if (exception instanceof InvocationTargetException) {
+			Throwable cause = exception.getCause();
 			if (!isExpectingException()) {
 				throw cause;
 			}
@@ -51,6 +63,8 @@ public class TestMethod extends ReflectiveMethod {
 					+ cause.getClass().getName() + ">";
 				throw new Exception(message, cause);
 			}
+		} else {
+			throw exception;
 		}
 	}
 

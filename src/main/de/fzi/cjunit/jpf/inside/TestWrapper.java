@@ -128,6 +128,7 @@ public class TestWrapper {
 		try {
 			runBeforeMethods();
 			runTestMethod();
+			checkException();
 		} catch (Throwable t) {
 			errors.add(t);
 		}
@@ -142,9 +143,13 @@ public class TestWrapper {
 		}
 	}
 
-	protected void runTestMethod() throws IllegalArgumentException,
-			IllegalAccessException, AssertionError, Throwable {
+	protected void runTestMethod() {
 		testMethod.invoke();
+	}
+
+	protected void checkException() throws ClassNotFoundException,
+			AssertionError, Exception, Throwable {
+		testMethod.checkException();
 	}
 
 	protected void runAfterMethods() {
