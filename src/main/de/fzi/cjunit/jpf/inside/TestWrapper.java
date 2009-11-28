@@ -24,10 +24,9 @@ import de.fzi.cjunit.jpf.inside.NotifierMethods;
 public class TestWrapper {
 
 	protected String testClassName;
-	protected String testMethodName;
+	protected TestMethod testMethod;
 	protected List<ReflectiveMethod> beforeMethods;
 	protected List<ReflectiveMethod> afterMethods;
-	protected String expectedExceptionName;
 
 	protected Object target;
 	protected Method method;
@@ -35,6 +34,7 @@ public class TestWrapper {
 	protected List<Throwable> errors;
 
 	public TestWrapper(String... args) {
+		testMethod = new TestMethod();
 		beforeMethods = new ArrayList<ReflectiveMethod>();
 		afterMethods = new ArrayList<ReflectiveMethod>();
 		errors = new ArrayList<Throwable>();
@@ -67,11 +67,12 @@ public class TestWrapper {
 	protected void parseTestOpt(String arg) {
 		for (String subopt : arg.split(",")) {
 			if (subopt.startsWith(MethodSubOpt)) {
-				testMethodName = getRequiredArgumentValue(
-						subopt);
+				testMethod.setMethodName(
+						getRequiredArgumentValue(
+								subopt));
 			} else if (subopt.startsWith(ExceptionSubOpt)) {
-				expectedExceptionName = getArgumentValue(
-						subopt);
+				testMethod.setExpectedExceptionName(
+						getArgumentValue(subopt));
 			} else {
 				throw new RuntimeException(
 						"wrong command line parameter");
@@ -143,26 +144,7 @@ public class TestWrapper {
 
 	protected void runTestMethod() throws IllegalArgumentException,
 			IllegalAccessException, AssertionError, Throwable {
-		try {
-			invokeTestMethod();
-			if (isExpectingException()) {
-				throw new AssertionError(
-						"Expected exception: " +
-						expectedExceptionName);
-			}
-		} catch (InvocationTargetException e) {
-			Throwable cause = e.getCause();
-			if (!isExpectingException()) {
-				throw cause;
-			}
-			if (!isExpectedException(cause)) {
-				String message
-					= "Unexpected exception, expected<"
-					+ expectedExceptionName + "> but was<"
-					+ cause.getClass().getName() + ">";
-				throw new Exception(message, cause);
-			}
-		}
+		testMethod.invoke();
 	}
 
 	protected void runAfterMethods() {
@@ -185,21 +167,6 @@ public class TestWrapper {
 		}
 	}
 
-	protected void invokeTestMethod() throws IllegalArgumentException,
-			IllegalAccessException, InvocationTargetException {
-		method.invoke(target);
-	}
-
-	protected boolean isExpectingException() {
-		return expectedExceptionName != null;
-	}
-
-	protected boolean isExpectedException(Throwable t)
-			throws ClassNotFoundException {
-		return Class.forName(expectedExceptionName)
-				.isAssignableFrom(t.getClass());
-	}
-
 	protected void createTestObject() throws
 			IllegalArgumentException, SecurityException,
 			InstantiationException, IllegalAccessException,
@@ -212,7 +179,7 @@ public class TestWrapper {
 
 	protected void createTestMethod() throws SecurityException,
 			NoSuchMethodException {
-		method = createMethod(testMethodName);
+		testMethod.createMethod(target);
 	}
 
 	protected void createBeforeMethods() throws SecurityException,
@@ -227,11 +194,6 @@ public class TestWrapper {
 		for (ReflectiveMethod afterMethod : afterMethods) {
 			afterMethod.createMethod(target);
 		}
-	}
-
-	protected Method createMethod(String methodName) throws SecurityException,
-			NoSuchMethodException {
-		return target.getClass().getMethod(methodName);
 	}
 
 	public static void main(String... args) {

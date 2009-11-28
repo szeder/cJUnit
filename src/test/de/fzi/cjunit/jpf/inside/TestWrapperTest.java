@@ -15,8 +15,6 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,9 +75,10 @@ public class TestWrapperTest {
 		TestWrapper tw = new TestWrapper(new String[] {
 				TestOpt + MethodSubOpt + methodName + ","
 					+ ExceptionSubOpt + exceptionName});
-		assertThat("method name", tw.testMethodName,
+		assertThat("method name", tw.testMethod.getMethodName(),
 				equalTo(methodName));
-		assertThat("exception name", tw.expectedExceptionName,
+		assertThat("exception name",
+				tw.testMethod.getExpectedExceptionName(),
 				equalTo(exceptionName));
 	}
 
@@ -133,25 +132,13 @@ public class TestWrapperTest {
 	}
 
 	@Test
-	public void createMethod() throws Throwable {
-		TestWrapper tw = new TestWrapper();
-		tw.testClassName = String.class.getName();
-		tw.createTestObject();
-		Method m = tw.createMethod(methodName);
-		assertThat(m.getName(), equalTo(methodName));
-		assertThat(m.getDeclaringClass().getName(), equalTo(className));
-	}
-
-	@Test
 	public void createTestMethod() throws Throwable {
 		TestWrapper tw = new TestWrapper();
 		tw.testClassName = String.class.getName();
-		tw.testMethodName = methodName;
+		tw.testMethod.setMethodName(methodName);
 		tw.createTestObject();
 		tw.createTestMethod();
-		assertThat(tw.method.getName(), equalTo(methodName));
-		assertThat(tw.method.getDeclaringClass().getName(),
-				equalTo(className));
+		assertThat(tw.testMethod.method, notNullValue());
 	}
 
 	@Test
@@ -190,70 +177,6 @@ public class TestWrapperTest {
 				createdMethodNames.size(), equalTo(2));
 		assertThat("created method names", createdMethodNames,
 				hasItems("toString", "hashCode"));
-	}
-
-	@Test
-	public void isExpectedExceptionTrue() throws Throwable {
-		TestWrapper tw = new TestWrapper();
-		tw.expectedExceptionName = TestException.class.getName();
-		assertThat(tw.isExpectedException(new TestException()),
-				equalTo(true));
-	}
-
-	@Test
-	public void isExpectedExceptionFalse() throws Throwable {
-		TestWrapper tw = new TestWrapper();
-		tw.expectedExceptionName = TestException.class.getName();
-		assertThat(tw.isExpectedException(new OtherTestException()),
-				equalTo(false));
-	}
-
-	@Test
-	public void isExpectedExceptionTrueOnSubclass() throws Throwable {
-		TestWrapper tw = new TestWrapper();
-		tw.expectedExceptionName = ParentTestException.class.getName();
-		assertThat(tw.isExpectedException(new ChildTestException()),
-				equalTo(true));
-	}
-
-	@Test(expected=InvocationTargetException.class)
-	public void testInvokeTestMethodThrowsInvocationTargetException()
-			throws Throwable {
-		TestWrapper tw = new TestWrapper();
-		tw.target = this;
-		tw.method = this.getClass().getMethod("throwTestException");
-
-		tw.invokeTestMethod();
-	}
-
-	@Test(expected=AssertionError.class)
-	public void testExpectingExceptionButNoneIsThrown() throws Throwable {
-		TestWrapper tw = new TestWrapper();
-		tw.target = this;
-		tw.method = this.getClass().getMethod("throwNothing");
-		tw.expectedExceptionName = TestException.class.getName();
-
-		tw.runTestMethod();
-	}
-
-	@Test
-	public void testExpectedExceptionIsCatched() throws Throwable {
-		TestWrapper tw = new TestWrapper();
-		tw.target = this;
-		tw.method = this.getClass().getMethod("throwTestException");
-		tw.expectedExceptionName = TestException.class.getName();
-
-		tw.runTestMethod();
-	}
-
-	@Test(expected=Exception.class)
-	public void testUnexpectedExceptionIsThrown() throws Throwable {
-		TestWrapper tw = new TestWrapper();
-		tw.target = this;
-		tw.method = this.getClass().getMethod("throwTestException");
-		tw.expectedExceptionName = OtherTestException.class.getName();
-
-		tw.runTestMethod();
 	}
 
 	@Test
@@ -382,8 +305,12 @@ public class TestWrapperTest {
 	@Test
 	public void testErrorsAreCollectedInOrder() throws Throwable {
 		TestWrapper tw = new TestWrapper();
-		tw.target = this;
-		tw.method = this.getClass().getMethod("throwTestException");
+		tw.testMethod = new TestMethod() {
+			@Override
+			public void invoke() throws Throwable {
+				throw new TestException();
+			}
+		};
 		ReflectiveMethod rm = new ReflectiveMethod() {
 			@Override
 			public void invoke() throws Throwable {
