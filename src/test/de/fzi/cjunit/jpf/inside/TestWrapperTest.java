@@ -259,7 +259,7 @@ public class TestWrapperTest {
 			throws Throwable {
 		final Counter invocationCounter = new Counter();
 		TestWrapper tw = new TestWrapper() {
-			protected void invokeTestMethod() {
+			protected void runTestMethod() {
 				invocationCounter.increment();
 			}
 		};
