@@ -15,6 +15,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.fzi.cjunit.jpf.inside.TestWrapperOptions.*;
+
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
 
@@ -49,15 +51,15 @@ public class TestWrapper {
 		}
 
 		for (String arg : args) {
-			if (arg.startsWith("--testclass=")) {
+			if (arg.startsWith(TestClassOpt)) {
 				testClassName = getArgumentValue(arg);
-			} else if (arg.startsWith("--testmethod=")) {
+			} else if (arg.startsWith(TestMethodOpt)) {
 				testMethodName = getArgumentValue(arg);
-			} else if (arg.startsWith("--beforemethod=")) {
+			} else if (arg.startsWith(BeforeMethodOpt)) {
 				beforeMethodNames.add(getArgumentValue(arg));
-			} else if (arg.startsWith("--aftermethod=")) {
+			} else if (arg.startsWith(AfterMethodOpt)) {
 				afterMethodNames.add(getArgumentValue(arg));
-			} else if (arg.startsWith("--expectedexception=")) {
+			} else if (arg.startsWith(ExpectedExceptionOpt)) {
 				expectedExceptionName = getArgumentValue(arg);
 			} else {
 				throw new RuntimeException("wrong command " +

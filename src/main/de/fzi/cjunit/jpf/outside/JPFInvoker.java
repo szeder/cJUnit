@@ -19,6 +19,8 @@ import gov.nasa.jpf.Error;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.report.Publisher;
 
+import static de.fzi.cjunit.jpf.inside.TestWrapperOptions.*;
+
 import de.fzi.cjunit.jpf.inside.TestWrapper;
 import de.fzi.cjunit.jpf.outside.TestFailedProperty;
 import de.fzi.cjunit.jpf.util.ArgumentCreator;
@@ -93,18 +95,18 @@ public class JPFInvoker {
 			List<Method> beforeMethods, List<Method> afterMethods,
 			Class<? extends Throwable> exceptionClass) {
 		List<String> testArgs = new ArrayList<String>();
-		testArgs.add("--testclass=" + target.getClass().getName());
-		testArgs.add("--testmethod=" + method.getName());
+		testArgs.add(TestClassOpt + target.getClass().getName());
+		testArgs.add(TestMethodOpt + method.getName());
 		for (Method beforeMethod : beforeMethods) {
-			testArgs.add("--beforemethod=" +
+			testArgs.add(BeforeMethodOpt +
 					beforeMethod.getName());
 		}
 		for (Method afterMethod : afterMethods) {
-			testArgs.add("--aftermethod=" +
+			testArgs.add(AfterMethodOpt +
 					afterMethod.getName());
 		}
 		if (exceptionClass != null) {
-			testArgs.add("--expectedexception=" +
+			testArgs.add(ExpectedExceptionOpt +
 					exceptionClass.getName());
 		}
 

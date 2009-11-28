@@ -20,6 +20,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.fzi.cjunit.jpf.inside.TestWrapperOptions.*;
+
 import de.fzi.cjunit.testutils.*;
 
 
@@ -41,22 +43,22 @@ public class TestWrapperTest {
 	@Test
 	public void parseArgsTestClass() {
 		TestWrapper tw = new TestWrapper(new String[] {
-				"--testclass=" + className });
+				TestClassOpt + className });
 		assertThat(tw.testClassName, equalTo(className));
 	}
 
 	@Test
 	public void parseArgsTesMethod() {
 		TestWrapper tw = new TestWrapper(new String[] {
-				"--testmethod=" + methodName });
+				TestMethodOpt + methodName });
 		assertThat(tw.testMethodName, equalTo(methodName));
 	}
 
 	@Test
 	public void parseArgsBeforeMethods() {
 		TestWrapper tw = new TestWrapper(new String[] {
-				"--beforemethod=toString",
-				"--beforemethod=hashCode" });
+				BeforeMethodOpt + "toString",
+				BeforeMethodOpt + "hashCode" });
 		assertThat("number of method names",
 				tw.beforeMethodNames.size(), equalTo(2));
 		assertThat(tw.beforeMethodNames,
@@ -66,8 +68,8 @@ public class TestWrapperTest {
 	@Test
 	public void parseArgsAfterMethods() {
 		TestWrapper tw = new TestWrapper(new String[] {
-				"--aftermethod=wait",
-				"--aftermethod=notifyAll" });
+				AfterMethodOpt + "wait",
+				AfterMethodOpt + "notifyAll" });
 		assertThat("number of method names",
 				tw.afterMethodNames.size(), equalTo(2));
 		assertThat(tw.afterMethodNames,
@@ -77,7 +79,7 @@ public class TestWrapperTest {
 	@Test
 	public void parseArgsExpectedException() {
 		TestWrapper tw = new TestWrapper(new String[] {
-				"--expectedexception=" + exceptionName });
+				ExpectedExceptionOpt + exceptionName });
 		assertThat(tw.expectedExceptionName, equalTo(exceptionName));
 	}
 
@@ -88,7 +90,7 @@ public class TestWrapperTest {
 
 	@Test(expected=RuntimeException.class)
 	public void parseArgsNoValue() {
-		new TestWrapper(new String[] { "--testclass=" });
+		new TestWrapper(new String[] { TestClassOpt });
 	}
 
 	@Test(expected=RuntimeException.class)
