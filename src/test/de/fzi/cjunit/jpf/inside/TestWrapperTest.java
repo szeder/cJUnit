@@ -226,16 +226,6 @@ public class TestWrapperTest {
 		tw.invokeTestMethod();
 	}
 
-	@Test(expected=TestException.class)
-	public void testInvokeMethodUnchainingExceptionThrowsTestException()
-			throws Throwable {
-		TestWrapper tw = new TestWrapper();
-		tw.target = this;
-		tw.method = this.getClass().getMethod("throwTestException");
-
-		tw.invokeMethodUnchainingException(tw.method);
-	}
-
 	@Test(expected=AssertionError.class)
 	public void testExpectingExceptionButNoneIsThrown() throws Throwable {
 		TestWrapper tw = new TestWrapper();

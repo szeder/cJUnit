@@ -190,16 +190,6 @@ public class TestWrapper {
 		method.invoke(target);
 	}
 
-	protected void invokeMethodUnchainingException(Method m) throws
-			IllegalArgumentException, IllegalAccessException,
-			Throwable {
-		try {
-			m.invoke(target);
-		} catch (InvocationTargetException e) {
-			throw e.getCause();
-		}
-	}
-
 	protected boolean isExpectingException() {
 		return expectedExceptionName != null;
 	}
