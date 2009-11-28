@@ -52,15 +52,18 @@ public class TestWrapper {
 
 		for (String arg : args) {
 			if (arg.startsWith(TestClassOpt)) {
-				testClassName = getArgumentValue(arg);
+				testClassName = getRequiredArgumentValue(arg);
 			} else if (arg.startsWith(TestOpt)) {
-				testMethodName = getArgumentValue(arg);
+				testMethodName = getRequiredArgumentValue(arg);
 			} else if (arg.startsWith(BeforeMethodOpt)) {
-				beforeMethodNames.add(getArgumentValue(arg));
+				beforeMethodNames.add(
+						getRequiredArgumentValue(arg));
 			} else if (arg.startsWith(AfterMethodOpt)) {
-				afterMethodNames.add(getArgumentValue(arg));
+				afterMethodNames.add(
+						getRequiredArgumentValue(arg));
 			} else if (arg.startsWith(ExpectedExceptionOpt)) {
-				expectedExceptionName = getArgumentValue(arg);
+				expectedExceptionName
+						= getRequiredArgumentValue(arg);
 			} else {
 				throw new RuntimeException("wrong command " +
 						"line parameter: " + arg);
@@ -68,12 +71,20 @@ public class TestWrapper {
 		}
 	}
 
-	protected String getArgumentValue(String arg) {
+	protected String getRequiredArgumentValue(String arg) {
 		String value = arg.substring(arg.indexOf('=')+1);
 		if (value.length() == 0) {
 			throw new RuntimeException(
 					"wrong command line parameter: " +
 					"option without value: " + arg);
+		}
+		return value;
+	}
+
+	protected String getArgumentValue(String arg) {
+		String value = arg.substring(arg.indexOf('=')+1);
+		if (value.length() == 0) {
+			return null;
 		}
 		return value;
 	}

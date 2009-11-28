@@ -41,6 +41,31 @@ public class TestWrapperTest {
 
 
 	@Test
+	public void testGetRequiredArgumentValueWithArgument() {
+		TestWrapper tw = new TestWrapper();
+		assertThat(tw.getRequiredArgumentValue("key=value"),
+				equalTo("value"));
+	}
+
+	@Test(expected=RuntimeException.class)
+	public void testGetRequiredArgumentValueWithoutArgument() {
+		TestWrapper tw = new TestWrapper();
+		tw.getRequiredArgumentValue("key=");
+	}
+
+	@Test
+	public void testGetArgumentValueWithArgument() {
+		TestWrapper tw = new TestWrapper();
+		assertThat(tw.getArgumentValue("key=value"), equalTo("value"));
+	}
+
+	@Test
+	public void testGetArgumentValueWithoutArgument() {
+		TestWrapper tw = new TestWrapper();
+		assertThat(tw.getArgumentValue("key="), nullValue());
+	}
+
+	@Test
 	public void parseArgsTestClass() {
 		TestWrapper tw = new TestWrapper(new String[] {
 				TestClassOpt + className });
