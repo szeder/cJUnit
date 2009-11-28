@@ -96,7 +96,7 @@ public class JPFInvoker {
 			Class<? extends Throwable> exceptionClass) {
 		List<String> testArgs = new ArrayList<String>();
 		testArgs.add(TestClassOpt + target.getClass().getName());
-		testArgs.add(TestMethodOpt + method.getName());
+		testArgs.add(TestOpt + method.getName());
 		for (Method beforeMethod : beforeMethods) {
 			testArgs.add(BeforeMethodOpt +
 					beforeMethod.getName());

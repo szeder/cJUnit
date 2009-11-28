@@ -50,7 +50,7 @@ public class TestWrapperTest {
 	@Test
 	public void parseArgsTesMethod() {
 		TestWrapper tw = new TestWrapper(new String[] {
-				TestMethodOpt + methodName });
+				TestOpt + methodName });
 		assertThat(tw.testMethodName, equalTo(methodName));
 	}
 

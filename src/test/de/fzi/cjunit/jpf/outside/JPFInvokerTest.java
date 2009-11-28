@@ -38,7 +38,7 @@ public class JPFInvokerTest {
 				"de.fzi.cjunit.jpf.inside.TestWrapper"));
 		assertThat(args, hasItemInArray(
 				"--testclass=java.lang.String"));
-		assertThat(args, hasItemInArray("--testmethod=toString"));
+		assertThat(args, hasItemInArray("--test=toString"));
 		assertThat(args, hasItemInArray("--expectedexception=java.lang.RuntimeException"));
 		assertThat(args, hasItemInArray("--beforemethod=hashCode"));
 		assertThat(args, hasItemInArray("--beforemethod=notify"));

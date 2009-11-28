@@ -53,7 +53,7 @@ public class TestWrapper {
 		for (String arg : args) {
 			if (arg.startsWith(TestClassOpt)) {
 				testClassName = getArgumentValue(arg);
-			} else if (arg.startsWith(TestMethodOpt)) {
+			} else if (arg.startsWith(TestOpt)) {
 				testMethodName = getArgumentValue(arg);
 			} else if (arg.startsWith(BeforeMethodOpt)) {
 				beforeMethodNames.add(getArgumentValue(arg));
