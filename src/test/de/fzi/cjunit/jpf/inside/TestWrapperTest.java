@@ -101,10 +101,12 @@ public class TestWrapperTest {
 		TestWrapper tw = new TestWrapper(new String[] {
 				AfterMethodOpt + "wait",
 				AfterMethodOpt + "notifyAll" });
-		assertThat("number of method names",
-				tw.afterMethodNames.size(), equalTo(2));
-		assertThat(tw.afterMethodNames,
-				hasItems("wait", "notifyAll"));
+		assertThat("number of methods",
+				tw.afterMethods.size(), equalTo(2));
+		assertThat("first name", tw.afterMethods.get(0).methodName,
+				equalTo("wait"));
+		assertThat("second name", tw.afterMethods.get(1).methodName,
+				equalTo("notifyAll"));
 	}
 
 	@Test(expected=RuntimeException.class)
@@ -173,13 +175,21 @@ public class TestWrapperTest {
 
 	@Test
 	public void createAfterMethods() throws Throwable {
+		final List<String> createdMethodNames = new ArrayList<String>();
 		TestWrapper tw = new TestWrapper();
-		tw.target = new String();
-		tw.afterMethodNames.add("wait");
-		tw.afterMethodNames.add("notify");
+		for (String name : new String[] { "toString", "hashCode" }) {
+			tw.afterMethods.add(new ReflectiveMethod(name) {
+				@Override
+				public void createMethod(Object target) {
+					createdMethodNames.add(methodName);
+				}
+			});
+		}
 		tw.createAfterMethods();
-		assertThat("number of methods",
-				tw.afterMethods.size(), equalTo(2));
+		assertThat("number of created methods",
+				createdMethodNames.size(), equalTo(2));
+		assertThat("created method names", createdMethodNames,
+				hasItems("toString", "hashCode"));
 	}
 
 	@Test
@@ -318,18 +328,23 @@ public class TestWrapperTest {
 	@Test
 	public void testRunAllAfterMethodsEvenIfOneThrows() throws Throwable {
 		final List<String> invokedMethodNames = new ArrayList<String>();
-		TestWrapper tw = new TestWrapper() {
-			protected void invokeMethodUnchainingException(Method m)
-					throws IllegalArgumentException,
-					IllegalAccessException, Throwable {
-				invokedMethodNames.add(m.getName());
-				super.invokeMethodUnchainingException(m);
-			}
-		};
+		TestWrapper tw = new TestWrapper();
 		tw.target = this;
-		tw.afterMethods.add(this.getClass().getMethod(
-				"throwTestException"));
-		tw.afterMethods.add(this.getClass().getMethod("throwNothing"));
+		for (String name : new String[] { "throwTestException",
+				"throwNothing" }) {
+			ReflectiveMethod rm = new ReflectiveMethod(name) {
+				@Override
+				public void invoke() throws
+						IllegalArgumentException,
+						IllegalAccessException,
+						Throwable {
+					invokedMethodNames.add(methodName);
+					super.invoke();
+				}
+			};
+			rm.createMethod(this);
+			tw.afterMethods.add(rm);
+		}
 
 		tw.runAfterMethods();
 
@@ -379,8 +394,13 @@ public class TestWrapperTest {
 		TestWrapper tw = new TestWrapper();
 		tw.target = this;
 		tw.method = this.getClass().getMethod("throwTestException");
-		tw.afterMethods.add(this.getClass().getMethod(
-				"throwOtherTestException"));
+		ReflectiveMethod rm = new ReflectiveMethod() {
+			@Override
+			public void invoke() throws Throwable {
+				throw new OtherTestException();
+			}
+		};
+		tw.afterMethods.add(rm);
 
 		try {
 			tw.runTest();

@@ -26,19 +26,17 @@ public class TestWrapper {
 	protected String testClassName;
 	protected String testMethodName;
 	protected List<ReflectiveMethod> beforeMethods;
-	protected List<String> afterMethodNames;
+	protected List<ReflectiveMethod> afterMethods;
 	protected String expectedExceptionName;
 
 	protected Object target;
 	protected Method method;
-	protected List<Method> afterMethods;
 
 	protected List<Throwable> errors;
 
 	public TestWrapper(String... args) {
-		afterMethodNames = new ArrayList<String>();
 		beforeMethods = new ArrayList<ReflectiveMethod>();
-		afterMethods = new ArrayList<Method>();
+		afterMethods = new ArrayList<ReflectiveMethod>();
 		errors = new ArrayList<Throwable>();
 		parseArgs(args);
 	}
@@ -57,8 +55,8 @@ public class TestWrapper {
 				beforeMethods.add(new ReflectiveMethod(
 						getRequiredArgumentValue(arg)));
 			} else if (arg.startsWith(AfterMethodOpt)) {
-				afterMethodNames.add(
-						getRequiredArgumentValue(arg));
+				afterMethods.add(new ReflectiveMethod(
+						getRequiredArgumentValue(arg)));
 			} else {
 				throw new RuntimeException("wrong command " +
 						"line parameter: " + arg);
@@ -168,9 +166,9 @@ public class TestWrapper {
 	}
 
 	protected void runAfterMethods() {
-		for (Method afterMethod : afterMethods) {
+		for (ReflectiveMethod afterMethod : afterMethods) {
 			try {
-				invokeMethodUnchainingException(afterMethod);
+				afterMethod.invoke();
 			} catch (Throwable t) {
 				errors.add(t);
 			}
@@ -236,8 +234,8 @@ public class TestWrapper {
 
 	protected void createAfterMethods() throws SecurityException,
 			NoSuchMethodException {
-		for (String methodName : afterMethodNames) {
-			 afterMethods.add(createMethod(methodName));
+		for (ReflectiveMethod afterMethod : afterMethods) {
+			afterMethod.createMethod(target);
 		}
 	}
 
