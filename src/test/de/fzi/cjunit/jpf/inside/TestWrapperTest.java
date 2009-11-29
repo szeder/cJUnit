@@ -198,6 +198,28 @@ public class TestWrapperTest {
 	}
 
 	@Test
+	public void testCheckExceptions() {
+		TestWrapper tw = new TestWrapper();
+		TestMethod tm = new TestMethod();
+		tw.testMethods.add(tm);
+		TestMethod tm2 = new TestMethod();
+		tm2.exception = new TestException();
+		tw.testMethods.add(tm2);
+		TestMethod tm3 = new TestMethod();
+		tm3.exception = new TestException();
+		tw.testMethods.add(tm3);
+
+		tw.checkExceptions();
+
+		assertThat("number of exceptions", tw.errors.size(),
+				equalTo(2));
+		assertThat("first exception", tw.errors.get(0),
+				equalTo(tm2.getException()));
+		assertThat("second exception", tw.errors.get(1),
+				equalTo(tm3.getException()));
+	}
+
+	@Test
 	public void testRunBeforeMethods() throws Throwable {
 		final List<String> invokedMethodNames = new ArrayList<String>();
 		TestWrapper tw = new TestWrapper();

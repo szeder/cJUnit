@@ -129,7 +129,7 @@ public class TestWrapper {
 		try {
 			runBeforeMethods();
 			runTestMethod();
-			checkException();
+			checkExceptions();
 		} catch (Throwable t) {
 			errors.add(t);
 		}
@@ -149,9 +149,14 @@ public class TestWrapper {
 		testMethods.get(0).invoke();
 	}
 
-	protected void checkException() throws ClassNotFoundException,
-			AssertionError, Exception, Throwable {
-		testMethods.get(0).checkException();
+	protected void checkExceptions() {
+		for (TestMethod tm : testMethods) {
+			try {
+				tm.checkException();
+			} catch (Throwable t) {
+				errors.add(t);
+			}
+		}
 	}
 
 	protected void runAfterMethods() {
