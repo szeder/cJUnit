@@ -198,6 +198,22 @@ public class TestWrapperTest {
 	}
 
 	@Test
+	public void testCreateThreads() {
+		TestWrapper tw = new TestWrapper();
+		TestMethod tm = new TestMethod();
+		tw.testMethods.add(tm);
+		TestMethod tm2 = new TestMethod();
+		tw.testMethods.add(tm2);
+		TestMethod tm3 = new TestMethod();
+		tw.testMethods.add(tm3);
+
+		tw.createThreads();
+
+		assertThat("number of created threads", tw.threads.size(),
+				equalTo(2));
+	}
+
+	@Test
 	public void testCheckExceptions() {
 		TestWrapper tw = new TestWrapper();
 		TestMethod tm = new TestMethod();
@@ -217,6 +233,40 @@ public class TestWrapperTest {
 				equalTo(tm2.getException()));
 		assertThat("second exception", tw.errors.get(1),
 				equalTo(tm3.getException()));
+	}
+
+	@Test
+	public void testRunTestMethod() throws Throwable {
+		final Thread[] threads = new Thread[3];
+		TestWrapper tw = new TestWrapper();
+		TestMethod tm = new TestMethod() {
+			@Override
+			public void invoke() {
+				threads[0] = Thread.currentThread();
+			}
+		};
+		tw.testMethods.add(tm);
+		TestMethod tm2 = new TestMethod() {
+			@Override
+			public void invoke() {
+				threads[1] = Thread.currentThread();
+			}
+		};
+		tw.testMethods.add(tm2);
+		TestMethod tm3 = new TestMethod() {
+			@Override
+			public void invoke() {
+				threads[2] = Thread.currentThread();
+			}
+		};
+		tw.testMethods.add(tm3);
+		tw.createThreads();
+
+		tw.runTestMethod();
+
+		assertThat(threads[0], equalTo(Thread.currentThread()));
+		assertThat(threads[1], equalTo(tw.threads.get(0)));
+		assertThat(threads[2], equalTo(tw.threads.get(1)));
 	}
 
 	@Test

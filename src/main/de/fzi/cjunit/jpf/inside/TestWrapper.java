@@ -13,6 +13,7 @@ package de.fzi.cjunit.jpf.inside;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static de.fzi.cjunit.jpf.inside.TestWrapperOptions.*;
@@ -30,6 +31,7 @@ public class TestWrapper {
 
 	protected Object target;
 	protected Method method;
+	protected List<Thread> threads;
 
 	protected List<Throwable> errors;
 
@@ -37,6 +39,7 @@ public class TestWrapper {
 		testMethods = new ArrayList<TestMethod>();
 		beforeMethods = new ArrayList<ReflectiveMethod>();
 		afterMethods = new ArrayList<ReflectiveMethod>();
+		threads = new ArrayList<Thread>();
 		errors = new ArrayList<Throwable>();
 		parseArgs(args);
 	}
@@ -122,6 +125,7 @@ public class TestWrapper {
 		createTestMethods();
 		createBeforeMethods();
 		createAfterMethods();
+		createThreads();
 	}
 
 	protected void runTest() throws IllegalArgumentException,
@@ -145,8 +149,14 @@ public class TestWrapper {
 	}
 
 	protected void runTestMethod() throws IllegalArgumentException,
-			IllegalAccessException {
+			IllegalAccessException, InterruptedException {
+		for (Thread t : threads) {
+			t.start();
+		}
 		testMethods.get(0).invoke();
+		for (Thread t : threads) {
+			t.join();
+		}
 	}
 
 	protected void checkExceptions() {
@@ -207,6 +217,19 @@ public class TestWrapper {
 			NoSuchMethodException {
 		for (ReflectiveMethod afterMethod : afterMethods) {
 			afterMethod.createMethod(target);
+		}
+	}
+
+	protected void createThreads() {
+		Iterator<TestMethod> i = testMethods.iterator();
+
+		if (i.hasNext())
+			i.next();
+
+		while (i.hasNext()) {
+			TestMethod tm = i.next();
+			Thread t = new Thread(tm);
+			threads.add(t);
 		}
 	}
 
