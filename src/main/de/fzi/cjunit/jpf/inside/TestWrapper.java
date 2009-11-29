@@ -119,7 +119,7 @@ public class TestWrapper {
 		// that both the class and the method exists, so they won't
 		// throw any exceptions
 		createTestObject();
-		createTestMethod();
+		createTestMethods();
 		createBeforeMethods();
 		createAfterMethods();
 	}
@@ -184,9 +184,11 @@ public class TestWrapper {
 				.newInstance();
 	}
 
-	protected void createTestMethod() throws SecurityException,
+	protected void createTestMethods() throws SecurityException,
 			NoSuchMethodException {
-		testMethods.get(0).createMethod(target);
+		for (TestMethod tm : testMethods) {
+			tm.createMethod(target);
+		}
 	}
 
 	protected void createBeforeMethods() throws SecurityException,

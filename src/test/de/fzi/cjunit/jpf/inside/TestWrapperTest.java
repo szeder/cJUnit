@@ -150,9 +150,13 @@ public class TestWrapperTest {
 		TestMethod tm = new TestMethod();
 		tm.setMethodName(methodName);
 		tw.testMethods.add(tm);
+		TestMethod tm2 = new TestMethod();
+		tm2.setMethodName(methodName2);
+		tw.testMethods.add(tm2);
 		tw.createTestObject();
-		tw.createTestMethod();
+		tw.createTestMethods();
 		assertThat(tw.testMethods.get(0).method, notNullValue());
+		assertThat(tw.testMethods.get(1).method, notNullValue());
 	}
 
 	@Test
