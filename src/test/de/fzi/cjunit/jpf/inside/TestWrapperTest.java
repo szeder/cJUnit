@@ -27,7 +27,9 @@ public class TestWrapperTest {
 
 	String className = "java.lang.String";
 	String methodName = "toString";
+	String methodName2 = "hashCode";
 	String exceptionName = "java.lang.AssertionError";
+	String exceptionName2 = "java.lang.RuntimeException";
 
 	public void throwNothing() { };
 	public void throwTestException() throws TestException {
@@ -74,12 +76,22 @@ public class TestWrapperTest {
 	public void parseArgsTest() {
 		TestWrapper tw = new TestWrapper(new String[] {
 				TestOpt + MethodSubOpt + methodName + ","
-					+ ExceptionSubOpt + exceptionName});
-		assertThat("method name", tw.testMethod.getMethodName(),
+					+ ExceptionSubOpt + exceptionName,
+				TestOpt + MethodSubOpt + methodName2 + ","
+					+ ExceptionSubOpt + exceptionName2
+				});
+		assertThat("test method list size", tw.testMethods.size(),
+				equalTo(2));
+		assertThat("method name", tw.testMethods.get(0).getMethodName(),
 				equalTo(methodName));
 		assertThat("exception name",
-				tw.testMethod.getExpectedExceptionName(),
+				tw.testMethods.get(0).getExpectedExceptionName(),
 				equalTo(exceptionName));
+		assertThat("method name2", tw.testMethods.get(1).getMethodName(),
+				equalTo(methodName2));
+		assertThat("exception name2",
+				tw.testMethods.get(1).getExpectedExceptionName(),
+				equalTo(exceptionName2));
 	}
 
 	@Test
@@ -135,10 +147,12 @@ public class TestWrapperTest {
 	public void createTestMethod() throws Throwable {
 		TestWrapper tw = new TestWrapper();
 		tw.testClassName = String.class.getName();
-		tw.testMethod.setMethodName(methodName);
+		TestMethod tm = new TestMethod();
+		tm.setMethodName(methodName);
+		tw.testMethods.add(tm);
 		tw.createTestObject();
 		tw.createTestMethod();
-		assertThat(tw.testMethod.method, notNullValue());
+		assertThat(tw.testMethods.get(0).method, notNullValue());
 	}
 
 	@Test
@@ -305,7 +319,7 @@ public class TestWrapperTest {
 	@Test
 	public void testErrorsAreCollectedInOrder() throws Throwable {
 		TestWrapper tw = new TestWrapper();
-		tw.testMethod = new TestMethod() {
+		TestMethod tm = new TestMethod() {
 			@Override
 			public void invoke() {}
 			@Override
@@ -313,6 +327,7 @@ public class TestWrapperTest {
 				throw new TestException();
 			}
 		};
+		tw.testMethods.add(tm);
 		ReflectiveMethod rm = new ReflectiveMethod() {
 			@Override
 			public void invoke() throws Throwable {

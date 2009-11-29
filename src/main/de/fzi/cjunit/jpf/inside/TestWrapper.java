@@ -24,7 +24,7 @@ import de.fzi.cjunit.jpf.inside.NotifierMethods;
 public class TestWrapper {
 
 	protected String testClassName;
-	protected TestMethod testMethod;
+	protected List<TestMethod> testMethods;
 	protected List<ReflectiveMethod> beforeMethods;
 	protected List<ReflectiveMethod> afterMethods;
 
@@ -34,7 +34,7 @@ public class TestWrapper {
 	protected List<Throwable> errors;
 
 	public TestWrapper(String... args) {
-		testMethod = new TestMethod();
+		testMethods = new ArrayList<TestMethod>();
 		beforeMethods = new ArrayList<ReflectiveMethod>();
 		afterMethods = new ArrayList<ReflectiveMethod>();
 		errors = new ArrayList<Throwable>();
@@ -65,20 +65,21 @@ public class TestWrapper {
 	}
 
 	protected void parseTestOpt(String arg) {
+		TestMethod tm = new TestMethod();
 		for (String subopt : arg.split(",")) {
 			if (subopt.startsWith(MethodSubOpt)) {
-				testMethod.setMethodName(
+				tm.setMethodName(
 						getRequiredArgumentValue(
 								subopt));
 			} else if (subopt.startsWith(ExceptionSubOpt)) {
-				testMethod.setExpectedExceptionName(
+				tm.setExpectedExceptionName(
 						getArgumentValue(subopt));
 			} else {
 				throw new RuntimeException(
 						"wrong command line parameter");
 			}
 		}
-
+		testMethods.add(tm);
 	}
 
 	protected String getRequiredArgumentValue(String arg) {
@@ -143,13 +144,14 @@ public class TestWrapper {
 		}
 	}
 
-	protected void runTestMethod() {
-		testMethod.invoke();
+	protected void runTestMethod() throws IllegalArgumentException,
+			IllegalAccessException {
+		testMethods.get(0).invoke();
 	}
 
 	protected void checkException() throws ClassNotFoundException,
 			AssertionError, Exception, Throwable {
-		testMethod.checkException();
+		testMethods.get(0).checkException();
 	}
 
 	protected void runAfterMethods() {
@@ -184,7 +186,7 @@ public class TestWrapper {
 
 	protected void createTestMethod() throws SecurityException,
 			NoSuchMethodException {
-		testMethod.createMethod(target);
+		testMethods.get(0).createMethod(target);
 	}
 
 	protected void createBeforeMethods() throws SecurityException,
