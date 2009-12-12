@@ -172,7 +172,7 @@ public class TestFailedPropertyTest {
 	}
 
 	@Test
-	public void handleInvokeInstructionInvokesTestSucceededOnSuccess() {
+	public void handleMethodInvocationInvokesTestSucceededOnSuccess() {
 		final class TestSucceededMethodInfo extends MethodInfo {
 			@Override
 			public String getClassName() {
