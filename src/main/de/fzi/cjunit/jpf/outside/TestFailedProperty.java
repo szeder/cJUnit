@@ -146,14 +146,21 @@ public class TestFailedProperty extends PropertyListenerAdapter
 	}
 
 	protected void handleMethodInvocation(JVM vm, MethodInfo callee) {
-		if (callee == null || !callee.getClassName().equals(
+		if (callee != null)
+			handleRealMethodInvocation(vm, callee.getClassName(),
+					callee.getName());
+	}
+
+	protected void handleRealMethodInvocation(JVM vm,
+			String calleeClassName, String calleeMethodName) {
+		if (!calleeClassName.equals(
 				NotifierMethods.class.getName())) {
 			return;
 		}
 
-		if (callee.getName().equals("testFailed")) {
+		if (calleeMethodName.equals("testFailed")) {
 			testFailed(vm);
-		} else if (callee.getName().equals("testSucceeded")) {
+		} else if (calleeMethodName.equals("testSucceeded")) {
 			testSucceeded(vm);
 		}
 	}
