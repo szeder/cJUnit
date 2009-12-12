@@ -16,7 +16,6 @@ import static org.hamcrest.Matchers.*;
 import org.junit.Test;
 
 import gov.nasa.jpf.jvm.JVM;
-import gov.nasa.jpf.jvm.MethodInfo;
 import gov.nasa.jpf.jvm.bytecode.ATHROW;
 import gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL;
 import gov.nasa.jpf.jvm.bytecode.InvokeInstruction;
@@ -88,35 +87,23 @@ public class TestFailedPropertyTest {
 
 	@Test
 	public void handleMethodInvocationNotFailsWithNullCallee() {
-		final Counter failureInvocationCounter = new Counter();
-		final Counter successInvocationCounter = new Counter();
+		final Counter invocationCounter = new Counter();
 		TestFailedProperty tfp = new TestFailedProperty() {
 			@Override
-			protected void testFailed(JVM vm) {
-				failureInvocationCounter.increment();
-			}
-			@Override
-			protected void testSucceeded(JVM vm) {
-				successInvocationCounter.increment();
+			protected void handleRealMethodInvocation(JVM vm,
+					String calleeClassName,
+					String calleeMethodName) {
+				invocationCounter.increment();
 			}
 		};
 		tfp.handleMethodInvocation(null, null);
-		assertThat("testFailed() not invoked",
-				failureInvocationCounter.getValue(),
-				equalTo(0));
-		assertThat("testSucceeded() not invoked",
-				successInvocationCounter.getValue(),
+		assertThat("handleRealMethodInvocation() not invoked",
+				invocationCounter.getValue(),
 				equalTo(0));
 	}
 
 	@Test
-	public void handleMethodInvocationWhenNotNotifierMethod() {
-		final class NotNotifierMethodInfo extends MethodInfo {
-			@Override
-			public String getClassName() {
-				return "some random invalid class";
-			}
-		}
+	public void handleRealMethodInvocationWhenNotNotifierMethod() {
 		final Counter failureInvocationCounter = new Counter();
 		final Counter successInvocationCounter = new Counter();
 		TestFailedProperty tfp = new TestFailedProperty() {
@@ -129,7 +116,8 @@ public class TestFailedPropertyTest {
 				successInvocationCounter.increment();
 			}
 		};
-		tfp.handleMethodInvocation(null, new NotNotifierMethodInfo());
+		tfp.handleRealMethodInvocation(null, "RandomClass",
+				"randomMethod");
 		assertThat("testFailed() not invoked",
 				failureInvocationCounter.getValue(),
 				equalTo(0));
@@ -139,17 +127,7 @@ public class TestFailedPropertyTest {
 	}
 
 	@Test
-	public void handleMethodInvocationInvokesTestFailed() {
-		final class TestFailedMethodInfo extends MethodInfo {
-			@Override
-			public String getClassName() {
-				return NotifierMethods.class.getName();
-			}
-			@Override
-			public String getName() {
-				return "testFailed";
-			}
-		}
+	public void handleRealMethodInvocationInvokesTestFailed() {
 		final Counter failureInvocationCounter = new Counter();
 		final Counter successInvocationCounter = new Counter();
 		TestFailedProperty tfp = new TestFailedProperty() {
@@ -162,7 +140,8 @@ public class TestFailedPropertyTest {
 				successInvocationCounter.increment();
 			}
 		};
-		tfp.handleMethodInvocation(null, new TestFailedMethodInfo());
+		tfp.handleRealMethodInvocation(null,
+				NotifierMethods.class.getName(), "testFailed");
 		assertThat("testFailed() invoked",
 				failureInvocationCounter.getValue(),
 				equalTo(1));
@@ -172,17 +151,7 @@ public class TestFailedPropertyTest {
 	}
 
 	@Test
-	public void handleMethodInvocationInvokesTestSucceededOnSuccess() {
-		final class TestSucceededMethodInfo extends MethodInfo {
-			@Override
-			public String getClassName() {
-				return NotifierMethods.class.getName();
-			}
-			@Override
-			public String getName() {
-				return "testSucceeded";
-			}
-		}
+	public void handleRealMethodInvocationInvokesTestSucceededOnSuccess() {
 		final Counter failureInvocationCounter = new Counter();
 		final Counter successInvocationCounter = new Counter();
 		TestFailedProperty tfp = new TestFailedProperty() {
@@ -195,7 +164,9 @@ public class TestFailedPropertyTest {
 				successInvocationCounter.increment();
 			}
 		};
-		tfp.handleMethodInvocation(null, new TestSucceededMethodInfo());
+		tfp.handleRealMethodInvocation(null,
+				NotifierMethods.class.getName(),
+				"testSucceeded");
 		assertThat("testFailed() not invoked",
 				failureInvocationCounter.getValue(),
 				equalTo(0));
