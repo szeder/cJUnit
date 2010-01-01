@@ -18,7 +18,6 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
 	de.fzi.cjunit.BaseTests.class,
-	de.fzi.cjunit.JPFTests.class,
 	de.fzi.cjunit.IntegrationTests.class
 })
 public class AllTests {
