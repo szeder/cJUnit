@@ -17,35 +17,21 @@ import java.util.List;
 
 import org.junit.Test;
 
-import gov.nasa.jpf.Config;
+import de.fzi.cjunit.testutils.JPFForTesting;
+
 import gov.nasa.jpf.Error;
 import gov.nasa.jpf.GenericProperty;
-import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.Property;
 import gov.nasa.jpf.jvm.JVM;
 import gov.nasa.jpf.jvm.NoUncaughtExceptionsProperty;
 import gov.nasa.jpf.search.Search;
 
-import de.fzi.cjunit.jpf.util.ArgumentCreator;
 
-
-public class AssumptionsAboutJPF {
-
-	protected Config config;
-	protected JPF jpf;
+public class AssumptionsAboutJPF extends JPFForTesting {
 
 	public static class DoNothing {
 		public static void main(String... args) {
 		}
-	}
-
-	protected void createJPF(Class<?> appClass) {
-		String[] jpfArgs = new ArgumentCreator()
-				.app(appClass)
-				.defaultJPFTestArgs()
-				.getArgs();
-		config = JPF.createConfig(jpfArgs);
-		jpf = new JPF(config);
 	}
 
 	class FailingProperty extends GenericProperty {
