@@ -8,7 +8,7 @@
  * Framework Programme under grant agreement No. 216682.
  */
 
-package de.fzi.cjunit.jpf.outside;
+package de.fzi.cjunit.jpf.assumptions;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
