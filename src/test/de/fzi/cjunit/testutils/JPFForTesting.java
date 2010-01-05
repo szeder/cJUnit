@@ -20,9 +20,14 @@ public class JPFForTesting {
 	protected JPF jpf;
 
 	protected void createJPF(Class<?> appClass) {
+		createJPF(new String[] {}, appClass);
+	}
+
+	protected void createJPF(String[] args, Class<?> appClass) {
 		String[] jpfArgs = new ArgumentCreator()
 				.app(appClass)
 				.defaultJPFTestArgs()
+				.jpfArgs(args)
 				.getArgs();
 		config = JPF.createConfig(jpfArgs);
 		jpf = new JPF(config);
