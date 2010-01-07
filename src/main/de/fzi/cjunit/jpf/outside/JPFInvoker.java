@@ -112,6 +112,7 @@ public class JPFInvoker {
 			.publisher(OnFailurePublisher.class)
 			.reporter(TestReporter.class)
 			.jpfArgs(new String[] {
+					"+vm.por.field_boundaries.never=",
 					"+search.multiple_errors=true",
 					"+jpf.report.console.start=",
 					"+jpf.report.console.finished=result",

@@ -13,24 +13,26 @@ package de.fzi.cjunit.integration.testclasses;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.fzi.cjunit.ConcurrentTest;
-import de.fzi.cjunit.testutils.Counter;
 
 
 public class ConcurrentTestWithConcurrencyBug {
 
 	@ConcurrentTest
 	public void concurrentTestMethod() throws InterruptedException {
-		final Counter counter = new Counter();
+		final List<Integer> list = new ArrayList<Integer>();
 		Thread t = new Thread() {
 			@Override
 			public void run() {
-				counter.increment();
+				list.add(1);
 			}
 		};
 		t.start();
-		counter.increment();
+		list.add(2);
 		t.join();
-		assertThat(counter.getValue(), equalTo(2));
+		assertThat(list.size(), equalTo(2));
 	}
 }
