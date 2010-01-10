@@ -29,8 +29,9 @@ public class ConcurrentStatement extends Statement {
 	protected List<FrameworkMethod> afters;
 	protected Class<? extends Throwable> expectedExceptionClass;
 
-	public ConcurrentStatement(FrameworkMethod testMethod, Object target) {
-		this.testMethod = (ConcurrentFrameworkMethod) testMethod;
+	public ConcurrentStatement(ConcurrentFrameworkMethod testMethod,
+			Object target) {
+		this.testMethod = testMethod;
 		this.target = target;
 		befores = new ArrayList<FrameworkMethod>();
 		afters = new ArrayList<FrameworkMethod>();
