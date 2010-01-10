@@ -130,6 +130,8 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 		if (!(method instanceof ConcurrentFrameworkMethod)) {
 			return super.methodBlock(method);
 		}
+		ConcurrentFrameworkMethod concurrentFrameworkMethod
+				= (ConcurrentFrameworkMethod) method;
 
 		Object test;
 		try {
@@ -137,7 +139,7 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 		} catch (Throwable e) {
 			return new Fail(e);
 		}
-		return buildStatements(method, test);
+		return buildStatements(concurrentFrameworkMethod, test);
 	}
 
 	protected Object createTestObject() throws Throwable {
@@ -149,7 +151,7 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 		}.run();
 	}
 
-	protected Statement buildStatements(FrameworkMethod method,
+	protected ConcurrentStatement buildStatements(ConcurrentFrameworkMethod method,
 			Object test) {
 		ConcurrentStatement statement = concurrentMethodInvoker(
 				method, test);
@@ -161,12 +163,12 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 	}
 
 	protected ConcurrentStatement concurrentMethodInvoker(
-			FrameworkMethod method, Object test) {
+			ConcurrentFrameworkMethod method, Object test) {
 		return new ConcurrentStatement(method, test);
 	}
 
 	protected ConcurrentStatement concurrentPossiblyExpectingExceptions(
-			FrameworkMethod method, Object test,
+			ConcurrentFrameworkMethod method, Object test,
 			ConcurrentStatement statement) {
 		ConcurrentTest annotation = method.getAnnotation(
 				ConcurrentTest.class);
@@ -177,7 +179,7 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 	}
 
 	protected ConcurrentStatement concurrentWithBefores(
-			FrameworkMethod method, Object target,
+			ConcurrentFrameworkMethod method, Object target,
 			ConcurrentStatement statement) {
 		List<FrameworkMethod> befores = getTestClass()
 				.getAnnotatedMethods(Before.class);
@@ -186,7 +188,7 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 	}
 
 	protected ConcurrentStatement concurrentWithAfters(
-			FrameworkMethod method, Object target,
+			ConcurrentFrameworkMethod method, Object target,
 			ConcurrentStatement statement) {
 		List<FrameworkMethod> afters = getTestClass()
 				.getAnnotatedMethods(After.class);
