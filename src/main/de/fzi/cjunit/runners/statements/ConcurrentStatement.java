@@ -28,18 +28,40 @@ import de.fzi.cjunit.jpf.util.TestReporter;
 
 public class ConcurrentStatement extends Statement {
 
-	protected ConcurrentFrameworkMethod testMethod;
+	public class MethodInfo {
+		ConcurrentFrameworkMethod method;
+		Class<? extends Throwable> exception;
+
+		MethodInfo(ConcurrentFrameworkMethod method) {
+			this.method = method;
+		}
+
+		MethodInfo(ConcurrentFrameworkMethod method,
+				Class<? extends Throwable> exception) {
+			this.method = method;
+			this.exception = exception;
+		}
+
+		public ConcurrentFrameworkMethod getMethod() {
+			return method;
+		}
+
+		public Class<? extends Throwable> getException() {
+			return exception;
+		}
+	}
+
+	protected List<MethodInfo> testMethods = new ArrayList<MethodInfo>();
 	protected Object target;
 	protected List<FrameworkMethod> befores;
 	protected List<FrameworkMethod> afters;
-	protected Class<? extends Throwable> expectedExceptionClass;
 
 	// for testing
 	ConcurrentStatement() {}
 
 	public ConcurrentStatement(ConcurrentFrameworkMethod testMethod,
 			Object target) {
-		this.testMethod = testMethod;
+		testMethods.add(new MethodInfo(testMethod));
 		this.target = target;
 		befores = new ArrayList<FrameworkMethod>();
 		afters = new ArrayList<FrameworkMethod>();
@@ -55,7 +77,7 @@ public class ConcurrentStatement extends Statement {
 	}
 
 	public void expectException(Class<? extends Throwable> expected) {
-		expectedExceptionClass = expected;
+		testMethods.get(0).exception = expected;
 	}
 
 	public void addBefores(List<FrameworkMethod> befores) {
@@ -66,12 +88,17 @@ public class ConcurrentStatement extends Statement {
 		this.afters = afters;
 	}
 
+	public List<MethodInfo> getTestMethods() {
+		return testMethods;
+	}
+
 	protected String[] createJPFArgs() {
 		List<String> testArgs = new ArrayList<String>();
 		testArgs.add(TestClassOpt + target.getClass().getName());
-		testArgs.add(TestOpt + MethodSubOpt + testMethod.getName()
+		testArgs.add(TestOpt + MethodSubOpt
+				+ testMethods.get(0).method.getName()
 				+ "," + ExceptionSubOpt
-				+ getExceptionClassName(expectedExceptionClass));
+				+ getExceptionClassName(testMethods.get(0).exception));
 		for (FrameworkMethod beforeMethod : befores) {
 			testArgs.add(BeforeMethodOpt +
 					beforeMethod.getName());
