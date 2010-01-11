@@ -27,7 +27,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.fzi.cjunit.ConcurrentTest;
-import de.fzi.cjunit.ConcurrentTest.None;
 import de.fzi.cjunit.runners.model.ConcurrentFrameworkMethod;
 import de.fzi.cjunit.runners.statements.ConcurrentStatement;
 
@@ -175,10 +174,9 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 	protected ConcurrentStatement concurrentPossiblyExpectingExceptions(
 			ConcurrentFrameworkMethod method, Object test,
 			ConcurrentStatement statement) {
-		ConcurrentTest annotation = method.getAnnotation(
-				ConcurrentTest.class);
-		if (annotation != null && annotation.expected() != None.class) {
-			statement.expectException(annotation.expected());
+		Class<? extends Throwable> expected = method.getExpected();
+		if (expected != null) {
+			statement.expectException(expected);
 		}
 		return statement;
 	}
