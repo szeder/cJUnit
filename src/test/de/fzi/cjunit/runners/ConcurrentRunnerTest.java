@@ -26,6 +26,8 @@ import org.junit.runners.model.Statement;
 import de.fzi.cjunit.ConcurrentTest;
 import de.fzi.cjunit.runners.model.ConcurrentFrameworkMethod;
 import de.fzi.cjunit.runners.statements.ConcurrentStatement;
+import de.fzi.cjunit.testutils.TestException;
+
 
 public class ConcurrentRunnerTest {
 
@@ -266,5 +268,42 @@ public class ConcurrentRunnerTest {
 		@SuppressWarnings("unused")
 		ConcurrentRunner runner = new ConcurrentRunner(
 				TestClassWithZeroThreadCount.class);
+	}
+
+	static public class TestClassWithThreadCount {
+		@ConcurrentTest(threadCount=3,expected=TestException.class)
+		public void testMethod() { }
+	}
+
+	@Test
+	public void testThreadCount() throws Throwable {
+		ConcurrentRunner runner = new ConcurrentRunner(
+				TestClassWithThreadCount.class);
+		ConcurrentFrameworkMethod method = new ConcurrentFrameworkMethod(
+				TestClassWithThreadCount.class.getMethod(
+						"testMethod"));
+
+		ConcurrentStatement statement = runner.buildStatements(method,
+				null);
+		assertThat("number of methods",
+				statement.getTestMethods().size(), equalTo(3));
+		assertThat("first method",
+				statement.getTestMethods().get(0).getMethod(),
+				equalTo(method));
+		assertThat("first exception (class name)",
+				statement.getTestMethods().get(0).getException().getName(),
+				equalTo(TestException.class.getName()));
+		assertThat("second method",
+				statement.getTestMethods().get(1).getMethod(),
+				equalTo(method));
+		assertThat("second exception (class name)",
+				statement.getTestMethods().get(1).getException().getName(),
+				equalTo(TestException.class.getName()));
+		assertThat("third method",
+				statement.getTestMethods().get(2).getMethod(),
+				equalTo(method));
+		assertThat("third exception (class name)",
+				statement.getTestMethods().get(2).getException().getName(),
+				equalTo(TestException.class.getName()));
 	}
 }
