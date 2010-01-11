@@ -176,9 +176,9 @@ public class ConcurrentRunnerTest {
 
 	@Test(expected=InitializationError.class)
 	public void errorOnTestAndConcurrentTest() throws Throwable {
+		@SuppressWarnings("unused")
 		ConcurrentRunner runner = new ConcurrentRunner(
 				TestAndConcurrentTestClass.class);
-		runner.hashCode();	// to avoid unused variable warning
 	}
 
 	@Test
@@ -215,9 +215,9 @@ public class ConcurrentRunnerTest {
 
 	@Test(expected=InitializationError.class)
 	public void errorOnBeforeClassWithConcurrentTest() throws Throwable {
+		@SuppressWarnings("unused")
 		ConcurrentRunner runner = new ConcurrentRunner(
 				TestClassWithBeforeClass.class);
-		runner.hashCode();	// to avoid unused variable warning
 	}
 
 	static public class TestClassWithAfterClass {
@@ -227,9 +227,9 @@ public class ConcurrentRunnerTest {
 
 	@Test(expected=InitializationError.class)
 	public void errorOnAfterClassWithConcurrentTest() throws Throwable {
+		@SuppressWarnings("unused")
 		ConcurrentRunner runner = new ConcurrentRunner(
 				TestClassWithAfterClass.class);
-		runner.hashCode();	// to avoid unused variable warning
 	}
 
 	static public class TestClassWithBeforeClassAndAfterClass {
@@ -241,8 +241,8 @@ public class ConcurrentRunnerTest {
 	@Test(expected=InitializationError.class)
 	public void errorOnBeforeClassAndAfterClassWithConcurrentTest()
 			throws Throwable {
+		@SuppressWarnings("unused")
 		ConcurrentRunner runner = new ConcurrentRunner(
 				TestClassWithBeforeClassAndAfterClass.class);
-		runner.hashCode();	// to avoid unused variable warning
 	}
 }
