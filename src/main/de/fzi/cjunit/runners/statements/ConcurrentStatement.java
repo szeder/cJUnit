@@ -88,6 +88,11 @@ public class ConcurrentStatement extends Statement {
 		this.afters = afters;
 	}
 
+	public void addTestMethod(ConcurrentFrameworkMethod testMethod,
+			Class<? extends Throwable> expected) {
+		testMethods.add(new MethodInfo(testMethod, expected));
+	}
+
 	public List<MethodInfo> getTestMethods() {
 		return testMethods;
 	}

@@ -23,6 +23,28 @@ import de.fzi.cjunit.testutils.TestException;
 public class ConcurrentStatementTest {
 
 	@Test
+	public void testAddTestMethod() throws Throwable {
+		ConcurrentFrameworkMethod cfm = new ConcurrentFrameworkMethod(
+				String.class.getMethod("toString"));
+		ConcurrentFrameworkMethod cfm2 = new ConcurrentFrameworkMethod(
+				String.class.getMethod("hashCode"));
+		ConcurrentStatement statement = new ConcurrentStatement(cfm,
+				new String());
+
+		statement.addTestMethod(cfm2, Exception.class);
+
+		assertThat("number of methods", statement.testMethods.size(),
+				equalTo(2));
+		assertThat("first method", statement.testMethods.get(0).method,
+				equalTo(cfm));
+		assertThat("second method", statement.testMethods.get(1).method,
+				equalTo(cfm2));
+		assertThat("second exception (class name)",
+				statement.testMethods.get(1).exception.getName(),
+				equalTo(Exception.class.getName()));
+	}
+
+	@Test
 	public void getExceptionClassName() throws Throwable {
 		assertThat(new ConcurrentStatement().getExceptionClassName(
 					RuntimeException.class),
