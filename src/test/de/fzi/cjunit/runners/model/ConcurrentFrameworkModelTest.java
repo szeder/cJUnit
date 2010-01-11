@@ -26,6 +26,8 @@ public class ConcurrentFrameworkModelTest {
 		public void testMethod() { }
 		@ConcurrentTest(expected=TestException.class)
 		public void testMethodWithException() { }
+		@ConcurrentTest(threadCount=5)
+		public void testMethodWithThreadCount() { }
 	}
 
 	@Test
@@ -45,5 +47,14 @@ public class ConcurrentFrameworkModelTest {
 		assertThat("exception (class name)",
 				cfm.getExpected().getName(),
 				equalTo(TestException.class.getName()));
+	}
+
+	@Test
+	public void testConcurrentTestMethodWithThreadCount() throws Throwable {
+		ConcurrentFrameworkMethod cfm = new ConcurrentFrameworkMethod(
+				TestClass.class.getMethod(
+						"testMethodWithThreadCount"));
+
+		assertThat(cfm.getThreadCount(), equalTo(5));
 	}
 }
