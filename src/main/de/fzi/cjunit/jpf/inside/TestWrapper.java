@@ -126,6 +126,11 @@ public class TestWrapper {
 		createBeforeMethods();
 		createAfterMethods();
 		createThreads();
+		createTestBarrier();
+	}
+
+	protected void createTestBarrier() {
+		new TestBarrierInitializator(testMethods.size());
 	}
 
 	protected void runTest() throws IllegalArgumentException,
