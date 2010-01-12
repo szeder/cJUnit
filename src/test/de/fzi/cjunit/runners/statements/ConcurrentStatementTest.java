@@ -86,6 +86,23 @@ public class ConcurrentStatementTest {
 		assertThat(args, hasItemInArray("--aftermethod=wait"));
 	}
 
+	@Test
+	public void testCreateJPFArgsForMultipleTestMethods()
+			throws Throwable {
+		ConcurrentFrameworkMethod cfm = new ConcurrentFrameworkMethod(
+				String.class.getMethod("toString"));
+		ConcurrentFrameworkMethod cfm2 = new ConcurrentFrameworkMethod(
+				String.class.getMethod("hashCode"));
+		ConcurrentStatement statement = new ConcurrentStatement(cfm,
+				new String());
+		statement.addTestMethod(cfm2, TestException.class);
+
+		String[] args = statement.createJPFArgs();
+
+		assertThat(args, hasItemInArray("--test=method=toString,exception="));
+		assertThat(args, hasItemInArray("--test=method=hashCode,exception=de.fzi.cjunit.testutils.TestException"));
+	}
+
 	// This also covers the case when the same exception is thrown in the
 	// test method as expected: invokeJPF() does not throw in that case.
 	@Test

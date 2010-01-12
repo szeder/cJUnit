@@ -100,10 +100,12 @@ public class ConcurrentStatement extends Statement {
 	protected String[] createJPFArgs() {
 		List<String> testArgs = new ArrayList<String>();
 		testArgs.add(TestClassOpt + target.getClass().getName());
-		testArgs.add(TestOpt + MethodSubOpt
-				+ testMethods.get(0).method.getName()
-				+ "," + ExceptionSubOpt
-				+ getExceptionClassName(testMethods.get(0).exception));
+		for (MethodInfo mi : testMethods) {
+			testArgs.add(TestOpt + MethodSubOpt
+					+ mi.method.getName() + ","
+					+ ExceptionSubOpt
+					+ getExceptionClassName(mi.exception));
+		}
 		for (FrameworkMethod beforeMethod : befores) {
 			testArgs.add(BeforeMethodOpt +
 					beforeMethod.getName());
