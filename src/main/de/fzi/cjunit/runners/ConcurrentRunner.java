@@ -196,6 +196,7 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 		statement = concurrentPossiblyExpectingExceptions(method,
 				test, statement);
 		statement = concurrentWithThreadCount(method, test, statement);
+		statement = concurrentWithThreadGroup(method, test, statement);
 		statement = concurrentWithBefores(method, test, statement);
 		statement = concurrentWithAfters(method, test, statement);
 		return statement;
@@ -223,6 +224,17 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 		Class<? extends Throwable> expected = method.getExpected();
 		for (int i = 2; i <= threadCount; i++) {
 			statement.addTestMethod(method, expected);
+		}
+		return statement;
+	}
+
+	protected ConcurrentStatement concurrentWithThreadGroup(
+			ConcurrentFrameworkMethod method, Object test,
+			ConcurrentStatement statement) {
+		for (ConcurrentFrameworkMethod groupMethod
+				: method.getThreadGroupMembers()) {
+			statement.addTestMethod(groupMethod,
+					groupMethod.getExpected());
 		}
 		return statement;
 	}
