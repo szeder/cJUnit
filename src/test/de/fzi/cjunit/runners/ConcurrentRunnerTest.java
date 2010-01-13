@@ -306,4 +306,16 @@ public class ConcurrentRunnerTest {
 				statement.getTestMethods().get(2).getException().getName(),
 				equalTo(TestException.class.getName()));
 	}
+
+	static public class TestClassWithThreadCountAndThreadGroup {
+		@ConcurrentTest(threadCount=3,threadGroup=4)
+		public void testMethod() { }
+	}
+
+	@Test(expected=InitializationError.class)
+	public void testThreadCountAndThreadGroup() throws Throwable {
+		@SuppressWarnings("unused")
+		ConcurrentRunner runner = new ConcurrentRunner(
+				TestClassWithThreadCountAndThreadGroup.class);
+	}
 }

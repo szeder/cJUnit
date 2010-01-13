@@ -109,9 +109,17 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 						"exclusive";
 				errors.add(new Exception(gripe));
 			}
-			if (eachMethod.getAnnotation(ConcurrentTest.class)
-					.threadCount() < 1) {
+			ConcurrentTest annotation = eachMethod.getAnnotation(
+					ConcurrentTest.class);
+			if (annotation.threadCount() < 1) {
 				String gripe = "positive threadCount required";
+				errors.add(new Exception(gripe));
+			}
+			if (annotation.threadCount() != 1
+					&& annotation.threadGroup() != 0) {
+				String gripe = "threadCount and threadGroup " +
+						"annotation parameters are " +
+						"mutually exclusive";
 				errors.add(new Exception(gripe));
 			}
 		}
