@@ -89,10 +89,36 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 		List<FrameworkMethod> concurrentMethods
 				= new ArrayList<FrameworkMethod>();
 		for (FrameworkMethod eachMethod : methods) {
-			concurrentMethods.add(new ConcurrentFrameworkMethod(
-						eachMethod.getMethod()));
+			ConcurrentFrameworkMethod cfm
+					= new ConcurrentFrameworkMethod(
+							eachMethod.getMethod());
+			ConcurrentFrameworkMethod foundMethod
+					= findAddedThreadGroupMember(
+							concurrentMethods,
+							cfm.getThreadGroup());
+			if (foundMethod == null) {
+				concurrentMethods.add(cfm);
+			} else {
+				foundMethod.addThreadGroupMember(cfm);
+			}
 		}
 		return concurrentMethods;
+	}
+
+	protected ConcurrentFrameworkMethod findAddedThreadGroupMember(
+			List<FrameworkMethod> concurrentMethods,
+			int threadGroup) {
+		if (threadGroup == 0) {
+			return null;
+		}
+		for (FrameworkMethod method : concurrentMethods) {
+			ConcurrentTest annotation = method.getAnnotation(
+					ConcurrentTest.class);
+			if (annotation.threadGroup() == threadGroup) {
+				return (ConcurrentFrameworkMethod) method;
+			}
+		}
+		return null;
 	}
 
 	protected void validateConcurrentTestMethods(List<Throwable> errors) {

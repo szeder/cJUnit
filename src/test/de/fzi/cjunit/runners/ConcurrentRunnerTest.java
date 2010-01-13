@@ -172,6 +172,57 @@ public class ConcurrentRunnerTest {
 				));
 	}
 
+	static public class TestClassWithThreadGroup {
+		@ConcurrentTest(threadGroup=5)
+		public void testMethod1() { }
+		@ConcurrentTest(threadGroup=5)
+		public void testMethod2() { }
+		@ConcurrentTest(threadGroup=6)
+		public void testMethod3() { }
+		@ConcurrentTest(threadGroup=6)
+		public void testMethod4() { }
+		@ConcurrentTest(threadGroup=6)
+		public void testMethod5() { }
+	}
+
+	@Test
+	public void computeTestMethodsForTestClassWithThreadGroup()
+			throws Throwable {
+		ConcurrentRunner runner = new ConcurrentRunner(
+				TestClassWithThreadGroup.class);
+		List<FrameworkMethod> methods
+				= runner.computeTestMethods();
+
+		assertThat("number of returned methods",
+				methods.size(), equalTo(2));
+		assertThat(methods, hasItems(
+				new FrameworkMethod(
+					TestClassWithThreadGroup.class
+						.getMethod("testMethod1")),
+				new FrameworkMethod(
+					TestClassWithThreadGroup.class
+						.getMethod("testMethod3"))
+				));
+		ConcurrentFrameworkMethod cfm1
+				= (ConcurrentFrameworkMethod) methods.get(0);
+		assertThat(cfm1.getThreadGroupMembers().size(), equalTo(1));
+		assertThat(cfm1.getThreadGroupMembers(), hasItem(
+				new ConcurrentFrameworkMethod(
+					TestClassWithThreadGroup.class
+						.getMethod("testMethod2"))));
+		ConcurrentFrameworkMethod cfm2
+				= (ConcurrentFrameworkMethod) methods.get(1);
+		assertThat(cfm2.getThreadGroupMembers().size(), equalTo(2));
+		assertThat(cfm2.getThreadGroupMembers(), hasItems(
+				new ConcurrentFrameworkMethod(
+					TestClassWithThreadGroup.class
+						.getMethod("testMethod4")),
+				new ConcurrentFrameworkMethod(
+					TestClassWithThreadGroup.class
+						.getMethod("testMethod5"))
+				));
+	}
+
 	static public class TestAndConcurrentTestClass {
 		@Test @ConcurrentTest public void testMethod() { }
 	}
