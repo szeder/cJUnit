@@ -19,9 +19,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import gov.nasa.jpf.Error;
-import gov.nasa.jpf.JPF;
-
 import de.fzi.cjunit.testutils.TestException;
 
 public class JPFInvokerTest {
@@ -47,33 +44,6 @@ public class JPFInvokerTest {
 		assertThat(args, hasItemInArray("--beforemethod=notify"));
 		assertThat(args, hasItemInArray("--aftermethod=notifyAll"));
 		assertThat(args, hasItemInArray("--aftermethod=wait"));
-	}
-
-	@Test
-	public void getJPFSearchErrorsReturnsUnalteredErrorList() {
-		final List<Error> errors = new ArrayList<Error>();
-		List<Error> errorsBackup = new ArrayList<Error>(errors);
-
-		JPFInvoker jpfInvoker = new JPFInvoker() {
-			@Override
-			protected void initJPF(String[] args) {
-				conf = JPF.createConfig(args);
-				jpf = new JPF(conf) {
-					@Override
-					public List<Error> getSearchErrors() {
-						return errors;
-					}
-				};
-			}
-		};
-		// JPF requires at least an application name during
-		// initialization, otherwise it errors out
-		jpfInvoker.initJPF(new String[] { "dummyapp" });
-
-		assertThat("same instance", jpfInvoker.getJPFSearchErrors(),
-				sameInstance(errors));
-		assertThat("same content", jpfInvoker.getJPFSearchErrors(),
-				equalTo(errorsBackup));
 	}
 
 	@Test
