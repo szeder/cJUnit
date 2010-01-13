@@ -36,4 +36,8 @@ public class ConcurrentFrameworkMethod extends FrameworkMethod {
 	public int getThreadCount() {
 		return getAnnotation(ConcurrentTest.class).threadCount();
 	}
+
+	public int getThreadGroup() {
+		return getAnnotation(ConcurrentTest.class).threadGroup();
+	}
 }

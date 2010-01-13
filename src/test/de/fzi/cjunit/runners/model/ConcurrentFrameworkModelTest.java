@@ -28,6 +28,8 @@ public class ConcurrentFrameworkModelTest {
 		public void testMethodWithException() { }
 		@ConcurrentTest(threadCount=5)
 		public void testMethodWithThreadCount() { }
+		@ConcurrentTest(threadGroup=6)
+		public void testMethodWithThreadGroup() { }
 	}
 
 	@Test
@@ -56,5 +58,14 @@ public class ConcurrentFrameworkModelTest {
 						"testMethodWithThreadCount"));
 
 		assertThat(cfm.getThreadCount(), equalTo(5));
+	}
+
+	@Test
+	public void testConcurrentTestMethodWithThreadGroup() throws Throwable {
+		ConcurrentFrameworkMethod cfm = new ConcurrentFrameworkMethod(
+				TestClass.class.getMethod(
+						"testMethodWithThreadGroup"));
+
+		assertThat(cfm.getThreadGroup(), equalTo(6));
 	}
 }
