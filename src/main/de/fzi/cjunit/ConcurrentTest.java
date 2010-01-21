@@ -25,12 +25,36 @@ import java.lang.annotation.Target;
  * If no exceptions are thrown in any thread interleavings, the test is
  * assumed to have succeeded.
  * <p>
- * The <code>ConcurrentTest</code> annotation supports one optional parameter.
+ * The <code>ConcurrentTest</code> annotation supports two optional
+ * parameters: <code>expected</code>, and <code>threadCount</code>.
  * <p>
- * The optional parameter <code>expected</code> declares that a test
+ * The first optional parameter, <code>expected</code>, declares that a test
  * method should throw an exception in all thread interleavings.  If it
  * doesn't throw an exception or if it throws a different exception than the
- * one declared in any of the thread interleavings, the test fails.
+ * one declared in any of the thread interleavings, the test fails.  The
+ * <code>expected</code> annotation parameter can be combined with the
+ * <code>threadCount</code> parameter.  When combined, the test method must
+ * throw the declared exception in all threads, in all thread interleavings.
+ * <p>
+ * The second optional parameter, <code>threadCount</code>, specifies the
+ * number of threads that will concurrently invoke the test method.  cJUnit
+ * will automatically create the necessary number of threads and will invoke
+ * the test method from all of them.  For example the following test case
+ * <pre>
+ *   int i = 0;
+ *   &#064;ConcurrentTest(threadCount=2)
+ *   public void incrementByTwoThreads() {
+ *       synchronized (lock) { i++; }
+ *       TestBarrier.await();
+ *       assertThat(i, equalTo(2));
+ *   }
+ * </pre>
+ * involves two threads, both of them concurrently invoking the
+ * <code>incrementByTwoThreads()</code> method.  The
+ * <code>threadCount</code> and <code>expected</code> annotation parameters
+ * can be combined.  In this case the test method must throw the declared
+ * exception in all threads in all thread interleavings to make the test
+ * succeed.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
@@ -49,6 +73,14 @@ public @interface ConcurrentTest {
 	 * Optionally specify <code>expected</code>, a Throwable, to cause a
 	 * test method to succeed if an exception of the specified class is
 	 * thrown by the method in all thread interleavings.
+	 * <p>
+	 * Can be combined with <code>threadCount</code> parameter.
 	 */
 	Class<? extends Throwable> expected() default None.class;
+
+	/**
+	 * Optionally specifies the number of threads that should invoke the
+	 * test method concurrently.
+	 */
+	int threadCount() default 1;
 }

@@ -14,9 +14,26 @@ import java.lang.reflect.Method;
 
 import org.junit.runners.model.FrameworkMethod;
 
+import de.fzi.cjunit.ConcurrentTest;
+import de.fzi.cjunit.ConcurrentTest.None;
+
 public class ConcurrentFrameworkMethod extends FrameworkMethod {
 
 	public ConcurrentFrameworkMethod(Method method) {
 		super(method);
+	}
+
+	public Class<? extends Throwable> getExpected() {
+		Class<? extends Throwable> expected
+			= getAnnotation(ConcurrentTest.class).expected();
+		if (expected == None.class) {
+			return null;
+		} else {
+			return expected;
+		}
+	}
+
+	public int getThreadCount() {
+		return getAnnotation(ConcurrentTest.class).threadCount();
 	}
 }

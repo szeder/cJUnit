@@ -10,7 +10,6 @@
 
 package de.fzi.cjunit.runners.statements;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,18 +18,50 @@ import org.junit.runners.model.Statement;
 
 import de.fzi.cjunit.runners.model.ConcurrentFrameworkMethod;
 
+import static de.fzi.cjunit.jpf.inside.TestWrapperOptions.*;
+
+import de.fzi.cjunit.jpf.inside.TestWrapper;
 import de.fzi.cjunit.jpf.outside.JPFInvoker;
+import de.fzi.cjunit.jpf.util.ArgumentCreator;
+import de.fzi.cjunit.jpf.util.OnFailurePublisher;
+import de.fzi.cjunit.jpf.util.TestReporter;
 
 public class ConcurrentStatement extends Statement {
 
-	private final ConcurrentFrameworkMethod testMethod;
-	private Object target;
-	private List<FrameworkMethod> befores;
-	private List<FrameworkMethod> afters;
-	private Class<? extends Throwable> expectedExceptionClass;
+	public class MethodInfo {
+		ConcurrentFrameworkMethod method;
+		Class<? extends Throwable> exception;
 
-	public ConcurrentStatement(FrameworkMethod testMethod, Object target) {
-		this.testMethod = (ConcurrentFrameworkMethod) testMethod;
+		MethodInfo(ConcurrentFrameworkMethod method) {
+			this.method = method;
+		}
+
+		MethodInfo(ConcurrentFrameworkMethod method,
+				Class<? extends Throwable> exception) {
+			this.method = method;
+			this.exception = exception;
+		}
+
+		public ConcurrentFrameworkMethod getMethod() {
+			return method;
+		}
+
+		public Class<? extends Throwable> getException() {
+			return exception;
+		}
+	}
+
+	protected List<MethodInfo> testMethods = new ArrayList<MethodInfo>();
+	protected Object target;
+	protected List<FrameworkMethod> befores;
+	protected List<FrameworkMethod> afters;
+
+	// for testing
+	ConcurrentStatement() {}
+
+	public ConcurrentStatement(ConcurrentFrameworkMethod testMethod,
+			Object target) {
+		testMethods.add(new MethodInfo(testMethod));
 		this.target = target;
 		befores = new ArrayList<FrameworkMethod>();
 		afters = new ArrayList<FrameworkMethod>();
@@ -41,15 +72,12 @@ public class ConcurrentStatement extends Statement {
 		invokeJPF();
 	}
 
-	void invokeJPF() throws Throwable {
-		new JPFInvoker().run(target, testMethod.getMethod(),
-				convertFrameworkMethodListToMethodList(befores),
-				convertFrameworkMethodListToMethodList(afters),
-				expectedExceptionClass);
+	protected void invokeJPF() throws Throwable {
+		new JPFInvoker().run(createJPFArgs());
 	}
 
 	public void expectException(Class<? extends Throwable> expected) {
-		expectedExceptionClass = expected;
+		testMethods.get(0).exception = expected;
 	}
 
 	public void addBefores(List<FrameworkMethod> befores) {
@@ -60,12 +88,54 @@ public class ConcurrentStatement extends Statement {
 		this.afters = afters;
 	}
 
-	List<Method> convertFrameworkMethodListToMethodList(
-			List<FrameworkMethod> frameworkMethods) {
-		List<Method> methods = new ArrayList<Method>();
-		for (FrameworkMethod method : frameworkMethods) {
-			methods.add(method.getMethod());
+	public void addTestMethod(ConcurrentFrameworkMethod testMethod,
+			Class<? extends Throwable> expected) {
+		testMethods.add(new MethodInfo(testMethod, expected));
+	}
+
+	public List<MethodInfo> getTestMethods() {
+		return testMethods;
+	}
+
+	protected String[] createJPFArgs() {
+		List<String> testArgs = new ArrayList<String>();
+		testArgs.add(TestClassOpt + target.getClass().getName());
+		for (MethodInfo mi : testMethods) {
+			testArgs.add(TestOpt + MethodSubOpt
+					+ mi.method.getName() + ","
+					+ ExceptionSubOpt
+					+ getExceptionClassName(mi.exception));
 		}
-		return methods;
+		for (FrameworkMethod beforeMethod : befores) {
+			testArgs.add(BeforeMethodOpt +
+					beforeMethod.getName());
+		}
+		for (FrameworkMethod afterMethod : afters) {
+			testArgs.add(AfterMethodOpt +
+					afterMethod.getName());
+		}
+
+		return new ArgumentCreator()
+			.publisher(OnFailurePublisher.class)
+			.reporter(TestReporter.class)
+			.jpfArgs(new String[] {
+					"+vm.por.field_boundaries.never=",
+					"+search.multiple_errors=true",
+					"+jpf.report.console.start=",
+					"+jpf.report.console.finished=result",
+					"+jpf.report.console.show_steps=true"
+				})
+			.app(TestWrapper.class)
+			.appArgs(testArgs)
+			.getArgs();
+	}
+
+	protected String getExceptionClassName(
+			Class<? extends Throwable> exceptionClass) {
+		if (exceptionClass == null) {
+			return "";
+		} else {
+			return exceptionClass.getName();
+		}
 	}
 }

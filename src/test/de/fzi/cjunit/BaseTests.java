@@ -19,6 +19,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
 	de.fzi.cjunit.builders.ConcurrentBuilderTest.class,
 	de.fzi.cjunit.runners.ConcurrentRunnerTest.class,
+	de.fzi.cjunit.runners.model.ConcurrentFrameworkModelTest.class,
 	de.fzi.cjunit.runners.statements.ConcurrentStatementTest.class,
 	de.fzi.cjunit.jpf.inside.ReflectiveMethodTest.class,
 	de.fzi.cjunit.jpf.inside.TestMethodTest.class,
