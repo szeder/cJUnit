@@ -10,6 +10,11 @@
 
 package de.fzi.cjunit;
 
+/**
+ * Thrown to indicate a concurrency bug in a concurrent unit test, i.e. when
+ * the test produces different results in different thread interleavings.
+ * It wraps the exception that caused the test to fail.
+ */
 public class ConcurrentError extends Error {
 
 	private static final long serialVersionUID = 1L;

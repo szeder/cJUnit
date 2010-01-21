@@ -16,8 +16,12 @@ import gov.nasa.jpf.Property;
 
 
 /**
- * This exception is thrown when a property is violated while the test is run
- * under Java PathFinder.
+ * This exception is thrown to indicate the violation of an user-supplied
+ * property.  The exception's message contains the name of the violated
+ * property class and the property's error message.
+ * <p>
+ * Note: The violation of <code>NotDeadLockedProperty</code> is not reported
+ * through this exception, but through <code>DeadlockError</code>.
  */
 public class JPFPropertyViolated extends Error {
 

@@ -10,6 +10,9 @@
 
 package de.fzi.cjunit;
 
+/**
+ * Thrown to indicate a deadlock in a concurrent unit test.
+ */
 public class DeadlockError extends ConcurrentError {
 
 	private static final long serialVersionUID = 1L;
