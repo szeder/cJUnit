@@ -13,6 +13,7 @@ package de.fzi.cjunit.jpf.inside;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static de.fzi.cjunit.jpf.inside.TestWrapperOptions.*;
@@ -24,19 +25,21 @@ import de.fzi.cjunit.jpf.inside.NotifierMethods;
 public class TestWrapper {
 
 	protected String testClassName;
-	protected TestMethod testMethod;
+	protected List<TestMethod> testMethods;
 	protected List<ReflectiveMethod> beforeMethods;
 	protected List<ReflectiveMethod> afterMethods;
 
 	protected Object target;
 	protected Method method;
+	protected List<Thread> threads;
 
 	protected List<Throwable> errors;
 
 	public TestWrapper(String... args) {
-		testMethod = new TestMethod();
+		testMethods = new ArrayList<TestMethod>();
 		beforeMethods = new ArrayList<ReflectiveMethod>();
 		afterMethods = new ArrayList<ReflectiveMethod>();
+		threads = new ArrayList<Thread>();
 		errors = new ArrayList<Throwable>();
 		parseArgs(args);
 	}
@@ -65,20 +68,21 @@ public class TestWrapper {
 	}
 
 	protected void parseTestOpt(String arg) {
+		TestMethod tm = new TestMethod();
 		for (String subopt : arg.split(",")) {
 			if (subopt.startsWith(MethodSubOpt)) {
-				testMethod.setMethodName(
+				tm.setMethodName(
 						getRequiredArgumentValue(
 								subopt));
 			} else if (subopt.startsWith(ExceptionSubOpt)) {
-				testMethod.setExpectedExceptionName(
+				tm.setExpectedExceptionName(
 						getArgumentValue(subopt));
 			} else {
 				throw new RuntimeException(
 						"wrong command line parameter");
 			}
 		}
-
+		testMethods.add(tm);
 	}
 
 	protected String getRequiredArgumentValue(String arg) {
@@ -118,9 +122,10 @@ public class TestWrapper {
 		// that both the class and the method exists, so they won't
 		// throw any exceptions
 		createTestObject();
-		createTestMethod();
+		createTestMethods();
 		createBeforeMethods();
 		createAfterMethods();
+		createThreads();
 	}
 
 	protected void runTest() throws IllegalArgumentException,
@@ -128,7 +133,7 @@ public class TestWrapper {
 		try {
 			runBeforeMethods();
 			runTestMethod();
-			checkException();
+			checkExceptions();
 		} catch (Throwable t) {
 			errors.add(t);
 		}
@@ -143,13 +148,25 @@ public class TestWrapper {
 		}
 	}
 
-	protected void runTestMethod() {
-		testMethod.invoke();
+	protected void runTestMethod() throws IllegalArgumentException,
+			IllegalAccessException, InterruptedException {
+		for (Thread t : threads) {
+			t.start();
+		}
+		testMethods.get(0).invoke();
+		for (Thread t : threads) {
+			t.join();
+		}
 	}
 
-	protected void checkException() throws ClassNotFoundException,
-			AssertionError, Exception, Throwable {
-		testMethod.checkException();
+	protected void checkExceptions() {
+		for (TestMethod tm : testMethods) {
+			try {
+				tm.checkException();
+			} catch (Throwable t) {
+				errors.add(t);
+			}
+		}
 	}
 
 	protected void runAfterMethods() {
@@ -182,9 +199,11 @@ public class TestWrapper {
 				.newInstance();
 	}
 
-	protected void createTestMethod() throws SecurityException,
+	protected void createTestMethods() throws SecurityException,
 			NoSuchMethodException {
-		testMethod.createMethod(target);
+		for (TestMethod tm : testMethods) {
+			tm.createMethod(target);
+		}
 	}
 
 	protected void createBeforeMethods() throws SecurityException,
@@ -198,6 +217,19 @@ public class TestWrapper {
 			NoSuchMethodException {
 		for (ReflectiveMethod afterMethod : afterMethods) {
 			afterMethod.createMethod(target);
+		}
+	}
+
+	protected void createThreads() {
+		Iterator<TestMethod> i = testMethods.iterator();
+
+		if (i.hasNext())
+			i.next();
+
+		while (i.hasNext()) {
+			TestMethod tm = i.next();
+			Thread t = new Thread(tm);
+			threads.add(t);
 		}
 	}
 

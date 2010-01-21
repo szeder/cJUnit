@@ -27,7 +27,9 @@ public class TestWrapperTest {
 
 	String className = "java.lang.String";
 	String methodName = "toString";
+	String methodName2 = "hashCode";
 	String exceptionName = "java.lang.AssertionError";
+	String exceptionName2 = "java.lang.RuntimeException";
 
 	public void throwNothing() { };
 	public void throwTestException() throws TestException {
@@ -74,12 +76,22 @@ public class TestWrapperTest {
 	public void parseArgsTest() {
 		TestWrapper tw = new TestWrapper(new String[] {
 				TestOpt + MethodSubOpt + methodName + ","
-					+ ExceptionSubOpt + exceptionName});
-		assertThat("method name", tw.testMethod.getMethodName(),
+					+ ExceptionSubOpt + exceptionName,
+				TestOpt + MethodSubOpt + methodName2 + ","
+					+ ExceptionSubOpt + exceptionName2
+				});
+		assertThat("test method list size", tw.testMethods.size(),
+				equalTo(2));
+		assertThat("method name", tw.testMethods.get(0).getMethodName(),
 				equalTo(methodName));
 		assertThat("exception name",
-				tw.testMethod.getExpectedExceptionName(),
+				tw.testMethods.get(0).getExpectedExceptionName(),
 				equalTo(exceptionName));
+		assertThat("method name2", tw.testMethods.get(1).getMethodName(),
+				equalTo(methodName2));
+		assertThat("exception name2",
+				tw.testMethods.get(1).getExpectedExceptionName(),
+				equalTo(exceptionName2));
 	}
 
 	@Test
@@ -135,10 +147,16 @@ public class TestWrapperTest {
 	public void createTestMethod() throws Throwable {
 		TestWrapper tw = new TestWrapper();
 		tw.testClassName = String.class.getName();
-		tw.testMethod.setMethodName(methodName);
+		TestMethod tm = new TestMethod();
+		tm.setMethodName(methodName);
+		tw.testMethods.add(tm);
+		TestMethod tm2 = new TestMethod();
+		tm2.setMethodName(methodName2);
+		tw.testMethods.add(tm2);
 		tw.createTestObject();
-		tw.createTestMethod();
-		assertThat(tw.testMethod.method, notNullValue());
+		tw.createTestMethods();
+		assertThat(tw.testMethods.get(0).method, notNullValue());
+		assertThat(tw.testMethods.get(1).method, notNullValue());
 	}
 
 	@Test
@@ -177,6 +195,78 @@ public class TestWrapperTest {
 				createdMethodNames.size(), equalTo(2));
 		assertThat("created method names", createdMethodNames,
 				hasItems("toString", "hashCode"));
+	}
+
+	@Test
+	public void testCreateThreads() {
+		TestWrapper tw = new TestWrapper();
+		TestMethod tm = new TestMethod();
+		tw.testMethods.add(tm);
+		TestMethod tm2 = new TestMethod();
+		tw.testMethods.add(tm2);
+		TestMethod tm3 = new TestMethod();
+		tw.testMethods.add(tm3);
+
+		tw.createThreads();
+
+		assertThat("number of created threads", tw.threads.size(),
+				equalTo(2));
+	}
+
+	@Test
+	public void testCheckExceptions() {
+		TestWrapper tw = new TestWrapper();
+		TestMethod tm = new TestMethod();
+		tw.testMethods.add(tm);
+		TestMethod tm2 = new TestMethod();
+		tm2.exception = new TestException();
+		tw.testMethods.add(tm2);
+		TestMethod tm3 = new TestMethod();
+		tm3.exception = new TestException();
+		tw.testMethods.add(tm3);
+
+		tw.checkExceptions();
+
+		assertThat("number of exceptions", tw.errors.size(),
+				equalTo(2));
+		assertThat("first exception", tw.errors.get(0),
+				equalTo(tm2.getException()));
+		assertThat("second exception", tw.errors.get(1),
+				equalTo(tm3.getException()));
+	}
+
+	@Test
+	public void testRunTestMethod() throws Throwable {
+		final Thread[] threads = new Thread[3];
+		TestWrapper tw = new TestWrapper();
+		TestMethod tm = new TestMethod() {
+			@Override
+			public void invoke() {
+				threads[0] = Thread.currentThread();
+			}
+		};
+		tw.testMethods.add(tm);
+		TestMethod tm2 = new TestMethod() {
+			@Override
+			public void invoke() {
+				threads[1] = Thread.currentThread();
+			}
+		};
+		tw.testMethods.add(tm2);
+		TestMethod tm3 = new TestMethod() {
+			@Override
+			public void invoke() {
+				threads[2] = Thread.currentThread();
+			}
+		};
+		tw.testMethods.add(tm3);
+		tw.createThreads();
+
+		tw.runTestMethod();
+
+		assertThat(threads[0], equalTo(Thread.currentThread()));
+		assertThat(threads[1], equalTo(tw.threads.get(0)));
+		assertThat(threads[2], equalTo(tw.threads.get(1)));
 	}
 
 	@Test
@@ -305,7 +395,7 @@ public class TestWrapperTest {
 	@Test
 	public void testErrorsAreCollectedInOrder() throws Throwable {
 		TestWrapper tw = new TestWrapper();
-		tw.testMethod = new TestMethod() {
+		TestMethod tm = new TestMethod() {
 			@Override
 			public void invoke() {}
 			@Override
@@ -313,6 +403,7 @@ public class TestWrapperTest {
 				throw new TestException();
 			}
 		};
+		tw.testMethods.add(tm);
 		ReflectiveMethod rm = new ReflectiveMethod() {
 			@Override
 			public void invoke() throws Throwable {

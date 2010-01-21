@@ -12,7 +12,7 @@ package de.fzi.cjunit.jpf.inside;
 
 import java.lang.reflect.InvocationTargetException;
 
-public class TestMethod extends ReflectiveMethod {
+public class TestMethod extends ReflectiveMethod implements Runnable {
 
 	protected String expectedExceptionName;
 	protected Throwable exception;
@@ -76,5 +76,10 @@ public class TestMethod extends ReflectiveMethod {
 			throws ClassNotFoundException {
 		return Class.forName(expectedExceptionName)
 				.isAssignableFrom(t.getClass());
+	}
+
+	@Override
+	public void run() {
+		invoke();
 	}
 }
