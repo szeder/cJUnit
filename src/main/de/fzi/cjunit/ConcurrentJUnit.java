@@ -32,6 +32,14 @@ public class ConcurrentJUnit extends org.junit.runner.JUnitCore {
 	}
 
 	@Override
+	public Result runMain(JUnitSystem system, String... args) {
+		system.out().println(
+			"cJUnit - a JUnit extension for concurrent unit tests");
+		system.out().print("based on ");
+		return super.runMain(system, args);
+	}
+
+	@Override
 	public Result run(Class<?>... classes) {
 		return run(Request.classes(classes));
 	}
