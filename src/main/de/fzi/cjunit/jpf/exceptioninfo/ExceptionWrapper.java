@@ -45,8 +45,7 @@ public class ExceptionWrapper extends ElementInfoWrapper
 		}
 
 		ElementInfo[] array = getReferenceArray("stackTrace");
-		StackTraceElementWrapper[] stackTrace
-				= new StackTraceElementWrapper[array.length];
+		stackTrace = new StackTraceElementWrapper[array.length];
 
 		int i = 0;
 		for (ElementInfo ei : array) {
