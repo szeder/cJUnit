@@ -69,7 +69,7 @@ import java.lang.annotation.Target;
  * create the necessary number of threads and will invoke the test methods
  * from those threads.
  * <pre>
- *   final int exampleTGID=42
+ *   final int exampleTGID=42;
  *   int i = 0;
  *   &#064;ConcurrentTest(threadGroup=exampleTGID)
  *   public void incrementAndVerify() {
