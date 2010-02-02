@@ -14,6 +14,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
+import org.junit.internal.runners.model.MultipleFailureException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import de.fzi.cjunit.testutils.OtherTestException;
 import de.fzi.cjunit.testutils.TestException;
@@ -84,5 +88,85 @@ public class ExceptionComparatorTest {
 		other.setStackTrace(t.getStackTrace());
 
 		assertThat(ExceptionComparator.equals(t, other), is(true));
+	}
+
+	@Test
+	public void trueWhenSameList() {
+		List<Throwable> l = new ArrayList<Throwable>();
+		assertThat(ExceptionComparator.equals(l, l), is(true));
+	}
+
+	@Test
+	public void falseWhenFirstListIsNull() {
+		List<Throwable> l = new ArrayList<Throwable>();
+		assertThat(ExceptionComparator.equals(null, l), is(false));
+	}
+
+	@Test
+	public void falseWhenSecondListIsNull() {
+		List<Throwable> l = new ArrayList<Throwable>();
+		assertThat(ExceptionComparator.equals(l, null), is(false));
+	}
+
+	@Test
+	public void falseWhenDifferentSize() {
+		List<Throwable> l1 = new ArrayList<Throwable>();
+		l1.add(t);
+		List<Throwable> l2 = new ArrayList<Throwable>();
+		assertThat(ExceptionComparator.equals(l1, l2), is(false));
+	}
+
+	@Test
+	public void falseWhenDifferentExceptionsInLists() {
+		List<Throwable> l1 = new ArrayList<Throwable>();
+		l1.add(t);
+		List<Throwable> l2 = new ArrayList<Throwable>();
+		l2.add(new OtherTestException());
+		assertThat(ExceptionComparator.equals(l1, l2), is(false));
+	}
+
+	@Test
+	public void trueWhenEqualExceptionsInLists() {
+		List<Throwable> l1 = new ArrayList<Throwable>();
+		l1.add(t);
+		List<Throwable> l2 = new ArrayList<Throwable>();
+		Throwable t2 = new TestException(t.getMessage());
+		t2.setStackTrace(t.getStackTrace());
+		l2.add(t2);
+		assertThat(ExceptionComparator.equals(l1, l2), is(true));
+	}
+
+	@Test
+	public void falseWhenOneMFE() {
+		MultipleFailureException mfe
+				= new MultipleFailureException(null);
+		assertThat(ExceptionComparator.equals(mfe, t), is(false));
+	}
+
+	@Test
+	public void falseWhenMFEsWithDifferentLists() {
+		List<Throwable> l = new ArrayList<Throwable>();
+		l.add(t);
+		MultipleFailureException mfe1
+				= new MultipleFailureException(l);
+		MultipleFailureException mfe2
+				= new MultipleFailureException(null);
+		assertThat(ExceptionComparator.equals(mfe1, mfe2), is(false));
+	}
+
+	@Test
+	public void trueWhenMFEsWithEqualLists() {
+		List<Throwable> l1 = new ArrayList<Throwable>();
+		l1.add(t);
+		MultipleFailureException mfe1
+				= new MultipleFailureException(l1);
+		List<Throwable> l2 = new ArrayList<Throwable>();
+		Throwable t2 = new TestException(t.getMessage());
+		t2.setStackTrace(t.getStackTrace());
+		l2.add(t2);
+		MultipleFailureException mfe2
+				= new MultipleFailureException(l2);
+		assertThat(ExceptionComparator.equals(mfe1, mfe2), is(true));
+
 	}
 }
