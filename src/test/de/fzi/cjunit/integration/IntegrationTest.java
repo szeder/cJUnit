@@ -27,6 +27,7 @@ import de.fzi.cjunit.ConcurrentJUnit;
 import de.fzi.cjunit.DeadlockError;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithConcurrencyBug;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithDeadlock;
+import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithMultipleFailures;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithSequentialBug;
 import de.fzi.cjunit.integration.testclasses.SequentialTestWithFailure;
 import de.fzi.cjunit.integration.testclasses.SuccessfulTests;
@@ -119,5 +120,25 @@ public class IntegrationTest {
 		Failure failure = result.getFailures().get(0);
 		assertThat("exception's type", failure.getException(),
 				instanceOf(DeadlockError.class));
+	}
+
+	@Test
+	public void concurrentTestWithMultipleFailures() {
+		Class<?>[] classes = new Class<?>[] {
+				ConcurrentTestWithMultipleFailures.class };
+		Result result = ConcurrentJUnit.runClasses(classes);
+
+		assertThat("number of tests", result.getRunCount(), equalTo(1));
+		assertThat("number of failures", result.getFailureCount(),
+				equalTo(1));
+		Failure failure = result.getFailures().get(0);
+		assertThat("exception's type", failure.getException(),
+				instanceOf(ConcurrentError.class));
+		assertThat("causing exception's type",
+				failure.getException().getCause(),
+				instanceOf(Exception.class));
+		assertThat("type of causing exception's cause",
+				failure.getException().getCause().getCause(),
+				instanceOf(AssertionError.class));
 	}
 }
