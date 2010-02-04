@@ -10,7 +10,11 @@
 
 package de.fzi.cjunit.jpf.exceptioninfo;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.junit.internal.runners.model.MultipleFailureException;
+
+import de.fzi.cjunit.jpf.util.ExceptionFactory;
 
 
 public class MultipleFailureExceptionInfo extends ExceptionInfo {
@@ -42,5 +46,14 @@ public class MultipleFailureExceptionInfo extends ExceptionInfo {
 
 	public ExceptionInfo[] getFailures() {
 		return failures;
+	}
+
+	@Override
+	public Throwable reconstruct() throws IllegalArgumentException,
+			ClassNotFoundException, InstantiationException,
+			IllegalAccessException, InvocationTargetException,
+			NoSuchMethodException {
+		return new ExceptionFactory().createMultipleFailureException(
+				this);
 	}
 }
