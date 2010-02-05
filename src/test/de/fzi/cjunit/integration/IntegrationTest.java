@@ -55,7 +55,7 @@ public class IntegrationTest {
 
 		assertThat("test method was invoked", SuccessfulTests.invoked,
 				is(true));
-		assertThat("number of tests", result.getRunCount(), equalTo(3));
+		assertThat("number of tests", result.getRunCount(), equalTo(7));
 		assertThat("number of failed tests", result.getFailureCount(),
 				equalTo(0));
 	}

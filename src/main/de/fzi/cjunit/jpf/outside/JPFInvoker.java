@@ -10,8 +10,6 @@
 
 package de.fzi.cjunit.jpf.outside;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 
 import gov.nasa.jpf.Config;
@@ -19,11 +17,8 @@ import gov.nasa.jpf.Error;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.report.Publisher;
 
-import de.fzi.cjunit.jpf.inside.TestWrapper;
 import de.fzi.cjunit.jpf.outside.TestFailedProperty;
-import de.fzi.cjunit.jpf.util.ArgumentCreator;
 import de.fzi.cjunit.jpf.util.OnFailurePublisher;
-import de.fzi.cjunit.jpf.util.TestReporter;
 
 
 public class JPFInvoker {
@@ -32,12 +27,8 @@ public class JPFInvoker {
 	protected JPF jpf;
 	protected ResultCollector rc;
 
-	public void run(Object target, Method method,
-			List<Method> beforeMethods, List<Method> afterMethods,
-			Class<? extends Throwable> exceptionClass)
-			throws Throwable {
-		initJPF(createJPFArgs(target, method, beforeMethods,
-				afterMethods, exceptionClass));
+	public void run(String[] args) throws Throwable {
+		initJPF(args);
 		runJPF();
 		checkResult();
 	}
@@ -87,39 +78,5 @@ public class JPFInvoker {
 				((OnFailurePublisher) p).setJPFInvoker(this);
 			}
 		}
-	}
-
-	protected String[] createJPFArgs(Object target, Method method,
-			List<Method> beforeMethods, List<Method> afterMethods,
-			Class<? extends Throwable> exceptionClass) {
-		List<String> testArgs = new ArrayList<String>();
-		testArgs.add("--testclass=" + target.getClass().getName());
-		testArgs.add("--testmethod=" + method.getName());
-		for (Method beforeMethod : beforeMethods) {
-			testArgs.add("--beforemethod=" +
-					beforeMethod.getName());
-		}
-		for (Method afterMethod : afterMethods) {
-			testArgs.add("--aftermethod=" +
-					afterMethod.getName());
-		}
-		if (exceptionClass != null) {
-			testArgs.add("--expectedexception=" +
-					exceptionClass.getName());
-		}
-
-		return new ArgumentCreator()
-			.publisher(OnFailurePublisher.class)
-			.reporter(TestReporter.class)
-			.jpfArgs(new String[] {
-					"+vm.por.field_boundaries.never=",
-					"+search.multiple_errors=true",
-					"+jpf.report.console.start=",
-					"+jpf.report.console.finished=result",
-					"+jpf.report.console.show_steps=true"
-				})
-			.app(TestWrapper.class)
-			.appArgs(testArgs)
-			.getArgs();
 	}
 }

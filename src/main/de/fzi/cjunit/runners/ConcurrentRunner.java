@@ -27,7 +27,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.fzi.cjunit.ConcurrentTest;
-import de.fzi.cjunit.ConcurrentTest.None;
 import de.fzi.cjunit.runners.model.ConcurrentFrameworkMethod;
 import de.fzi.cjunit.runners.statements.ConcurrentStatement;
 
@@ -90,10 +89,36 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 		List<FrameworkMethod> concurrentMethods
 				= new ArrayList<FrameworkMethod>();
 		for (FrameworkMethod eachMethod : methods) {
-			concurrentMethods.add(new ConcurrentFrameworkMethod(
-						eachMethod.getMethod()));
+			ConcurrentFrameworkMethod cfm
+					= new ConcurrentFrameworkMethod(
+							eachMethod.getMethod());
+			ConcurrentFrameworkMethod foundMethod
+					= findAddedThreadGroupMember(
+							concurrentMethods,
+							cfm.getThreadGroup());
+			if (foundMethod == null) {
+				concurrentMethods.add(cfm);
+			} else {
+				foundMethod.addThreadGroupMember(cfm);
+			}
 		}
 		return concurrentMethods;
+	}
+
+	protected ConcurrentFrameworkMethod findAddedThreadGroupMember(
+			List<FrameworkMethod> concurrentMethods,
+			int threadGroup) {
+		if (threadGroup == 0) {
+			return null;
+		}
+		for (FrameworkMethod method : concurrentMethods) {
+			ConcurrentTest annotation = method.getAnnotation(
+					ConcurrentTest.class);
+			if (annotation.threadGroup() == threadGroup) {
+				return (ConcurrentFrameworkMethod) method;
+			}
+		}
+		return null;
 	}
 
 	protected void validateConcurrentTestMethods(List<Throwable> errors) {
@@ -108,6 +133,19 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 				String gripe = "@Test and @ConcurrentTest " +
 						"annotations are mutually " +
 						"exclusive";
+				errors.add(new Exception(gripe));
+			}
+			ConcurrentTest annotation = eachMethod.getAnnotation(
+					ConcurrentTest.class);
+			if (annotation.threadCount() < 1) {
+				String gripe = "positive threadCount required";
+				errors.add(new Exception(gripe));
+			}
+			if (annotation.threadCount() != 1
+					&& annotation.threadGroup() != 0) {
+				String gripe = "threadCount and threadGroup " +
+						"annotation parameters are " +
+						"mutually exclusive";
 				errors.add(new Exception(gripe));
 			}
 		}
@@ -130,6 +168,8 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 		if (!(method instanceof ConcurrentFrameworkMethod)) {
 			return super.methodBlock(method);
 		}
+		ConcurrentFrameworkMethod concurrentFrameworkMethod
+				= (ConcurrentFrameworkMethod) method;
 
 		Object test;
 		try {
@@ -137,7 +177,7 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 		} catch (Throwable e) {
 			return new Fail(e);
 		}
-		return buildStatements(method, test);
+		return buildStatements(concurrentFrameworkMethod, test);
 	}
 
 	protected Object createTestObject() throws Throwable {
@@ -149,35 +189,58 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 		}.run();
 	}
 
-	protected Statement buildStatements(FrameworkMethod method,
+	protected ConcurrentStatement buildStatements(ConcurrentFrameworkMethod method,
 			Object test) {
 		ConcurrentStatement statement = concurrentMethodInvoker(
 				method, test);
 		statement = concurrentPossiblyExpectingExceptions(method,
 				test, statement);
+		statement = concurrentWithThreadCount(method, test, statement);
+		statement = concurrentWithThreadGroup(method, test, statement);
 		statement = concurrentWithBefores(method, test, statement);
 		statement = concurrentWithAfters(method, test, statement);
 		return statement;
 	}
 
 	protected ConcurrentStatement concurrentMethodInvoker(
-			FrameworkMethod method, Object test) {
+			ConcurrentFrameworkMethod method, Object test) {
 		return new ConcurrentStatement(method, test);
 	}
 
 	protected ConcurrentStatement concurrentPossiblyExpectingExceptions(
-			FrameworkMethod method, Object test,
+			ConcurrentFrameworkMethod method, Object test,
 			ConcurrentStatement statement) {
-		ConcurrentTest annotation = method.getAnnotation(
-				ConcurrentTest.class);
-		if (annotation != null && annotation.expected() != None.class) {
-			statement.expectException(annotation.expected());
+		Class<? extends Throwable> expected = method.getExpected();
+		if (expected != null) {
+			statement.expectException(expected);
+		}
+		return statement;
+	}
+
+	protected ConcurrentStatement concurrentWithThreadCount(
+			ConcurrentFrameworkMethod method, Object test,
+			ConcurrentStatement statement) {
+		int threadCount = method.getThreadCount();
+		Class<? extends Throwable> expected = method.getExpected();
+		for (int i = 2; i <= threadCount; i++) {
+			statement.addTestMethod(method, expected);
+		}
+		return statement;
+	}
+
+	protected ConcurrentStatement concurrentWithThreadGroup(
+			ConcurrentFrameworkMethod method, Object test,
+			ConcurrentStatement statement) {
+		for (ConcurrentFrameworkMethod groupMethod
+				: method.getThreadGroupMembers()) {
+			statement.addTestMethod(groupMethod,
+					groupMethod.getExpected());
 		}
 		return statement;
 	}
 
 	protected ConcurrentStatement concurrentWithBefores(
-			FrameworkMethod method, Object target,
+			ConcurrentFrameworkMethod method, Object target,
 			ConcurrentStatement statement) {
 		List<FrameworkMethod> befores = getTestClass()
 				.getAnnotatedMethods(Before.class);
@@ -186,7 +249,7 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 	}
 
 	protected ConcurrentStatement concurrentWithAfters(
-			FrameworkMethod method, Object target,
+			ConcurrentFrameworkMethod method, Object target,
 			ConcurrentStatement statement) {
 		List<FrameworkMethod> afters = getTestClass()
 				.getAnnotatedMethods(After.class);

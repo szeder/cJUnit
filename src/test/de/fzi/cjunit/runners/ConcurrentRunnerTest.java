@@ -26,6 +26,8 @@ import org.junit.runners.model.Statement;
 import de.fzi.cjunit.ConcurrentTest;
 import de.fzi.cjunit.runners.model.ConcurrentFrameworkMethod;
 import de.fzi.cjunit.runners.statements.ConcurrentStatement;
+import de.fzi.cjunit.testutils.TestException;
+
 
 public class ConcurrentRunnerTest {
 
@@ -170,15 +172,66 @@ public class ConcurrentRunnerTest {
 				));
 	}
 
+	static public class TestClassWithThreadGroup {
+		@ConcurrentTest(threadGroup=5)
+		public void testMethod1() { }
+		@ConcurrentTest(threadGroup=5)
+		public void testMethod2() { }
+		@ConcurrentTest(threadGroup=6)
+		public void testMethod3() { }
+		@ConcurrentTest(threadGroup=6)
+		public void testMethod4() { }
+		@ConcurrentTest(threadGroup=6)
+		public void testMethod5() { }
+	}
+
+	@Test
+	public void computeTestMethodsForTestClassWithThreadGroup()
+			throws Throwable {
+		ConcurrentRunner runner = new ConcurrentRunner(
+				TestClassWithThreadGroup.class);
+		List<FrameworkMethod> methods
+				= runner.computeTestMethods();
+
+		assertThat("number of returned methods",
+				methods.size(), equalTo(2));
+		assertThat(methods, hasItems(
+				new FrameworkMethod(
+					TestClassWithThreadGroup.class
+						.getMethod("testMethod1")),
+				new FrameworkMethod(
+					TestClassWithThreadGroup.class
+						.getMethod("testMethod3"))
+				));
+		ConcurrentFrameworkMethod cfm1
+				= (ConcurrentFrameworkMethod) methods.get(0);
+		assertThat(cfm1.getThreadGroupMembers().size(), equalTo(1));
+		assertThat(cfm1.getThreadGroupMembers(), hasItem(
+				new ConcurrentFrameworkMethod(
+					TestClassWithThreadGroup.class
+						.getMethod("testMethod2"))));
+		ConcurrentFrameworkMethod cfm2
+				= (ConcurrentFrameworkMethod) methods.get(1);
+		assertThat(cfm2.getThreadGroupMembers().size(), equalTo(2));
+		assertThat(cfm2.getThreadGroupMembers(), hasItems(
+				new ConcurrentFrameworkMethod(
+					TestClassWithThreadGroup.class
+						.getMethod("testMethod4")),
+				new ConcurrentFrameworkMethod(
+					TestClassWithThreadGroup.class
+						.getMethod("testMethod5"))
+				));
+	}
+
 	static public class TestAndConcurrentTestClass {
 		@Test @ConcurrentTest public void testMethod() { }
 	}
 
 	@Test(expected=InitializationError.class)
 	public void errorOnTestAndConcurrentTest() throws Throwable {
+		@SuppressWarnings("unused")
 		ConcurrentRunner runner = new ConcurrentRunner(
 				TestAndConcurrentTestClass.class);
-		runner.hashCode();	// to avoid unused variable warning
 	}
 
 	@Test
@@ -215,9 +268,9 @@ public class ConcurrentRunnerTest {
 
 	@Test(expected=InitializationError.class)
 	public void errorOnBeforeClassWithConcurrentTest() throws Throwable {
+		@SuppressWarnings("unused")
 		ConcurrentRunner runner = new ConcurrentRunner(
 				TestClassWithBeforeClass.class);
-		runner.hashCode();	// to avoid unused variable warning
 	}
 
 	static public class TestClassWithAfterClass {
@@ -227,9 +280,9 @@ public class ConcurrentRunnerTest {
 
 	@Test(expected=InitializationError.class)
 	public void errorOnAfterClassWithConcurrentTest() throws Throwable {
+		@SuppressWarnings("unused")
 		ConcurrentRunner runner = new ConcurrentRunner(
 				TestClassWithAfterClass.class);
-		runner.hashCode();	// to avoid unused variable warning
 	}
 
 	static public class TestClassWithBeforeClassAndAfterClass {
@@ -241,8 +294,79 @@ public class ConcurrentRunnerTest {
 	@Test(expected=InitializationError.class)
 	public void errorOnBeforeClassAndAfterClassWithConcurrentTest()
 			throws Throwable {
+		@SuppressWarnings("unused")
 		ConcurrentRunner runner = new ConcurrentRunner(
 				TestClassWithBeforeClassAndAfterClass.class);
-		runner.hashCode();	// to avoid unused variable warning
+	}
+
+	static public class TestClassWithNegativeThreadCount {
+		@ConcurrentTest(threadCount=-1) public void testMethod() { }
+	}
+
+	@Test(expected=InitializationError.class)
+	public void testNegativeThreadCount() throws Throwable {
+		@SuppressWarnings("unused")
+		ConcurrentRunner runner = new ConcurrentRunner(
+				TestClassWithNegativeThreadCount.class);
+	}
+
+	static public class TestClassWithZeroThreadCount {
+		@ConcurrentTest(threadCount=0) public void testMethod() { }
+	}
+
+	@Test(expected=InitializationError.class)
+	public void testZeroThreadCount() throws Throwable {
+		@SuppressWarnings("unused")
+		ConcurrentRunner runner = new ConcurrentRunner(
+				TestClassWithZeroThreadCount.class);
+	}
+
+	static public class TestClassWithThreadCount {
+		@ConcurrentTest(threadCount=3,expected=TestException.class)
+		public void testMethod() { }
+	}
+
+	@Test
+	public void testThreadCount() throws Throwable {
+		ConcurrentRunner runner = new ConcurrentRunner(
+				TestClassWithThreadCount.class);
+		ConcurrentFrameworkMethod method = new ConcurrentFrameworkMethod(
+				TestClassWithThreadCount.class.getMethod(
+						"testMethod"));
+
+		ConcurrentStatement statement = runner.buildStatements(method,
+				null);
+		assertThat("number of methods",
+				statement.getTestMethods().size(), equalTo(3));
+		assertThat("first method",
+				statement.getTestMethods().get(0).getMethod(),
+				equalTo(method));
+		assertThat("first exception (class name)",
+				statement.getTestMethods().get(0).getException().getName(),
+				equalTo(TestException.class.getName()));
+		assertThat("second method",
+				statement.getTestMethods().get(1).getMethod(),
+				equalTo(method));
+		assertThat("second exception (class name)",
+				statement.getTestMethods().get(1).getException().getName(),
+				equalTo(TestException.class.getName()));
+		assertThat("third method",
+				statement.getTestMethods().get(2).getMethod(),
+				equalTo(method));
+		assertThat("third exception (class name)",
+				statement.getTestMethods().get(2).getException().getName(),
+				equalTo(TestException.class.getName()));
+	}
+
+	static public class TestClassWithThreadCountAndThreadGroup {
+		@ConcurrentTest(threadCount=3,threadGroup=4)
+		public void testMethod() { }
+	}
+
+	@Test(expected=InitializationError.class)
+	public void testThreadCountAndThreadGroup() throws Throwable {
+		@SuppressWarnings("unused")
+		ConcurrentRunner runner = new ConcurrentRunner(
+				TestClassWithThreadCountAndThreadGroup.class);
 	}
 }
