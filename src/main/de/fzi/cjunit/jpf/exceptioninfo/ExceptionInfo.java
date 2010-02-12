@@ -16,10 +16,10 @@ package de.fzi.cjunit.jpf.exceptioninfo;
  */
 public class ExceptionInfo {
 
-	String className;
-	String message;
-	ExceptionInfo cause;
-	StackTraceElementInfo[] stackTrace;
+	protected String className;
+	protected String message;
+	protected ExceptionInfo cause;
+	protected StackTraceElementInfo[] stackTrace;
 
 	public ExceptionInfo(String className, String message,
 			StackTraceElementInfo[] stackTrace,
