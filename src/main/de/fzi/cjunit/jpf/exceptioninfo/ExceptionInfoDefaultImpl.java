@@ -38,7 +38,7 @@ public class ExceptionInfoDefaultImpl implements ExceptionInfo {
 		StackTraceElement[] origStackTrace = t.getStackTrace();
 		stackTrace = new StackTraceElementInfo[origStackTrace.length];
 		for (int i = 0; i < origStackTrace.length; i++) {
-			stackTrace[i] = new StackTraceElementInfoDefaultImpl(
+			stackTrace[i] = new StackTraceElementInfo(
 					origStackTrace[i]);
 		}
 	}
@@ -53,7 +53,7 @@ public class ExceptionInfoDefaultImpl implements ExceptionInfo {
 		StackTraceElementInfo[] origStackTrace = other.getStackTrace();
 		stackTrace = new StackTraceElementInfo[origStackTrace.length];
 		for (int i = 0; i < origStackTrace.length; i++) {
-			stackTrace[i] = new StackTraceElementInfoDefaultImpl(
+			stackTrace[i] = new StackTraceElementInfo(
 					origStackTrace[i]);
 		}
 	}

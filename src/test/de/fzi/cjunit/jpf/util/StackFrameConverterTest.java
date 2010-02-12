@@ -18,7 +18,6 @@ import java.io.File;
 import org.junit.Test;
 
 import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfo;
-import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfoDefaultImpl;
 
 
 public class StackFrameConverterTest {
@@ -52,7 +51,7 @@ public class StackFrameConverterTest {
 	public void stackTraceElementConversion() {
 		final char FSC = File.separatorChar;
 		StackTraceElementInfo info
-				= new StackTraceElementInfoDefaultImpl("class0",
+				= new StackTraceElementInfo("class0",
 						"method0",
 						FSC + "de" + FSC + "fzi"
 							+ FSC + "cjunit"
@@ -74,13 +73,13 @@ public class StackFrameConverterTest {
 	@Test
 	public void stackTraceConversion() {
 		StackTraceElementInfo info0
-				= new StackTraceElementInfoDefaultImpl("class0",
+				= new StackTraceElementInfo("class0",
 						"method0", "Class0.java", 0);
 		StackTraceElementInfo info1
-				= new StackTraceElementInfoDefaultImpl("class1",
+				= new StackTraceElementInfo("class1",
 						"method1", "Class1.java", 1);
 		StackTraceElementInfo info2
-				= new StackTraceElementInfoDefaultImpl("class2",
+				= new StackTraceElementInfo("class2",
 						"method2", "Class2.java", 2);
 
 		StackTraceElementInfo[] infoArray

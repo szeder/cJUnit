@@ -18,7 +18,6 @@ import de.fzi.cjunit.jpf.exceptioninfo.ElementInfoWrapper;
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfo;
-import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfoDefaultImpl;
 
 
 public class ExceptionInfoCollector {
@@ -58,8 +57,7 @@ public class ExceptionInfoCollector {
 			ElementInfoWrapper eiw) {
 		ElementInfo[] array = eiw.getReferenceArray("stackTrace");
 		StackTraceElementInfo[] stackTrace
-				= new StackTraceElementInfoDefaultImpl[
-					array.length];
+				= new StackTraceElementInfo[array.length];
 		int i = 0;
 		for (ElementInfo stei : array) {
 			stackTrace[i] = stackTraceElementInfoFromElementInfo(
@@ -72,9 +70,9 @@ public class ExceptionInfoCollector {
 	protected StackTraceElementInfo stackTraceElementInfoFromElementInfo(
 			ElementInfo ei) {
 		ElementInfoWrapper eiw = new ElementInfoWrapper(ei,
-				StackTraceElementInfoDefaultImpl.class);
+				StackTraceElementInfo.class);
 
-		return new StackTraceElementInfoDefaultImpl(
+		return new StackTraceElementInfo(
 				eiw.getStringField("className"),
 				eiw.getStringField("methodName"),
 				eiw.getStringField("fileName"),
