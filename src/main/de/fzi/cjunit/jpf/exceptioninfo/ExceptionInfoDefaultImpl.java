@@ -19,6 +19,15 @@ public class ExceptionInfoDefaultImpl implements ExceptionInfo {
 	ExceptionInfo cause;
 	StackTraceElementInfo[] stackTrace;
 
+	public ExceptionInfoDefaultImpl(String className, String message,
+			StackTraceElementInfo[] stackTrace,
+			ExceptionInfo cause) {
+		this.className = className;
+		this.message = message;
+		this.stackTrace = stackTrace;
+		this.cause = cause;
+	}
+
 	public ExceptionInfoDefaultImpl(Throwable t) {
 		className = t.getClass().getName();
 		message = t.getMessage();
