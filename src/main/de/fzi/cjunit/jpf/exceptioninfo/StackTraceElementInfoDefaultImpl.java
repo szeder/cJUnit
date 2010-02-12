@@ -19,18 +19,22 @@ public class StackTraceElementInfoDefaultImpl
 	String fileName;
 	int lineNumber;
 
+	public StackTraceElementInfoDefaultImpl(String className,
+			String methodName, String fileName, int lineNumber) {
+		this.className = className;
+		this.methodName = methodName;
+		this.fileName = fileName;
+		this.lineNumber = lineNumber;
+	}
+
 	public StackTraceElementInfoDefaultImpl(StackTraceElement ste) {
-		className = ste.getClassName();
-		methodName = ste.getMethodName();
-		fileName = ste.getFileName();
-		lineNumber = ste.getLineNumber();
+		this(ste.getClassName(), ste.getMethodName(),
+				ste.getFileName(), ste.getLineNumber());
 	}
 
 	public StackTraceElementInfoDefaultImpl(StackTraceElementInfo other) {
-		className = other.getClassName();
-		methodName = other.getMethodName();
-		fileName = other.getFileName();
-		lineNumber = other.getLineNumber();
+		this(other.getClassName(), other.getMethodName(),
+				other.getFileName(), other.getLineNumber());
 	}
 
 	public String getClassName() {
