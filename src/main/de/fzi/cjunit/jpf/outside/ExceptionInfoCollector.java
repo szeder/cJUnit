@@ -14,8 +14,11 @@ import gov.nasa.jpf.jvm.DynamicArea;
 import gov.nasa.jpf.jvm.ElementInfo;
 import gov.nasa.jpf.jvm.JVM;
 
+import de.fzi.cjunit.jpf.exceptioninfo.ElementInfoWrapper;
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
-import de.fzi.cjunit.jpf.exceptioninfo.ExceptionWrapper;
+import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
+import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfo;
+import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfoDefaultImpl;
 
 
 public class ExceptionInfoCollector {
@@ -25,7 +28,57 @@ public class ExceptionInfoCollector {
 	public ExceptionInfo collectFromStack(JVM vm) throws Exception {
 		ElementInfo ei = elementInfoFromStack(vm);
 
-		return new ExceptionWrapper(ei);
+		return exceptionInfoFromInfo(ei);
+	}
+
+	protected ExceptionInfo exceptionInfoFromInfo(ElementInfo ei) {
+		ElementInfoWrapper eiw = new ElementInfoWrapper(ei,
+				ExceptionInfoDefaultImpl.class);
+
+		StackTraceElementInfo[] stackTrace = stackTraceFromInfo(eiw);
+
+		ExceptionInfo cause = causeFromInfo(eiw);
+
+		return new ExceptionInfoDefaultImpl(
+				eiw.getStringField("className"),
+				eiw.getStringField("message"),
+				stackTrace, cause);
+	}
+
+	protected ExceptionInfo causeFromInfo(ElementInfoWrapper eiw) {
+		ElementInfo cause = eiw.getElementInfoForField("cause");
+		if (cause == null) {
+			return null;
+		} else {
+			return exceptionInfoFromInfo(cause);
+		}
+	}
+
+	protected StackTraceElementInfo[] stackTraceFromInfo(
+			ElementInfoWrapper eiw) {
+		ElementInfo[] array = eiw.getReferenceArray("stackTrace");
+		StackTraceElementInfo[] stackTrace
+				= new StackTraceElementInfoDefaultImpl[
+					array.length];
+		int i = 0;
+		for (ElementInfo stei : array) {
+			stackTrace[i] = stackTraceElementInfoFromElementInfo(
+					stei);
+			i++;
+		}
+		return stackTrace;
+	}
+
+	protected StackTraceElementInfo stackTraceElementInfoFromElementInfo(
+			ElementInfo ei) {
+		ElementInfoWrapper eiw = new ElementInfoWrapper(ei,
+				StackTraceElementInfoDefaultImpl.class);
+
+		return new StackTraceElementInfoDefaultImpl(
+				eiw.getStringField("className"),
+				eiw.getStringField("methodName"),
+				eiw.getStringField("fileName"),
+				eiw.getIntField("lineNumber"));
 	}
 
 	protected ElementInfo elementInfoFromStack(JVM vm) throws Exception {
