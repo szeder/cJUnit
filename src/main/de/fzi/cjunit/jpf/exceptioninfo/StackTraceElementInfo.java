@@ -16,10 +16,10 @@ package de.fzi.cjunit.jpf.exceptioninfo;
  */
 public class StackTraceElementInfo {
 
-	String className;
-	String methodName;
-	String fileName;
-	int lineNumber;
+	protected String className;
+	protected String methodName;
+	protected String fileName;
+	protected int lineNumber;
 
 	public StackTraceElementInfo(String className,
 			String methodName, String fileName, int lineNumber) {
