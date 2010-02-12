@@ -19,7 +19,6 @@ import java.util.List;
 import static de.fzi.cjunit.jpf.inside.TestWrapperOptions.*;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
-import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
 
 
@@ -110,7 +109,7 @@ public class TestWrapper {
 			runTest();
 			notifyTestSucceeded();
 		} catch (Throwable t) {
-			notifyTestFailed(new ExceptionInfoDefaultImpl(t));
+			notifyTestFailed(new ExceptionInfo(t));
 		}
 	}
 

@@ -16,7 +16,6 @@ import gov.nasa.jpf.jvm.JVM;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ElementInfoWrapper;
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
-import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfo;
 
 
@@ -32,13 +31,13 @@ public class ExceptionInfoCollector {
 
 	protected ExceptionInfo exceptionInfoFromInfo(ElementInfo ei) {
 		ElementInfoWrapper eiw = new ElementInfoWrapper(ei,
-				ExceptionInfoDefaultImpl.class);
+				ExceptionInfo.class);
 
 		StackTraceElementInfo[] stackTrace = stackTraceFromInfo(eiw);
 
 		ExceptionInfo cause = causeFromInfo(eiw);
 
-		return new ExceptionInfoDefaultImpl(
+		return new ExceptionInfo(
 				eiw.getStringField("className"),
 				eiw.getStringField("message"),
 				stackTrace, cause);
