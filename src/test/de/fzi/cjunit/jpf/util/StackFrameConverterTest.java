@@ -18,6 +18,7 @@ import java.io.File;
 import org.junit.Test;
 
 import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfo;
+import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfoDefaultImpl;
 
 
 public class StackFrameConverterTest {
@@ -49,18 +50,15 @@ public class StackFrameConverterTest {
 
 	@Test
 	public void stackTraceElementConversion() {
-		StackTraceElementInfo info = new StackTraceElementInfo() {
-			public String getClassName() { return "class0"; }
-			public String getMethodName() { return "method0"; }
-			public String getFileName() {
-				return File.separatorChar + "de"
-					+ File.separatorChar + "fzi"
-					+ File.separatorChar + "cjunit"
-					+ File.separatorChar + "test"
-					+ File.separatorChar + "Class0.java";
-			}
-			public int getLineNumber() { return 0; }
-		};
+		final char FSC = File.separatorChar;
+		StackTraceElementInfo info
+				= new StackTraceElementInfoDefaultImpl("class0",
+						"method0",
+						FSC + "de" + FSC + "fzi"
+							+ FSC + "cjunit"
+							+ FSC + "test"
+							+ FSC + "Class0.java",
+						0);
 		StackTraceElement ste = sfc.toStackTraceElement(info);
 
 		assertThat("element 0", ste.getClassName(),
@@ -75,30 +73,16 @@ public class StackFrameConverterTest {
 
 	@Test
 	public void stackTraceConversion() {
-		StackTraceElementInfo info0 = new StackTraceElementInfo() {
-			public String getClassName() { return "class0"; }
-			public String getMethodName() { return "method0"; }
-			public String getFileName() {
-				return "Class0.java";
-			}
-			public int getLineNumber() { return 0; }
-		};
-		StackTraceElementInfo info1 = new StackTraceElementInfo() {
-			public String getClassName() { return "class1"; }
-			public String getMethodName() { return "method1"; }
-			public String getFileName() {
-				return "Class1.java";
-			}
-			public int getLineNumber() { return 1; }
-		};
-		StackTraceElementInfo info2 = new StackTraceElementInfo() {
-			public String getClassName() { return "class2"; }
-			public String getMethodName() { return "method2"; }
-			public String getFileName() {
-				return "Class2.java";
-			}
-			public int getLineNumber() { return 2; }
-		};
+		StackTraceElementInfo info0
+				= new StackTraceElementInfoDefaultImpl("class0",
+						"method0", "Class0.java", 0);
+		StackTraceElementInfo info1
+				= new StackTraceElementInfoDefaultImpl("class1",
+						"method1", "Class1.java", 1);
+		StackTraceElementInfo info2
+				= new StackTraceElementInfoDefaultImpl("class2",
+						"method2", "Class2.java", 2);
+
 		StackTraceElementInfo[] infoArray
 				= new StackTraceElementInfo[] {
 						info0, info1, info2 };
