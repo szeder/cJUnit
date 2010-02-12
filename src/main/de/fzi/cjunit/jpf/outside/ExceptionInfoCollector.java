@@ -11,6 +11,7 @@
 package de.fzi.cjunit.jpf.outside;
 
 import gov.nasa.jpf.jvm.DynamicArea;
+import gov.nasa.jpf.jvm.ElementInfo;
 import gov.nasa.jpf.jvm.JVM;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
@@ -22,16 +23,22 @@ public class ExceptionInfoCollector {
 	public ExceptionInfoCollector() { }
 
 	public ExceptionInfo collectFromStack(JVM vm) throws Exception {
+		ElementInfo ei = elementInfoFromStack(vm);
+
+		return new ExceptionWrapper(ei);
+	}
+
+	protected ElementInfo elementInfoFromStack(JVM vm) throws Exception {
 		int argRef = vm.getLastThreadInfo().peek();
 		if (argRef == -1) {
 			throw new Exception("Cannot examine stack: " +
 					"cannot collect ExceptionInfo");
 		}
 
-		return collectFromReference(argRef);
+		return elementInfoFromReference(argRef);
 	}
 
-	public ExceptionInfo collectFromReference(int argRef) {
-		return new ExceptionWrapper(DynamicArea.getHeap().get(argRef));
+	protected ElementInfo elementInfoFromReference(int argRef) {
+		return DynamicArea.getHeap().get(argRef);
 	}
 }
