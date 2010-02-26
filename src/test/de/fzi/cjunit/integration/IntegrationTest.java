@@ -56,7 +56,7 @@ public class IntegrationTest {
 		assertThat("test method was invoked", SuccessfulTests.invoked,
 				is(true));
 		assertThat("number of tests", result.getRunCount(), equalTo(7));
-		assertThat("number of failed tests", result.getFailureCount(),
+		assertThat("number of failures", result.getFailureCount(),
 				equalTo(0));
 	}
 
@@ -69,7 +69,7 @@ public class IntegrationTest {
 		assertThat("test method was invoked",
 				SequentialTestWithFailure.invoked, is(true));
 		assertThat("number of tests", result.getRunCount(), equalTo(1));
-		assertThat("number of failed tests", result.getFailureCount(),
+		assertThat("number of failures", result.getFailureCount(),
 				equalTo(1));
 		Failure failure = result.getFailures().get(0);
 		assertThat("exception's type", failure.getException(),
@@ -83,7 +83,7 @@ public class IntegrationTest {
 		Result result = ConcurrentJUnit.runClasses(classes);
 
 		assertThat("number of tests", result.getRunCount(), equalTo(1));
-		assertThat("number of failed tests", result.getFailureCount(),
+		assertThat("number of failures", result.getFailureCount(),
 				equalTo(1));
 		Failure failure = result.getFailures().get(0);
 		assertThat("exception's type", failure.getException(),
@@ -97,7 +97,7 @@ public class IntegrationTest {
 		Result result = ConcurrentJUnit.runClasses(classes);
 
 		assertThat("number of tests", result.getRunCount(), equalTo(1));
-		assertThat("number of failed tests", result.getFailureCount(),
+		assertThat("number of failures", result.getFailureCount(),
 				equalTo(1));
 		Failure failure = result.getFailures().get(0);
 		assertThat("exception's type", failure.getException(),
@@ -114,7 +114,7 @@ public class IntegrationTest {
 		Result result = ConcurrentJUnit.runClasses(classes);
 
 		assertThat("number of tests", result.getRunCount(), equalTo(1));
-		assertThat("number of failed tests", result.getFailureCount(),
+		assertThat("number of failures", result.getFailureCount(),
 				equalTo(1));
 		Failure failure = result.getFailures().get(0);
 		assertThat("exception's type", failure.getException(),
