@@ -8,7 +8,7 @@
  * Framework Programme under grant agreement No. 216682.
  */
 
-package de.fzi.cjunit.jpf.exceptioninfo;
+package de.fzi.cjunit.jpf.util;
 
 import gov.nasa.jpf.jvm.ClassInfo;
 import gov.nasa.jpf.jvm.DynamicArea;

@@ -14,9 +14,9 @@ import gov.nasa.jpf.jvm.DynamicArea;
 import gov.nasa.jpf.jvm.ElementInfo;
 import gov.nasa.jpf.jvm.JVM;
 
-import de.fzi.cjunit.jpf.exceptioninfo.ElementInfoWrapper;
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
 import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfo;
+import de.fzi.cjunit.jpf.util.ElementInfoWrapper;
 
 
 public class ExceptionInfoCollector {
