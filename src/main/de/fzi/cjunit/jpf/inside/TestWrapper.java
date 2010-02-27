@@ -200,9 +200,7 @@ public class TestWrapper {
 		if (errors.size() == 1) {
 			throw errors.get(0);
 		} else if (errors.size() > 1) {
-			throw new Exception("Multiple failures during test run;"
-					+ " only the first one is reported",
-					errors.get(0));
+			throw new MultipleFailureException(errors);
 		}
 	}
 

@@ -130,15 +130,18 @@ public class IntegrationTest {
 
 		assertThat("number of tests", result.getRunCount(), equalTo(1));
 		assertThat("number of failures", result.getFailureCount(),
-				equalTo(1));
+				equalTo(2));
 		Failure failure = result.getFailures().get(0);
-		assertThat("exception's type", failure.getException(),
+		assertThat("first exception's type", failure.getException(),
 				instanceOf(ConcurrentError.class));
-		assertThat("causing exception's type",
+		assertThat("first exception's cause",
 				failure.getException().getCause(),
-				instanceOf(Exception.class));
-		assertThat("type of causing exception's cause",
-				failure.getException().getCause().getCause(),
 				instanceOf(AssertionError.class));
+		failure = result.getFailures().get(1);
+		assertThat("second exception's type", failure.getException(),
+				instanceOf(ConcurrentError.class));
+		assertThat("second exception's cause",
+				failure.getException().getCause(),
+				instanceOf(TestException.class));
 	}
 }

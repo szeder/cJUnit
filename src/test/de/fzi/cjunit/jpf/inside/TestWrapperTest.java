@@ -463,26 +463,13 @@ public class TestWrapperTest {
 		tw.handleErrors();
 	}
 
-	@Test(expected=Exception.class)
+	@Test(expected=MultipleFailureException.class)
 	public void testExceptionOnMultipleError() throws Throwable {
 		TestWrapper tw = new TestWrapper();
 		tw.errors.add(new TestException());
 		tw.errors.add(new OtherTestException());
 
 		tw.handleErrors();
-	}
-
-	@Test(expected=TestException.class)
-	public void testFirstErrorOnMultipleError() throws Throwable {
-		TestWrapper tw = new TestWrapper();
-		tw.errors.add(new TestException());
-		tw.errors.add(new OtherTestException());
-
-		try {
-			tw.handleErrors();
-		} catch (Exception e) {
-			throw e.getCause();
-		}
 	}
 
 	// this also implicitly tests that @After methods are invoked even if
