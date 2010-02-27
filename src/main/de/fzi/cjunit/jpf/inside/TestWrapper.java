@@ -16,9 +16,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.junit.internal.runners.model.MultipleFailureException;
+
 import static de.fzi.cjunit.jpf.inside.TestWrapperOptions.*;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
+import de.fzi.cjunit.jpf.exceptioninfo.MultipleFailureExceptionInfo;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
 
 
@@ -108,6 +111,8 @@ public class TestWrapper {
 			createTest();
 			runTest();
 			notifyTestSucceeded();
+		} catch (MultipleFailureException mfe) {
+			notifyTestFailed(new MultipleFailureExceptionInfo(mfe));
 		} catch (Throwable t) {
 			notifyTestFailed(new ExceptionInfo(t));
 		}
