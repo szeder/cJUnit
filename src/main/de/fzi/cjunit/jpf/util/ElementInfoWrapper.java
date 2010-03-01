@@ -24,12 +24,11 @@ public class ElementInfoWrapper {
 
 	public ElementInfoWrapper(ElementInfo elementInfo,
 			Class<?> expectedClass) {
-		String className = elementInfo.getClassInfo().getName();
-		if (!className.equals(expectedClass.getName())) {
+		if (!elementInfo.getClassInfo().isInstanceOf(expectedClass.getName())) {
 			String gripe = "ElementInfo type mismatch:"
 				+ lineSeparator + "expected: "
 				+ expectedClass.getName() + lineSeparator
-				+ "got: " + className;
+				+ "got: " + elementInfo.getClassInfo().getName();
 			throw new RuntimeException(gripe);
 		}
 
