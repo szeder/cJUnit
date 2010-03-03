@@ -17,6 +17,7 @@ import gov.nasa.jpf.jvm.JVM;
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
 import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfo;
 import de.fzi.cjunit.jpf.util.ElementInfoWrapper;
+import de.fzi.cjunit.jpf.util.StackFrameConverter;
 
 
 public class ExceptionInfoCollector {
@@ -55,27 +56,9 @@ public class ExceptionInfoCollector {
 	protected StackTraceElementInfo[] stackTraceFromInfo(
 			ElementInfoWrapper eiw) {
 		ElementInfo[] array = eiw.getReferenceArray("stackTrace");
-		StackTraceElementInfo[] stackTrace
-				= new StackTraceElementInfo[array.length];
-		int i = 0;
-		for (ElementInfo stei : array) {
-			stackTrace[i] = stackTraceElementInfoFromElementInfo(
-					stei);
-			i++;
-		}
+		StackTraceElementInfo[] stackTrace = new StackFrameConverter()
+				.toStackTraceElementInfoArray(array);
 		return stackTrace;
-	}
-
-	protected StackTraceElementInfo stackTraceElementInfoFromElementInfo(
-			ElementInfo ei) {
-		ElementInfoWrapper eiw = new ElementInfoWrapper(ei,
-				StackTraceElementInfo.class);
-
-		return new StackTraceElementInfo(
-				eiw.getStringField("className"),
-				eiw.getStringField("methodName"),
-				eiw.getStringField("fileName"),
-				eiw.getIntField("lineNumber"));
 	}
 
 	protected ElementInfo elementInfoFromStack(JVM vm) throws Exception {

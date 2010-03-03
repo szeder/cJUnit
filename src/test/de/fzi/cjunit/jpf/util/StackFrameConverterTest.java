@@ -25,6 +25,14 @@ public class StackFrameConverterTest {
 	StackFrameConverter sfc = new StackFrameConverter();
 
 	@Test
+	public void testToStackTraceElementInfoArrayHandlesNullArray() {
+		StackTraceElementInfo[] stackTrace
+				= sfc.toStackTraceElementInfoArray(null);
+		assertThat(stackTrace, notNullValue());
+		assertThat(stackTrace.length, equalTo(0));
+	}
+
+	@Test
 	public void testSourceFileBasenameStripDirs() {
 		String filename = "Object.java";
 		String filenameWithPath = "java" + File.separatorChar
