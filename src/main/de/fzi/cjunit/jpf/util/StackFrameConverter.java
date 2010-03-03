@@ -28,7 +28,7 @@ public class StackFrameConverter {
 		return stackTrace;
 	}
 
-	public StackTraceElement toStackTraceElement(
+	protected StackTraceElement toStackTraceElement(
 			StackTraceElementInfo info) {
 		return new StackTraceElement(info.getClassName(),
 				info.getMethodName(),
@@ -36,7 +36,7 @@ public class StackFrameConverter {
 				info.getLineNumber());
 	}
 
-	public String sourceFileBasename(String filename) {
+	protected String sourceFileBasename(String filename) {
 		if (filename == null) {
 			return "(Unknown source)";
 		}
