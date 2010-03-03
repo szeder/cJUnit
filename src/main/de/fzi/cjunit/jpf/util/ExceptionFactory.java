@@ -53,7 +53,7 @@ public class ExceptionFactory {
 		Throwable t = (Throwable) constructor.newInstance(
 				new Object[] { exceptionInfo.getMessage() });
 		t.initCause(cause);
-		t.setStackTrace(new StackFrameConverter().toStackTrace(
+		t.setStackTrace(new StackFrameConverter().toStackTraceElementArray(
 					exceptionInfo.getStackTrace()));
 		return t;
 	}

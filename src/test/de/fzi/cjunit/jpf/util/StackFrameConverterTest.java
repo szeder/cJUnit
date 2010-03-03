@@ -25,7 +25,7 @@ public class StackFrameConverterTest {
 	StackFrameConverter sfc = new StackFrameConverter();
 
 	@Test
-	public void sourceFileBasenameStripDirs() {
+	public void testSourceFileBasenameStripDirs() {
 		String filename = "Object.java";
 		String filenameWithPath = "java" + File.separatorChar
 				+ "lang/" + File.separatorChar + filename;
@@ -34,21 +34,21 @@ public class StackFrameConverterTest {
 	}
 
 	@Test
-	public void sourceFileBasenameNothingToStrip() {
+	public void testSourceFileBasenameNothingToStrip() {
 		String magicFilename = "<direct call>";
 		assertThat(sfc.sourceFileBasename(magicFilename),
 				equalTo(magicFilename));
 	}
 
 	@Test
-	public void sourceFileBasenameHandlesNullReference() {
+	public void testSourceFileBasenameHandlesNullReference() {
 		String nullFilename = null;
 		assertThat(sfc.sourceFileBasename(nullFilename),
 				equalTo("(Unknown source)"));
 	}
 
 	@Test
-	public void stackTraceElementConversion() {
+	public void testToStackTraceElement() {
 		final char FSC = File.separatorChar;
 		StackTraceElementInfo info
 				= new StackTraceElementInfo("class0",
@@ -71,7 +71,7 @@ public class StackFrameConverterTest {
 	}
 
 	@Test
-	public void stackTraceConversion() {
+	public void testToStackTraceElementArray() {
 		StackTraceElementInfo info0
 				= new StackTraceElementInfo("class0",
 						"method0", "Class0.java", 0);
@@ -85,7 +85,8 @@ public class StackFrameConverterTest {
 		StackTraceElementInfo[] infoArray
 				= new StackTraceElementInfo[] {
 						info0, info1, info2 };
-		StackTraceElement[] stackTrace = sfc.toStackTrace(infoArray);
+		StackTraceElement[] stackTrace = sfc.toStackTraceElementArray(
+				infoArray);
 
 		assertThat("stack trace lenght", stackTrace.length,
 				equalTo(infoArray.length));

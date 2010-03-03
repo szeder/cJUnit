@@ -18,7 +18,7 @@ import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfo;
 
 public class StackFrameConverter {
 
-	public StackTraceElement[] toStackTrace(
+	public StackTraceElement[] toStackTraceElementArray(
 			StackTraceElementInfo[] infoArray) {
 		StackTraceElement[] stackTrace
 				= new StackTraceElement[infoArray.length];
