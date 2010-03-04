@@ -10,6 +10,10 @@
 
 package de.fzi.cjunit.jpf.exceptioninfo;
 
+import java.lang.reflect.InvocationTargetException;
+
+import de.fzi.cjunit.jpf.util.ExceptionFactory;
+
 
 /**
  * Holds basic information about a {@link Throwable}.
@@ -108,5 +112,12 @@ public class ExceptionInfo {
 	 */
 	public ExceptionInfo getCause() {
 		return cause;
+	}
+
+	public Throwable reconstruct() throws IllegalArgumentException,
+			ClassNotFoundException, InstantiationException,
+			IllegalAccessException, InvocationTargetException,
+			NoSuchMethodException {
+		return new ExceptionFactory().createException(this);
 	}
 }
