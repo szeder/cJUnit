@@ -22,7 +22,6 @@ import gov.nasa.jpf.search.Search;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
-import de.fzi.cjunit.jpf.util.ExceptionFactory;
 
 
 public class TestFailedProperty extends PropertyListenerAdapter
@@ -100,8 +99,7 @@ public class TestFailedProperty extends PropertyListenerAdapter
 	}
 
 	protected Throwable reconstructException(JVM vm) throws Exception {
-		return new ExceptionFactory().createException(
-				collectExceptionInfo(vm));
+		return collectExceptionInfo(vm).reconstruct();
 	}
 
 	protected ExceptionInfo collectExceptionInfo(JVM vm)
