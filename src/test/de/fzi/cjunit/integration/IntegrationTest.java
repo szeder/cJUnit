@@ -25,8 +25,10 @@ import org.junit.runner.notification.Failure;
 import de.fzi.cjunit.ConcurrentError;
 import de.fzi.cjunit.ConcurrentJUnit;
 import de.fzi.cjunit.DeadlockError;
+import de.fzi.cjunit.JPFPropertyViolated;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithConcurrencyBug;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithDeadlock;
+import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithExceptionInThread;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithSequentialBug;
 import de.fzi.cjunit.integration.testclasses.SequentialTestWithFailure;
 import de.fzi.cjunit.integration.testclasses.SuccessfulTests;
@@ -119,5 +121,20 @@ public class IntegrationTest {
 		Failure failure = result.getFailures().get(0);
 		assertThat("exception's type", failure.getException(),
 				instanceOf(DeadlockError.class));
+	}
+
+	@Test
+	public void concurrentTestWithExceptionInThread() {
+		Class<?>[] classes = new Class<?>[] {
+				ConcurrentTestWithExceptionInThread.class };
+		Result result = ConcurrentJUnit.runClasses(classes);
+
+		assertThat("number of tests", result.getRunCount(), equalTo(1));
+		assertThat("number of failures", result.getFailureCount(),
+				equalTo(1));
+		Throwable exception
+				= result.getFailures().get(0).getException();
+		assertThat("exception's type", exception,
+				instanceOf(JPFPropertyViolated.class));
 	}
 }
