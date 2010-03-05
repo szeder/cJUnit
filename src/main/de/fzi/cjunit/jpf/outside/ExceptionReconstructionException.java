@@ -14,6 +14,11 @@ public class ExceptionReconstructionException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
+	public ExceptionReconstructionException(Throwable cause) {
+		super("could not reconstruct the exception thrown during the test",
+				cause);
+	}
+
 	public ExceptionReconstructionException(String message,
 			Throwable cause) {
 		super(message, cause);
