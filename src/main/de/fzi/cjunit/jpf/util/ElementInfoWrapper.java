@@ -42,13 +42,16 @@ public class ElementInfoWrapper {
 
 	public FieldInfo getFieldInfo(String fieldName) {
 		ClassInfo classInfo = elementInfo.getClassInfo();
-		FieldInfo fieldInfo = classInfo.getDeclaredInstanceField(
-				fieldName);
-		if (fieldInfo == null) {
-			throw new RuntimeException(
-					"No such field: " + fieldName);
+		while (classInfo != null) {
+			FieldInfo fieldInfo = classInfo.getDeclaredInstanceField(
+					fieldName);
+			if (fieldInfo != null) {
+				return fieldInfo;
+			}
+			classInfo = classInfo.getSuperClass();
 		}
-		return fieldInfo;
+		throw new RuntimeException(
+				"No such field: " + fieldName);
 	}
 
 	public int getReferenceValueForField(String fieldName) {
