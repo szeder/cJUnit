@@ -54,7 +54,7 @@ public class SuccessfulTests {
 
 	@ConcurrentTest(expected=TestException.class)
 	public void concurrentTestMethodWithExpectedException()
-			throws InterruptedException, TestException {
+			throws InterruptedException {
 		concurrentTestMethod();
 		throw new TestException();
 	}
@@ -69,8 +69,7 @@ public class SuccessfulTests {
 	}
 
 	@ConcurrentTest(threadCount=2,expected=TestException.class)
-	public void concurrentTestWithThreadCountAndException()
-			throws Throwable {
+	public void concurrentTestWithThreadCountAndException() {
 		throw new TestException();
 	}
 
@@ -95,8 +94,7 @@ public class SuccessfulTests {
 
 	@ConcurrentTest(threadGroup=TGID_WithException,
 			expected=TestException.class)
-	public void concurrentTestWithThreadGroupAndException2()
-			throws Throwable {
+	public void concurrentTestWithThreadGroupAndException2() {
 		throw new TestException();
 	}
 }

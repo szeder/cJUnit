@@ -20,7 +20,7 @@ public class SequentialTestWithFailure {
 	public static boolean invoked = false;
 
 	@Test
-	public void testMethod() throws TestException {
+	public void testMethod() {
 		invoked = true;
 		throw new TestException();
 	}
