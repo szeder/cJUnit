@@ -24,7 +24,8 @@ public class ExceptionInfoCollector {
 
 	public ExceptionInfoCollector() { }
 
-	public ExceptionInfo collectFromStack(JVM vm) throws Exception {
+	public ExceptionInfo collectFromExceptionInfoOnStack(JVM vm)
+			throws Exception {
 		ElementInfo ei = elementInfoFromStack(vm);
 
 		return exceptionInfoFromInfo(ei);
