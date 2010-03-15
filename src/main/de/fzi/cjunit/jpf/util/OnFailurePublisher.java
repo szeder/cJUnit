@@ -80,6 +80,8 @@ public class OnFailurePublisher extends ConsolePublisher {
 				"jpf.report.console.show_code", false);
 	}
 
+	int prevThreadIndex = -1;
+
 	@Override
 	protected void publishTrace() {
 		Path path = reporter.getPath();
@@ -92,11 +94,15 @@ public class OnFailurePublisher extends ConsolePublisher {
 		publishTopicStart("trace " + reporter.getLastErrorId());
 
 		for (Transition t : path) {
-		  out.print("------------------------------------------------------ ");
-		  out.println("transition #" + i++ + " thread: " + t.getThreadIndex());
+		  int threadIndex = t.getThreadIndex();
+		  if (prevThreadIndex != threadIndex) {
+		    out.print("------------------------------------------------------ ");
+		    out.println("transition #" + i++ + " thread: " + t.getThreadIndex());
 
-		  if (showCG){
-		    out.println(t.getChoiceGenerator());
+		    if (showCG){
+		      out.println(t.getChoiceGenerator());
+		    }
+		    prevThreadIndex = threadIndex;
 		  }
 
 		  if (showSteps) {
