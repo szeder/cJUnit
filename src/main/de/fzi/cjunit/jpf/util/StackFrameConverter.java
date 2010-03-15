@@ -20,6 +20,10 @@ public class StackFrameConverter {
 
 	public StackTraceElement[] toStackTraceElementArray(
 			StackTraceElementInfo[] infoArray) {
+		if (infoArray == null) {
+			return new StackTraceElement[0];
+		}
+
 		StackTraceElement[] stackTrace
 				= new StackTraceElement[infoArray.length];
 		for (int i = 0; i < stackTrace.length; i++) {

@@ -118,4 +118,12 @@ public class StackFrameConverterTest {
 		assertThat("element 2", stackTrace[2].getLineNumber(),
 				equalTo(info2.getLineNumber()));
 	}
+
+	@Test
+	public void testToStackTraceElementArrayHandlesNullArray() {
+		StackTraceElement[] stackTrace = sfc.toStackTraceElementArray(
+				null);
+		assertThat(stackTrace, notNullValue());
+		assertThat(stackTrace.length, equalTo(0));
+	}
 }
