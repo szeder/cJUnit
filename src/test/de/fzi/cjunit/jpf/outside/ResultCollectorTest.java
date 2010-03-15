@@ -13,7 +13,11 @@ package de.fzi.cjunit.jpf.outside;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
+import org.junit.internal.runners.model.MultipleFailureException;
 
 import gov.nasa.jpf.Error;
 import gov.nasa.jpf.GenericProperty;
@@ -244,6 +248,37 @@ public class ResultCollectorTest {
 		rc.foundConcurrencyBug();
 		assertThat(rc.exception, instanceOf(DeadlockError.class));
 		assertThat("no cause", rc.exception.getCause(), nullValue());
+	}
+
+	@Test
+	public void testFoundConcurrencyBugWithMultipleFailures() {
+		ResultCollector rc = new ResultCollector(null, null) {
+			@Override
+			public void terminateSearch() {}
+		};
+		Throwable t1 = new TestException();
+		Throwable t2 = new OtherTestException();
+		List<Throwable> initFailures = new ArrayList<Throwable>();
+		initFailures.add(t1);
+		initFailures.add(t2);
+		MultipleFailureException mfe = new MultipleFailureException(
+				initFailures);
+		rc.exception = mfe;
+		rc.error = new Error(0, new PropertyListenerAdapter(), null,
+				null);
+		rc.foundConcurrencyBug();
+		assertThat("MFE unchanged", rc.exception,
+				equalTo((Throwable) mfe));
+		assertThat("number of failures", mfe.getFailures().size(),
+				equalTo(2));
+		assertThat("first type", mfe.getFailures().get(0),
+				instanceOf(ConcurrentError.class));
+		assertThat("first cause", mfe.getFailures().get(0).getCause(),
+				equalTo(t1));
+		assertThat("second type", mfe.getFailures().get(1),
+				instanceOf(ConcurrentError.class));
+		assertThat("second cause", mfe.getFailures().get(1).getCause(),
+				equalTo(t2));
 	}
 
 	protected ResultCollector createResultCollectorToTestSearchFinished(
