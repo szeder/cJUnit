@@ -13,6 +13,7 @@ package de.fzi.cjunit.jpf.util;
 import java.io.PrintWriter;
 
 import gov.nasa.jpf.Config;
+import gov.nasa.jpf.jvm.ChoiceGenerator;
 import gov.nasa.jpf.jvm.ClassInfo;
 import gov.nasa.jpf.jvm.MethodInfo;
 import gov.nasa.jpf.jvm.Path;
@@ -100,7 +101,11 @@ public class OnFailurePublisher extends ConsolePublisher {
 		    out.println("transition #" + i++ + " thread: " + t.getThreadIndex());
 
 		    if (showCG){
-		      out.println(t.getChoiceGenerator());
+		      ChoiceGenerator<?> cg = t.getChoiceGenerator();
+		      String cgDescription = cg.toString();
+		      String strippedCGDescription = cgDescription.replace(
+				      cg.getClass().getName() + " ", "");
+		      out.println(strippedCGDescription);
 		    }
 		    prevThreadIndex = threadIndex;
 		  }
