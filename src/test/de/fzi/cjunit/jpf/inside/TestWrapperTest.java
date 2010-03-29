@@ -20,6 +20,7 @@ import java.util.List;
 
 import static de.fzi.cjunit.jpf.inside.TestWrapperOptions.*;
 
+import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
 import de.fzi.cjunit.testutils.*;
 
 
@@ -133,6 +134,65 @@ public class TestWrapperTest {
 	@Test(expected=RuntimeException.class)
 	public void parseArgsNoArguments() {
 		new TestWrapper((String[]) null);
+	}
+
+	@Test
+	public void testRunWhenSucceeded() {
+		final Counter succeededCounter = new Counter();
+		final Counter failedCounter = new Counter();
+		TestWrapper tw = new TestWrapper() {
+			@Override
+			protected void createTest() {}
+			@Override
+			protected void runTest() {}
+			@Override
+			protected void notifyTestSucceeded() {
+				succeededCounter.increment();
+			}
+			@Override
+			protected void notifyTestFailed(ExceptionInfo ei) {
+				failedCounter.increment();
+			}
+		};
+
+		tw.run();
+
+		assertThat("succeeded", succeededCounter.getValue(),
+				equalTo(1));
+		assertThat("failed", failedCounter.getValue(), equalTo(0));
+	}
+
+	@Test
+	public void testRunWhenFailed() {
+		final String message = "message in testRunWhenFailed()";
+		final Counter succeededCounter = new Counter();
+		final Counter failedCounter = new Counter();
+		TestWrapper tw = new TestWrapper() {
+			@Override
+			protected void createTest() {}
+			@Override
+			protected void runTest() {
+				throw new TestException(message);
+			}
+			@Override
+			protected void notifyTestSucceeded() {
+				succeededCounter.increment();
+			}
+			@Override
+			protected void notifyTestFailed(ExceptionInfo ei) {
+				failedCounter.increment();
+				// if this is not invoked, one of the asserts
+				// below will fail anyway
+				assertThat("message", ei.getMessage(),
+						equalTo(message));
+			}
+		};
+
+		tw.run();
+
+		assertThat("succeeded", succeededCounter.getValue(),
+				equalTo(0));
+		assertThat("failed", failedCounter.getValue(), equalTo(1));
 	}
 
 	@Test

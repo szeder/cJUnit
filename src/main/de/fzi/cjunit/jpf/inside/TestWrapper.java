@@ -18,6 +18,7 @@ import java.util.List;
 
 import static de.fzi.cjunit.jpf.inside.TestWrapperOptions.*;
 
+import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
 
@@ -107,11 +108,18 @@ public class TestWrapper {
 		try {
 			createTest();
 			runTest();
-			NotifierMethods.testSucceeded();
+			notifyTestSucceeded();
 		} catch (Throwable t) {
-			NotifierMethods.testFailed(
-					new ExceptionInfoDefaultImpl(t));
+			notifyTestFailed(new ExceptionInfoDefaultImpl(t));
 		}
+	}
+
+	protected void notifyTestSucceeded() {
+		NotifierMethods.testSucceeded();
+	}
+
+	protected void notifyTestFailed(ExceptionInfo ei) {
+		NotifierMethods.testFailed(ei);
 	}
 
 	protected void createTest() throws IllegalArgumentException,
