@@ -33,7 +33,7 @@ public class TestMethodTest {
 	}
 
 	@Test
-	public void testInvokedMethodThrows() throws Throwable {
+	public void testInvokedMethodThrows() {
 		final InvocationTargetException e
 				= new InvocationTargetException(
 						new TestException());

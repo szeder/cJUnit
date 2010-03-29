@@ -32,10 +32,10 @@ public class TestWrapperTest {
 	String exceptionName2 = "java.lang.RuntimeException";
 
 	public void throwNothing() { };
-	public void throwTestException() throws TestException {
+	public void throwTestException() {
 		throw new TestException();
 	}
-	public void throwOtherTestException() throws OtherTestException {
+	public void throwOtherTestException() {
 		throw new OtherTestException();
 	}
 

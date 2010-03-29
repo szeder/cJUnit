@@ -10,7 +10,7 @@
 
 package de.fzi.cjunit.testutils;
 
-public class ParentTestException extends Throwable {
+public class ParentTestException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 }
