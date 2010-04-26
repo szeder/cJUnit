@@ -68,6 +68,11 @@ public class ElementInfoWrapper {
 		return DynamicArea.getHeap().get(refVal);
 	}
 
+	public int[] getIntArrayForField(String fieldName) {
+		int refVal = getReferenceValueForField(fieldName);
+		return DynamicArea.getHeap().get(refVal).asIntArray();
+	}
+
 	public String getStringField(String fieldName) {
 		return elementInfo.getStringField(fieldName);
 	}

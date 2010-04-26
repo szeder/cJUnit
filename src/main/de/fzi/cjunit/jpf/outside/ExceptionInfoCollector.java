@@ -10,9 +10,13 @@
 
 package de.fzi.cjunit.jpf.outside;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import gov.nasa.jpf.jvm.DynamicArea;
 import gov.nasa.jpf.jvm.ElementInfo;
 import gov.nasa.jpf.jvm.JVM;
+import gov.nasa.jpf.jvm.MethodInfo;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
 import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfo;
@@ -23,6 +27,125 @@ import de.fzi.cjunit.jpf.util.StackFrameConverter;
 public class ExceptionInfoCollector {
 
 	public ExceptionInfoCollector() { }
+
+	public ExceptionInfo collectFromJPFExceptionInfo(
+			gov.nasa.jpf.jvm.ExceptionInfo exceptionInfo) {
+		ElementInfo ei = elementInfoFromReference(
+				exceptionInfo.getExceptionReference());
+
+		return exceptionInfoFromThrowable(ei);
+	}
+
+	protected ExceptionInfo exceptionInfoFromThrowable(ElementInfo ei) {
+		ElementInfoWrapper eiw = new ElementInfoWrapper(ei,
+				Throwable.class);
+
+		StackTraceElementInfo[] stackTrace
+				= stackTraceFromThrowable(eiw);
+
+		ExceptionInfo cause = causeFromThrowable(eiw);
+
+		return new ExceptionInfo(eiw.getClassName(),
+				eiw.getStringField("detailMessage"),
+				stackTrace, cause);
+	}
+
+	protected ExceptionInfo causeFromThrowable(ElementInfoWrapper eiw) {
+		ElementInfo cause = eiw.getElementInfoForField("cause");
+		// cause == this means no cause; see Throwable.getCause()
+		if (cause == null || cause == eiw.getWrappedElementInfo()) {
+			return null;
+		} else {
+			return exceptionInfoFromThrowable(cause);
+		}
+	}
+
+	protected StackTraceElementInfo[] stackTraceFromThrowable(
+			ElementInfoWrapper eiw) {
+		ElementInfo[] array;
+		try {
+			array = eiw.getReferenceArray("stackTrace");
+		} catch (Throwable t) {
+			return stackTraceFromSnapshot(eiw);
+		}
+
+		StackTraceElementInfo[] stackTrace
+				= new StackTraceElementInfo[array.length];
+		int i = 0;
+		for (ElementInfo stei : array) {
+			stackTrace[i] = stackTraceElementInfoFromJPFStackTraceElement(
+					stei);
+			i++;
+		}
+		return stackTrace;
+	}
+
+	protected StackTraceElementInfo stackTraceElementInfoFromJPFStackTraceElement(
+			ElementInfo ei) {
+		ElementInfoWrapper eiw = new ElementInfoWrapper(ei,
+				StackTraceElement.class);
+
+		return new StackTraceElementInfo(
+				eiw.getStringField("clsName"),
+				eiw.getStringField("mthName"),
+				eiw.getStringField("fileName"),
+				eiw.getIntField("line"));
+	}
+
+	protected StackTraceElementInfo[] stackTraceFromSnapshot(
+			ElementInfoWrapper eiw) {
+		int[] snapshot = eiw.getIntArrayForField("snapshot");
+
+		List<StackTraceElementInfo> list
+				= new ArrayList<StackTraceElementInfo>();
+		for (int i = 0; i < snapshot.length; i += 2) {
+			StackTraceElementInfo stei
+				= stackTraceElementInfoFromSnapshotElement(
+						snapshot, i);
+			if (stei != null) {
+				list.add(stei);
+			}
+		}
+
+		StackTraceElementInfo[] stackTrace
+				= new StackTraceElementInfo[list.size()];
+		stackTrace = list.toArray(stackTrace);
+
+		return stackTrace;
+	}
+
+	protected StackTraceElementInfo stackTraceElementInfoFromSnapshotElement(
+			int[] snapshot, int idx) {
+		String className, methodName, fileName;
+		int lineNumber;
+
+		MethodInfo mi = MethodInfo.getMethodInfo(snapshot[idx]);
+		if (mi.isDirectCallStub()) {
+			if (mi.getName().startsWith("[reflection]")) {
+				className = "java.lang.reflect.Method";
+				methodName = "invoke";
+				fileName = "Native Method";
+				lineNumber = -1;
+			} else {
+				return null;
+			}
+		} else {
+			className = mi.getClassName();
+			methodName = mi.getName();
+
+			if (mi.isMJI()) {
+				fileName = "Native Method";
+				lineNumber = -1;
+			} else {
+				fileName = mi.getSourceFileName();
+				lineNumber = mi.getLineNumber(
+					mi.getInstruction(snapshot[idx+1]));
+			}
+		}
+
+		return new StackTraceElementInfo(className, methodName, fileName,
+				lineNumber);
+	}
 
 	public ExceptionInfo collectFromExceptionInfoOnStack(JVM vm)
 			throws Exception {
