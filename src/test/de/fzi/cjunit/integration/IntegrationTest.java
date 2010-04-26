@@ -25,13 +25,13 @@ import org.junit.runner.notification.Failure;
 import de.fzi.cjunit.ConcurrentError;
 import de.fzi.cjunit.ConcurrentJUnit;
 import de.fzi.cjunit.DeadlockError;
-import de.fzi.cjunit.JPFPropertyViolated;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithConcurrencyBug;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithDeadlock;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithExceptionInThread;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithSequentialBug;
 import de.fzi.cjunit.integration.testclasses.SequentialTestWithFailure;
 import de.fzi.cjunit.integration.testclasses.SuccessfulTests;
+import de.fzi.cjunit.testutils.OtherTestException;
 import de.fzi.cjunit.testutils.TestException;
 
 
@@ -135,6 +135,49 @@ public class IntegrationTest {
 		Throwable exception
 				= result.getFailures().get(0).getException();
 		assertThat("exception's type", exception,
-				instanceOf(JPFPropertyViolated.class));
+				instanceOf(TestException.class));
+		assertThat("exception's message", exception.getMessage(),
+				equalTo(ConcurrentTestWithExceptionInThread.message));
+
+		StackTraceElement[] stackTrace = exception.getStackTrace();
+		assertThat("exception's stack trace depth",
+				stackTrace.length, equalTo(1));
+		assertThat("stack trace[0] classname",
+				stackTrace[0].getClassName(),
+				equalTo("de.fzi.cjunit.integration.testclasses.ConcurrentTestWithExceptionInThread$1"));
+		assertThat("stack trace[0] methodname",
+				stackTrace[0].getMethodName(), equalTo("run"));
+		assertThat("stack trace[0] filename",
+				stackTrace[0].getFileName(),
+				equalTo("ConcurrentTestWithExceptionInThread.java"));
+
+		assertThat("has cause", exception.getCause(), notNullValue());
+		assertThat("cause's type", exception.getCause(),
+				instanceOf(OtherTestException.class));
+		assertThat("cause's message", exception.getCause().getMessage(),
+				equalTo(ConcurrentTestWithExceptionInThread.causeMessage));
+
+		StackTraceElement[] causeStackTrace
+				= exception.getCause().getStackTrace();
+		assertThat("cause's stack trace depth",
+				causeStackTrace.length, equalTo(2));
+		assertThat("cause stack trace[0] classname",
+				causeStackTrace[0].getClassName(),
+				equalTo("de.fzi.cjunit.integration.testclasses.ConcurrentTestWithExceptionInThread"));
+		assertThat("cause stack trace[0] methodname",
+				causeStackTrace[0].getMethodName(),
+				equalTo("throwCause"));
+		assertThat("cause stack trace[0] filename",
+				causeStackTrace[0].getFileName(),
+				equalTo("ConcurrentTestWithExceptionInThread.java"));
+		assertThat("cause stack trace[1] classname",
+				causeStackTrace[1].getClassName(),
+				equalTo("de.fzi.cjunit.integration.testclasses.ConcurrentTestWithExceptionInThread$1"));
+		assertThat("cause stack trace[1] methodname",
+				causeStackTrace[1].getMethodName(),
+				equalTo("run"));
+		assertThat("cause stack trace[1] filename",
+				causeStackTrace[1].getFileName(),
+				equalTo("ConcurrentTestWithExceptionInThread.java"));
 	}
 }

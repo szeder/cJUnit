@@ -20,6 +20,7 @@ import gov.nasa.jpf.GenericProperty;
 import gov.nasa.jpf.Property;
 import gov.nasa.jpf.PropertyListenerAdapter;
 import gov.nasa.jpf.jvm.JVM;
+import gov.nasa.jpf.jvm.NoUncaughtExceptionsProperty;
 import gov.nasa.jpf.jvm.NotDeadlockedProperty;
 import gov.nasa.jpf.search.Search;
 
@@ -81,6 +82,23 @@ public class ResultCollectorTest {
 		};
 
 		assertThat(rc.getExceptionFromProperty(property), equalTo(t));
+	}
+
+	@Test
+	public void getExceptionFromPropertyWithNoUncaughtExceptionsProperty() {
+		final Throwable t = new TestException();
+		final Property property = new NoUncaughtExceptionsProperty(null);
+		ResultCollector rc = new ResultCollector(null, null) {
+			@Override
+			protected Throwable getExceptionFromNoUncaughtExceptionsProperty(
+					NoUncaughtExceptionsProperty p) {
+				assertThat(p, equalTo(property));
+				return t;
+			}
+		};
+
+		assertThat(rc.getExceptionFromProperty(property),
+				equalTo(t));
 	}
 
 	protected ResultCollector createResultCollectorToTestErrorHandlers(

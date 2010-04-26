@@ -11,21 +11,33 @@
 package de.fzi.cjunit.integration.testclasses;
 
 import de.fzi.cjunit.ConcurrentTest;
+import de.fzi.cjunit.testutils.OtherTestException;
 import de.fzi.cjunit.testutils.TestException;
 
 
 public class ConcurrentTestWithExceptionInThread {
 
 	public static String message = "something went wrong";
+	public static String causeMessage = "something else went wrong, too";
+
+	public void throwCause() {
+		throw new OtherTestException(causeMessage);
+	}
 
 	@ConcurrentTest
 	public void concurrentTestMethod() throws InterruptedException {
 		Thread t = new Thread() {
 			@Override
 			public void run() {
-				TestException t = new TestException(
-					message.toString());
-				throw t;
+				try {
+					throwCause();
+				} catch (Throwable cause) {
+					cause.getStackTrace();
+					TestException t = new TestException(
+							message.toString(),
+							cause);
+					throw t;
+				}
 			}
 		};
 		t.start();
