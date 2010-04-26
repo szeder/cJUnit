@@ -39,6 +39,10 @@ public class ElementInfoWrapper {
 		return elementInfo;
 	}
 
+	public String getClassName() {
+		return elementInfo.getClassInfo().getName();
+	}
+
 	public FieldInfo getFieldInfo(String fieldName) {
 		ClassInfo classInfo = elementInfo.getClassInfo();
 		while (classInfo != null) {
