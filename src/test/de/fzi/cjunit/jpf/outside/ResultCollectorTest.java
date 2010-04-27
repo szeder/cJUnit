@@ -67,6 +67,7 @@ public class ResultCollectorTest {
 
 	@Test
 	public void getExceptionFromPropertyWithTestProperty() {
+		final Throwable t = new TestException();
 		ResultCollector rc = new ResultCollector(null, null);
 		Property property = new TestFailedProperty() {
 			@Override
@@ -75,12 +76,11 @@ public class ResultCollectorTest {
 			}
 			@Override
 			public Throwable getException() {
-				return new TestException();
+				return t;
 			}
 		};
 
-		assertThat(rc.getExceptionFromProperty(property),
-				instanceOf(TestException.class));
+		assertThat(rc.getExceptionFromProperty(property), equalTo(t));
 	}
 
 	protected ResultCollector createResultCollectorToTestErrorHandlers(
