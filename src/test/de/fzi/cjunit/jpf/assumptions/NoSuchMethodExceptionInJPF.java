@@ -64,16 +64,16 @@ public class NoSuchMethodExceptionInJPF extends JPFForTesting {
 
 	@Test
 	public void testGTOE() {
-		runTest(GTOE.class, NoSuchMethodException.class);
+		runTest(GTOE.class, AssertionError.class);
 	}
 
 	@Test
 	public void testLT() {
-		runTest(LT.class, NoSuchMethodException.class);
+		runTest(LT.class, AssertionError.class);
 	}
 
 	@Test
 	public void testLTOE() {
-		runTest(LTOE.class, NoSuchMethodException.class);
+		runTest(LTOE.class, AssertionError.class);
 	}
 }
