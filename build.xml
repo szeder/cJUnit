@@ -12,8 +12,9 @@
 	<property name="license" value="LICENSE"/>
 	<property name="binjar" value="${target}/cjunit.jar"/>
 
-	<path id="deps">
-		<fileset dir="${lib}" includes="**/*.jar"/>
+	<fileset id="deps" dir="${lib}" includes="**/*.jar"/>
+	<path id="deppath">
+		<fileset refid="deps"/>
 	</path>
 
 	<target name="all" depends="clean,run-test,jar"/>
@@ -25,11 +26,11 @@
 	<target name="compile">
 		<mkdir dir="${bin}"/>
 		<javac srcdir="${src}" destdir="${bin}" debug="on"
-				classpathref="deps"/>
+				classpathref="deppath"/>
 
 		<mkdir dir="${testbin}"/>
 		<javac srcdir="${testsrc}" destdir="${testbin}" debug="on"
-				classpath="${bin}" classpathref="deps"/>
+				classpath="${bin}" classpathref="deppath"/>
 	</target>
 
 	<target name="jar" depends="compile">
@@ -40,7 +41,7 @@
 	<target name="run-test" depends="compile">
 		<java classname="org.junit.runner.JUnitCore"
 				classpath="${testbin};${bin}"
-				classpathref="deps"
+				classpathref="deppath"
 				fork="yes"
 				failonerror="true">
 			<arg value="${testsuite}"/>
