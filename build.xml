@@ -9,6 +9,7 @@
 	<property name="bin" value="${target}/main"/>
 	<property name="testbin" value="${target}/test"/>
 	<property name="lib" value="lib"/>
+	<property name="license" value="LICENSE"/>
 	<property name="binjar" value="${target}/cjunit.jar"/>
 
 	<path id="deps">
@@ -32,6 +33,7 @@
 	</target>
 
 	<target name="jar" depends="compile">
+		<copy file="${license}" todir="${bin}"/>
 		<jar jarfile="${binjar}" basedir="${bin}"/>
 	</target>
 
