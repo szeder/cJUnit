@@ -9,13 +9,19 @@
 	<property name="bin" value="${target}/main"/>
 	<property name="testbin" value="${target}/test"/>
 	<property name="lib" value="lib"/>
+	<property name="license" value="LICENSE"/>
 	<property name="binjar" value="${target}/cjunit.jar"/>
+	<property name="unjardir" value="${target}/unjar"/>
+	<property name="unjarstamp" value="${target}/unjar-stamp"/>
+	<property name="depjar" value="${target}/cjunit-dep.jar"/>
+	<property name="alljar" value="${target}/cjunit-all.jar"/>
 
-	<path id="deps">
-		<fileset dir="${lib}" includes="**/*.jar"/>
+	<fileset id="deps" dir="${lib}" includes="**/*.jar"/>
+	<path id="deppath">
+		<fileset refid="deps"/>
 	</path>
 
-	<target name="all" depends="clean,run-test,jar"/>
+	<target name="all" depends="clean,run-test,jar,distjars"/>
 
 	<target name="clean">
 		<delete dir="${target}"/>
@@ -24,24 +30,55 @@
 	<target name="compile">
 		<mkdir dir="${bin}"/>
 		<javac srcdir="${src}" destdir="${bin}" debug="on"
-				classpathref="deps"/>
+				classpathref="deppath"/>
 
 		<mkdir dir="${testbin}"/>
 		<javac srcdir="${testsrc}" destdir="${testbin}" debug="on"
-				classpath="${bin}" classpathref="deps"/>
+				classpath="${bin}" classpathref="deppath"/>
 	</target>
 
 	<target name="jar" depends="compile">
+		<copy file="${license}" todir="${bin}"/>
 		<jar jarfile="${binjar}" basedir="${bin}"/>
 	</target>
 
 	<target name="run-test" depends="compile">
 		<java classname="org.junit.runner.JUnitCore"
 				classpath="${testbin};${bin}"
-				classpathref="deps"
+				classpathref="deppath"
 				fork="yes"
 				failonerror="true">
 			<arg value="${testsuite}"/>
 		</java>
+	</target>
+
+	<target name="check-deps">
+		<uptodate property="nochanges.deps" targetfile="${unjarstamp}">
+			<srcfiles refid="deps"/>
+		</uptodate>
+	</target>
+
+	<target name="unjar-deps" depends="check-deps" unless="nochanges.deps">
+		<unjar dest="${unjardir}" overwrite="false">
+			<fileset refid="deps"/>
+		</unjar>
+		<touch file="${unjarstamp}"/>
+	</target>
+
+	<fileset id="depfiles" dir="${unjardir}"
+			includes="**/*.class **/*.properties"/>
+	<fileset id="deplicenses" dir="${lib}"
+			includes="**/LICENSE.*"/>
+
+	<target name="distjars" depends="jar,unjar-deps">
+		<jar jarfile="${depjar}">
+			<fileset refid="depfiles"/>
+			<fileset refid="deplicenses"/>
+		</jar>
+		<jar jarfile="${alljar}">
+			<fileset refid="depfiles"/>
+			<fileset refid="deplicenses"/>
+			<fileset dir="${bin}"/>
+		</jar>
 	</target>
 </project>
