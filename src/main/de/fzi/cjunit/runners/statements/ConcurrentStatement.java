@@ -22,7 +22,6 @@ import static de.fzi.cjunit.jpf.inside.TestWrapperOptions.*;
 
 import de.fzi.cjunit.jpf.inside.TestWrapper;
 import de.fzi.cjunit.jpf.outside.JPFInvoker;
-import de.fzi.cjunit.jpf.util.ArgumentCreator;
 
 
 public class ConcurrentStatement extends Statement {
@@ -98,6 +97,7 @@ public class ConcurrentStatement extends Statement {
 
 	protected String[] createJPFArgs() {
 		List<String> testArgs = new ArrayList<String>();
+		testArgs.add(TestWrapper.class.getName());
 		testArgs.add(TestClassOpt + target.getClass().getName());
 		for (MethodInfo mi : testMethods) {
 			testArgs.add(TestOpt + MethodSubOpt
@@ -114,10 +114,7 @@ public class ConcurrentStatement extends Statement {
 					afterMethod.getName());
 		}
 
-		return new ArgumentCreator()
-			.app(TestWrapper.class)
-			.appArgs(testArgs)
-			.getArgs();
+		return testArgs.toArray(new String[testArgs.size()]);
 	}
 
 	protected String getExceptionClassName(
