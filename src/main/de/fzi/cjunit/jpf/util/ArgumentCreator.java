@@ -10,8 +10,6 @@
 
 package de.fzi.cjunit.jpf.util;
 
-import gov.nasa.jpf.PropertyListenerAdapter;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -98,12 +96,5 @@ public class ArgumentCreator {
 			}
 		}
 		return args.toArray(new String[args.size()]);
-	}
-
-	public ArgumentCreator defaultJPFTestArgs() {
-		publisher(DumbPublisher.class);
-		property(PropertyListenerAdapter.class);
-		jpfArgs("+log.level=severe");
-		return this;
 	}
 }

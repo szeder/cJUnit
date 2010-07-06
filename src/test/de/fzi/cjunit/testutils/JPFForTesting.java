@@ -10,9 +10,14 @@
 
 package de.fzi.cjunit.testutils;
 
+import java.util.Properties;
+
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
-import de.fzi.cjunit.jpf.util.ArgumentCreator;
+import gov.nasa.jpf.PropertyListenerAdapter;
+
+import de.fzi.cjunit.jpf.util.DumbPublisher;
+
 
 public class JPFForTesting {
 
@@ -20,16 +25,20 @@ public class JPFForTesting {
 	protected JPF jpf;
 
 	protected void createJPF(Class<?> appClass) {
-		createJPF(new String[] {}, appClass);
+		createJPF(appClass, new Properties());
 	}
 
-	protected void createJPF(String[] args, Class<?> appClass) {
-		String[] jpfArgs = new ArgumentCreator()
-				.app(appClass)
-				.defaultJPFTestArgs()
-				.jpfArgs(args)
-				.getArgs();
-		config = JPF.createConfig(jpfArgs);
+	protected void createJPF(Class<?> appClass, Properties jpfArgs) {
+		config = JPF.createConfig(new String[] { appClass.getName() } );
+
+		config.setProperty("search.properties",
+				PropertyListenerAdapter.class.getName());
+		config.setProperty("jpf.report.publisher",
+				DumbPublisher.class.getSimpleName());
+		config.setProperty("jpf.report.DumbPublisher.class",
+				DumbPublisher.class.getName());
+		config.putAll(jpfArgs);
+
 		jpf = new JPF(config);
 	}
 }
