@@ -23,8 +23,7 @@ import static de.fzi.cjunit.jpf.inside.TestWrapperOptions.*;
 import de.fzi.cjunit.jpf.inside.TestWrapper;
 import de.fzi.cjunit.jpf.outside.JPFInvoker;
 import de.fzi.cjunit.jpf.util.ArgumentCreator;
-import de.fzi.cjunit.jpf.util.OnFailurePublisher;
-import de.fzi.cjunit.jpf.util.TestReporter;
+
 
 public class ConcurrentStatement extends Statement {
 
@@ -116,15 +115,6 @@ public class ConcurrentStatement extends Statement {
 		}
 
 		return new ArgumentCreator()
-			.publisher(OnFailurePublisher.class)
-			.reporter(TestReporter.class)
-			.jpfArgs(new String[] {
-					"+vm.por.field_boundaries.never=",
-					"+search.multiple_errors=true",
-					"+jpf.report.console.start=",
-					"+jpf.report.console.finished=result",
-					"+jpf.report.console.show_steps=true"
-				})
 			.app(TestWrapper.class)
 			.appArgs(testArgs)
 			.getArgs();
