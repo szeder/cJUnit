@@ -49,9 +49,12 @@
 		</javadoc>
 	</target>
 
-	<target name="jar" depends="compile">
+	<target name="jar" depends="compile,doc">
 		<copy file="${license}" todir="${bin}"/>
-		<jar jarfile="${binjar}" basedir="${bin}"/>
+		<jar jarfile="${binjar}">
+			<fileset dir="${bin}"/>
+			<fileset dir="${target}" includes="doc/"/>
+		</jar>
 	</target>
 
 	<target name="run-test" depends="compile">
@@ -82,7 +85,7 @@
 	<fileset id="deplicenses" dir="${lib}"
 			includes="**/LICENSE.*"/>
 
-	<target name="distjars" depends="jar,unjar-deps">
+	<target name="distjars" depends="jar,unjar-deps,doc">
 		<jar jarfile="${depjar}">
 			<fileset refid="depfiles"/>
 			<fileset refid="deplicenses"/>
@@ -91,6 +94,7 @@
 			<fileset refid="depfiles"/>
 			<fileset refid="deplicenses"/>
 			<fileset dir="${bin}"/>
+			<fileset dir="${target}" includes="doc/"/>
 		</jar>
 	</target>
 </project>
