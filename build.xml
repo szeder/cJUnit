@@ -94,6 +94,7 @@
 			<fileset refid="depfiles"/>
 			<fileset refid="deplicenses"/>
 			<fileset dir="${bin}"/>
+			<fileset dir="${testbin}"/>
 			<fileset dir="${target}" includes="doc/"/>
 		</jar>
 	</target>
