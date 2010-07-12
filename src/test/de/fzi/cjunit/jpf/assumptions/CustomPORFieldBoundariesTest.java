@@ -16,6 +16,7 @@ import static org.hamcrest.Matchers.*;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Properties;
 
 import gov.nasa.jpf.Error;
 import gov.nasa.jpf.jvm.NoUncaughtExceptionsProperty;
@@ -29,8 +30,9 @@ public class CustomPORFieldBoundariesTest extends JPFForTesting {
 
 	@Test
 	public void testCustomPORFieldBoundariesDetectsBug() {
-		createJPF(new String[] { "+vm.por.field_boundaries.never=" },
-				UpdateJavaUtilCollectionConcurrently.class);
+		Properties jpfArgs = new Properties();
+		jpfArgs.setProperty("vm.por.field_boundaries.never", "");
+		createJPF(UpdateJavaUtilCollectionConcurrently.class, jpfArgs);
 		jpf.addSearchProperty(new NoUncaughtExceptionsProperty(config));
 		jpf.run();
 

@@ -19,6 +19,7 @@ import gov.nasa.jpf.report.Publisher;
 
 import de.fzi.cjunit.jpf.outside.TestFailedProperty;
 import de.fzi.cjunit.jpf.util.OnFailurePublisher;
+import de.fzi.cjunit.jpf.util.TestReporter;
 
 
 public class JPFInvoker {
@@ -52,6 +53,7 @@ public class JPFInvoker {
 
 	protected void initJPF(String[] args) {
 		conf = JPF.createConfig(args);
+		setConfigArgs();
 		jpf = new JPF(conf);
 		createTestProperties();
 		registerAtPublisher();
@@ -63,6 +65,24 @@ public class JPFInvoker {
 
 	protected List<Error> getJPFSearchErrors() {
 		return jpf.getSearchErrors();
+	}
+
+	void setConfigArgs() {
+		conf.setProperty("vm.por.field_boundaries.never", "");
+		conf.setProperty("search.multiple_errors", "true");
+
+		Class<? extends Publisher> publisherClass
+				= OnFailurePublisher.class;
+		conf.setProperty("jpf.report.publisher",
+				publisherClass.getSimpleName());
+		conf.setProperty("jpf.report." + publisherClass.getSimpleName()
+					+ ".class",
+				publisherClass.getName());
+		conf.setProperty("jpf.report.class",
+				TestReporter.class.getName());
+		conf.setProperty("jpf.report.console.start", "");
+		conf.setProperty("jpf.report.console.finished", "result");
+		conf.setProperty("jpf.report.console.show_steps", "true");
 	}
 
 	void createTestProperties() {
