@@ -1,0 +1,139 @@
+
+ cJUnit - a JUnit extension for concurrent unit tests
+
+
+About
+=====
+
+Have you ever attempted to write multi-threaded unit tests?  Did you run
+them repeatedly in the hope to detect concurrency bugs by chance?  But
+you never knew how many times you should repeat such a unit test to make
+sure that the unit under test delivers the expected results
+independently from the thread interleavings?
+
+cJunit is an extension to the well-known JUnit unit testing framework to
+support concurrent unit tests, i.e. to automatically run such tests in
+all relevant different thread interleavings.  This way concurrency bugs
+in unit tests are detected reliably, not just by chance, and, more
+importatly, you can verify that a concurrent unit test produces the
+expected results independently from the scheduling of its threads.
+
+
+Build
+=====
+
+To build cJUnit from source you'll need
+
+  - Java 1.6
+  - ant 1.7 (or later)
+
+All other software dependencies are included in the cJUnit source tree
+under the 'lib/' directory, namely:
+
+  - JUnit: the well-known unit testing framework for Java
+  - Java PathFinder (JPF): the model checker used behind the scenes in
+    cJUnit
+  - JPF's dependencies: BCEL, the Bytecode Engineering Library
+  - hamcrest assertion library
+
+You can build cJUnit by running
+
+  ant all
+
+This will create 'cjunit-all.jar', which includes everything needed to run
+concurrent unit tests: cJUnit and all its dependencies listed above and
+the javadoc of cJUnit's API.  Add this jar to your classpath, and test the
+installation by running
+
+  java org.junit.runner.JUnitCore de.fzi.cjunit.AllTests de.fzi.concurrentmatchers.AllTests
+
+
+Use
+===
+
+From an IDE
+-----------
+
+Modern Java IDEs like eclipse or NetBeans already contain a JUnit
+plugin.  Although these plugins do not provide direct support for
+concurrent unit tests, it is still possible to use cJUnit with them.
+
+  - Include 'cjunit-all.jar' in the project's build path.
+  - (optional) Set the location of cJUnit's javadoc.
+    The javadoc for cJUnit's API for concurrent unit tests is included
+    under the 'doc/' directory within the 'cjunit-all.jar' archive.
+  - (optional) Filter out cJUnit stack frames from failure stack
+    traces with the following filter pattern: 'de.fzi.cjunit.jpf.*'
+  - (optional) Specify the source code location, see below.
+  - Write concurrent unit tests.
+    Test classes containing concurrent unit tests should be annotated
+    with @RunWith(ConcurrentRunner.class).
+  - Run unit tests using the IDE's JUnit plugin as usual.
+
+From the command line
+---------------------
+
+cJUnit can be used from the command line the same way as JUnit.
+
+  - Include 'cjunit-all.jar' in your CLASSPATH.
+  - (optional) Specify the source code location, see below.
+  - Write concurrent unit tests.
+    Test classes containing concurrent unit tests should be annotated
+    with @RunWith(ConcurrentRunner.class).
+  - Run unit tests as usual:
+
+      java org.junit.runner.JUnitCore <tests>
+
+  - (alternativ) Run unit tests with cJUnit the same way as with JUnit:
+
+      java de.fzi.cjunit.ConcurrentJUnit <tests>
+
+    In this case it is not necessary to annotate the test class with
+    @RunWith(ConcurrentRunner.class), but then the concurrent unit tests
+    could only be run with cJUnit from the command line, and not from an
+    IDE plugin.
+
+Specifying source code location
+-------------------------------
+
+If a concurrency bug is detected in a concurrent unit test, the execution
+path triggering the bug will be printed.  To include the actual source
+code in this execution path, the location of source code files has to be
+specified.  Note, that specifying the source code location is not
+necessary to run concurrent unit tests, but the execution path will be of
+much less use when omitted.
+
+To specify the source code locations place a file named 'jpf.properties'
+in the directory where cJUnit is invoked from (e.g. the project root) with
+the following contents:
+
+  vm.sourcepath=<srcpath1,srcpath2,...>
+
+i.e. 'vm.sourcepath=' followed by a comma separated list of paths
+containing the source code files.  For example, if the source files are
+under the directories 'src/main' and 'src/test', then the file should
+contain the following line:
+
+  vm.sourcepath=src/main,src/test
+
+
+License
+=======
+
+cJUnit is licensed under the terms of the Common Public License v1.0.  The
+license terms can be found in the LICENSE file.
+
+cJUnit's source and binary distributions include other software components
+cJUnit depends on.  These software components are subject of their own
+licenses, respectively, which are included in the distribution in the
+files LICENSE.<component> (e.g. LICENSE.JUnit).
+
+
+Acknowledgements
+================
+
+Parts of cJUnit were developed within the JEOPARD (Java Environment for
+Parallel Realtime Development; http://www.jeopard.org/) research project,
+which received funding from the European Union's Seventh Framework
+Programme under grant agreement No. 216682.
+
