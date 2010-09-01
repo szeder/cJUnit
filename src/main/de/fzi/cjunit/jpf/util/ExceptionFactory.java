@@ -12,10 +12,15 @@ package de.fzi.cjunit.jpf.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.internal.runners.model.MultipleFailureException;
 
 import static de.fzi.cjunit.internal.util.LineSeparator.lineSeparator;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
+import de.fzi.cjunit.jpf.exceptioninfo.MultipleFailureExceptionInfo;
 
 
 public class ExceptionFactory {
@@ -56,6 +61,23 @@ public class ExceptionFactory {
 		t.setStackTrace(new StackFrameConverter().toStackTraceElementArray(
 					exceptionInfo.getStackTrace()));
 		return t;
+	}
+
+	public MultipleFailureException createMultipleFailureException(
+			MultipleFailureExceptionInfo exceptionInfo)
+			throws IllegalArgumentException, ClassNotFoundException,
+				InstantiationException, IllegalAccessException,
+				InvocationTargetException,
+				NoSuchMethodException {
+		List<Throwable> exceptions = new ArrayList<Throwable>();
+
+		ExceptionInfo[] failures = exceptionInfo.getFailures();
+
+		for (int i = 0; i < failures.length; i++) {
+			exceptions.add(createException(failures[i]));
+		}
+
+		return new MultipleFailureException(exceptions);
 	}
 
 	protected Constructor<?> getExceptionConstructor(

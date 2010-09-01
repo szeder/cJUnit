@@ -25,6 +25,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	de.fzi.cjunit.jpf.inside.TestMethodTest.class,
 	de.fzi.cjunit.jpf.inside.TestWrapperTest.class,
 	de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoTest.class,
+	de.fzi.cjunit.jpf.exceptioninfo.MultipleFailureExceptionInfoTest.class,
 	de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfoTest.class,
 	de.fzi.cjunit.jpf.outside.JPFInvokerTest.class,
 	de.fzi.cjunit.jpf.outside.ResultCollectorTest.class,

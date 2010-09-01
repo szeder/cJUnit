@@ -28,6 +28,7 @@ import de.fzi.cjunit.DeadlockError;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithConcurrencyBug;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithDeadlock;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithExceptionInThread;
+import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithMultipleFailures;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithSequentialBug;
 import de.fzi.cjunit.integration.testclasses.SequentialTestWithFailure;
 import de.fzi.cjunit.integration.testclasses.SuccessfulTests;
@@ -58,7 +59,7 @@ public class IntegrationTest {
 		assertThat("test method was invoked", SuccessfulTests.invoked,
 				is(true));
 		assertThat("number of tests", result.getRunCount(), equalTo(7));
-		assertThat("number of failed tests", result.getFailureCount(),
+		assertThat("number of failures", result.getFailureCount(),
 				equalTo(0));
 	}
 
@@ -71,7 +72,7 @@ public class IntegrationTest {
 		assertThat("test method was invoked",
 				SequentialTestWithFailure.invoked, is(true));
 		assertThat("number of tests", result.getRunCount(), equalTo(1));
-		assertThat("number of failed tests", result.getFailureCount(),
+		assertThat("number of failures", result.getFailureCount(),
 				equalTo(1));
 		Failure failure = result.getFailures().get(0);
 		assertThat("exception's type", failure.getException(),
@@ -85,7 +86,7 @@ public class IntegrationTest {
 		Result result = ConcurrentJUnit.runClasses(classes);
 
 		assertThat("number of tests", result.getRunCount(), equalTo(1));
-		assertThat("number of failed tests", result.getFailureCount(),
+		assertThat("number of failures", result.getFailureCount(),
 				equalTo(1));
 		Failure failure = result.getFailures().get(0);
 		assertThat("exception's type", failure.getException(),
@@ -99,7 +100,7 @@ public class IntegrationTest {
 		Result result = ConcurrentJUnit.runClasses(classes);
 
 		assertThat("number of tests", result.getRunCount(), equalTo(1));
-		assertThat("number of failed tests", result.getFailureCount(),
+		assertThat("number of failures", result.getFailureCount(),
 				equalTo(1));
 		Failure failure = result.getFailures().get(0);
 		assertThat("exception's type", failure.getException(),
@@ -116,7 +117,7 @@ public class IntegrationTest {
 		Result result = ConcurrentJUnit.runClasses(classes);
 
 		assertThat("number of tests", result.getRunCount(), equalTo(1));
-		assertThat("number of failed tests", result.getFailureCount(),
+		assertThat("number of failures", result.getFailureCount(),
 				equalTo(1));
 		Failure failure = result.getFailures().get(0);
 		assertThat("exception's type", failure.getException(),
@@ -179,5 +180,28 @@ public class IntegrationTest {
 		assertThat("cause stack trace[1] filename",
 				causeStackTrace[1].getFileName(),
 				equalTo("ConcurrentTestWithExceptionInThread.java"));
+	}
+
+	@Test
+	public void concurrentTestWithMultipleFailures() {
+		Class<?>[] classes = new Class<?>[] {
+				ConcurrentTestWithMultipleFailures.class };
+		Result result = ConcurrentJUnit.runClasses(classes);
+
+		assertThat("number of tests", result.getRunCount(), equalTo(1));
+		assertThat("number of failures", result.getFailureCount(),
+				equalTo(2));
+		Failure failure = result.getFailures().get(0);
+		assertThat("first exception's type", failure.getException(),
+				instanceOf(ConcurrentError.class));
+		assertThat("first exception's cause",
+				failure.getException().getCause(),
+				instanceOf(AssertionError.class));
+		failure = result.getFailures().get(1);
+		assertThat("second exception's type", failure.getException(),
+				instanceOf(ConcurrentError.class));
+		assertThat("second exception's cause",
+				failure.getException().getCause(),
+				instanceOf(TestException.class));
 	}
 }
