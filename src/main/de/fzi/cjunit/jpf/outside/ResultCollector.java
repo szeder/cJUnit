@@ -12,6 +12,7 @@ package de.fzi.cjunit.jpf.outside;
 
 import gov.nasa.jpf.Error;
 import gov.nasa.jpf.Property;
+import gov.nasa.jpf.jvm.NoUncaughtExceptionsProperty;
 import gov.nasa.jpf.jvm.NotDeadlockedProperty;
 import gov.nasa.jpf.report.Reporter;
 import gov.nasa.jpf.search.Search;
@@ -106,8 +107,23 @@ public class ResultCollector implements TestProperty, SearchListener {
 	protected Throwable getExceptionFromProperty(Property property) {
 		if (property instanceof TestProperty) {
 			return ((TestProperty) property).getException();
+		} else if (property instanceof NoUncaughtExceptionsProperty) {
+			return getExceptionFromNoUncaughtExceptionsProperty(
+				(NoUncaughtExceptionsProperty) property);
 		} else {
 			return new JPFPropertyViolated(property);
+		}
+	}
+
+	protected Throwable getExceptionFromNoUncaughtExceptionsProperty(
+			NoUncaughtExceptionsProperty property) {
+		try {
+			return new ExceptionInfoCollector()
+				.collectFromJPFExceptionInfo(
+					property.getUncaughtExceptionInfo())
+				.reconstruct();
+		} catch (Throwable t) {
+			return new ExceptionReconstructionException(t);
 		}
 	}
 

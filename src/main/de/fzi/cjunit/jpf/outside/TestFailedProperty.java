@@ -102,7 +102,8 @@ public class TestFailedProperty extends PropertyListenerAdapter
 
 	protected ExceptionInfo collectExceptionInfo(JVM vm)
 			throws Exception {
-		return new ExceptionInfoCollector().collectFromStack(vm);
+		return new ExceptionInfoCollector()
+				.collectFromExceptionInfoOnStack(vm);
 	};
 
 	// from Property
