@@ -15,10 +15,8 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
 
-import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfoDefaultImpl;
 
-
-public class StackTraceElementInfoDefaultImplTest {
+public class StackTraceElementInfoTest {
 
 	String className = "de.fzi.cjunit.MightyClass";
 	String methodName = "mightyMethod";
@@ -31,7 +29,7 @@ public class StackTraceElementInfoDefaultImplTest {
 				methodName, fileName, lineNumber);
 
 		StackTraceElementInfo steInfo
-				= new StackTraceElementInfoDefaultImpl(ste);
+				= new StackTraceElementInfo(ste);
 
 		assertThat("classname", steInfo.getClassName(),
 				equalTo(className));
@@ -48,10 +46,10 @@ public class StackTraceElementInfoDefaultImplTest {
 		StackTraceElement ste = new StackTraceElement(className,
 				methodName, fileName, lineNumber);
 		StackTraceElementInfo otherSTEInfo
-				= new StackTraceElementInfoDefaultImpl(ste);
+				= new StackTraceElementInfo(ste);
 
-		StackTraceElementInfoDefaultImpl steInfo
-				= new StackTraceElementInfoDefaultImpl(
+		StackTraceElementInfo steInfo
+				= new StackTraceElementInfo(
 						otherSTEInfo);
 
 		assertThat("classname", steInfo.getClassName(),

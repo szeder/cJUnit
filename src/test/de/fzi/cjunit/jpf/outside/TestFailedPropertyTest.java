@@ -20,7 +20,7 @@ import gov.nasa.jpf.jvm.bytecode.ATHROW;
 import gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL;
 import gov.nasa.jpf.jvm.bytecode.InvokeInstruction;
 
-import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
+import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
 import de.fzi.cjunit.jpf.outside.TestFailedProperty.TestSucceededException;
 import de.fzi.cjunit.testutils.Counter;
@@ -231,7 +231,7 @@ public class TestFailedPropertyTest {
 			throws Throwable {
 		TestFailedProperty tfp = new TestFailedProperty() {
 			@Override
-			public ExceptionInfoDefaultImpl collectExceptionInfo(JVM vm)
+			public ExceptionInfo collectExceptionInfo(JVM vm)
 					throws Exception {
 				throw new Exception("exception in TestFailedProperty");
 			}

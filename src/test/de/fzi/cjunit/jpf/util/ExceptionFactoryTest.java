@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 
-import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
+import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
 import de.fzi.cjunit.testutils.TestException;
 
 
@@ -83,6 +83,6 @@ public class ExceptionFactoryTest {
 				return null;
 			}
 		};
-		ef.createException(new ExceptionInfoDefaultImpl(new TestException()));
+		ef.createException(new ExceptionInfo(new TestException()));
 	}
 }

@@ -8,7 +8,7 @@
  * Framework Programme under grant agreement No. 216682.
  */
 
-package de.fzi.cjunit.jpf.exceptioninfo;
+package de.fzi.cjunit.jpf.util;
 
 import gov.nasa.jpf.jvm.ClassInfo;
 import gov.nasa.jpf.jvm.DynamicArea;
@@ -42,13 +42,16 @@ public class ElementInfoWrapper {
 
 	public FieldInfo getFieldInfo(String fieldName) {
 		ClassInfo classInfo = elementInfo.getClassInfo();
-		FieldInfo fieldInfo = classInfo.getDeclaredInstanceField(
-				fieldName);
-		if (fieldInfo == null) {
-			throw new RuntimeException(
-					"No such field: " + fieldName);
+		while (classInfo != null) {
+			FieldInfo fieldInfo = classInfo.getDeclaredInstanceField(
+					fieldName);
+			if (fieldInfo != null) {
+				return fieldInfo;
+			}
+			classInfo = classInfo.getSuperClass();
 		}
-		return fieldInfo;
+		throw new RuntimeException(
+				"No such field: " + fieldName);
 	}
 
 	public int getReferenceValueForField(String fieldName) {
