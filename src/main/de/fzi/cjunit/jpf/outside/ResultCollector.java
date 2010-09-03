@@ -10,6 +10,10 @@
 
 package de.fzi.cjunit.jpf.outside;
 
+import java.util.List;
+
+import org.junit.internal.runners.model.MultipleFailureException;
+
 import gov.nasa.jpf.Error;
 import gov.nasa.jpf.Property;
 import gov.nasa.jpf.jvm.NoUncaughtExceptionsProperty;
@@ -90,6 +94,14 @@ public class ResultCollector implements TestProperty, SearchListener {
 		if (fromNotDeadlockedProperty(error)) {
 			exception = new DeadlockError(
 					error.getProperty().getErrorMessage());
+		} else if (exception instanceof MultipleFailureException) {
+			MultipleFailureException mfe
+					= (MultipleFailureException) exception;
+			List<Throwable> failures = mfe.getFailures();
+			for (int i = 0; i < failures.size(); i++) {
+				Throwable t = failures.remove(0);
+				failures.add(new ConcurrentError(t));
+			}
 		} else {
 			exception = new ConcurrentError(exception);
 		}

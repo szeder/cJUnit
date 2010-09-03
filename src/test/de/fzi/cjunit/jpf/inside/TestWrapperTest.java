@@ -18,9 +18,12 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.internal.runners.model.MultipleFailureException;
+
 import static de.fzi.cjunit.jpf.inside.TestWrapperOptions.*;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
+import de.fzi.cjunit.jpf.exceptioninfo.MultipleFailureExceptionInfo;
 import de.fzi.cjunit.testutils.*;
 
 
@@ -185,6 +188,38 @@ public class TestWrapperTest {
 				// below will fail anyway
 				assertThat("message", ei.getMessage(),
 						equalTo(message));
+			}
+		};
+
+		tw.run();
+
+		assertThat("succeeded", succeededCounter.getValue(),
+				equalTo(0));
+		assertThat("failed", failedCounter.getValue(), equalTo(1));
+	}
+
+	@Test
+	public void testRunWhenFailedMultiple() {
+		final Counter succeededCounter = new Counter();
+		final Counter failedCounter = new Counter();
+		TestWrapper tw = new TestWrapper() {
+			@Override
+			protected void createTest() {}
+			@Override
+			protected void runTest() throws Throwable {
+				throw new MultipleFailureException(null);
+			}
+			@Override
+			protected void notifyTestSucceeded() {
+				succeededCounter.increment();
+			}
+			@Override
+			protected void notifyTestFailed(ExceptionInfo ei) {
+				failedCounter.increment();
+				// if this is not invoked, one of the asserts
+				// below will fail anyway
+				assertThat("type", ei, instanceOf(
+					MultipleFailureExceptionInfo.class));
 			}
 		};
 
@@ -428,26 +463,13 @@ public class TestWrapperTest {
 		tw.handleErrors();
 	}
 
-	@Test(expected=Exception.class)
+	@Test(expected=MultipleFailureException.class)
 	public void testExceptionOnMultipleError() throws Throwable {
 		TestWrapper tw = new TestWrapper();
 		tw.errors.add(new TestException());
 		tw.errors.add(new OtherTestException());
 
 		tw.handleErrors();
-	}
-
-	@Test(expected=TestException.class)
-	public void testFirstErrorOnMultipleError() throws Throwable {
-		TestWrapper tw = new TestWrapper();
-		tw.errors.add(new TestException());
-		tw.errors.add(new OtherTestException());
-
-		try {
-			tw.handleErrors();
-		} catch (Exception e) {
-			throw e.getCause();
-		}
 	}
 
 	// this also implicitly tests that @After methods are invoked even if
