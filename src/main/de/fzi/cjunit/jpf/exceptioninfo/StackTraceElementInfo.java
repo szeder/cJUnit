@@ -10,10 +10,34 @@
 
 package de.fzi.cjunit.jpf.exceptioninfo;
 
+
 /**
  * Holds basic information about a {@link StackTraceElement}.
  */
-public interface StackTraceElementInfo {
+public class StackTraceElementInfo {
+
+	protected String className;
+	protected String methodName;
+	protected String fileName;
+	protected int lineNumber;
+
+	public StackTraceElementInfo(String className,
+			String methodName, String fileName, int lineNumber) {
+		this.className = className;
+		this.methodName = methodName;
+		this.fileName = fileName;
+		this.lineNumber = lineNumber;
+	}
+
+	public StackTraceElementInfo(StackTraceElement ste) {
+		this(ste.getClassName(), ste.getMethodName(),
+				ste.getFileName(), ste.getLineNumber());
+	}
+
+	public StackTraceElementInfo(StackTraceElementInfo other) {
+		this(other.getClassName(), other.getMethodName(),
+				other.getFileName(), other.getLineNumber());
+	}
 
 	/**
 	 * See {@link StackTraceElement#getClassName()}.
@@ -22,7 +46,9 @@ public interface StackTraceElementInfo {
 	 *		containing the execution point represented by the
 	 *		stack trace element this instance holds info about.
 	 */
-	public String getClassName();
+	public String getClassName() {
+		return className;
+	}
 
 	/**
 	 * See {@link StackTraceElement#getMethodName()}.
@@ -31,7 +57,9 @@ public interface StackTraceElementInfo {
 	 *		represented by the stack trace element this instance
 	 *		holds info about.
 	 */
-	public String getMethodName();
+	public String getMethodName() {
+		return methodName;
+	}
 
 	/**
 	 * See {@link StackTraceElement#getFileName()}.
@@ -40,7 +68,9 @@ public interface StackTraceElementInfo {
 	 *		represented by the stack trace element this instance
 	 *		holds info about.
 	 */
-	public String getFileName();
+	public String getFileName() {
+		return fileName;
+	}
 
 	/**
 	 * See {@link StackTraceElement#getLineNumber()}.
@@ -49,6 +79,8 @@ public interface StackTraceElementInfo {
 	 *		execution point point represented by the stack trace
 	 *		element this instance holds info about.
 	 */
-	public int getLineNumber();
+	public int getLineNumber() {
+		return lineNumber;
+	}
 
 }

@@ -15,19 +15,19 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
 
-import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfoDefaultImpl;
+import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
 import de.fzi.cjunit.testutils.OtherTestException;
 import de.fzi.cjunit.testutils.TestException;
 
 
-public class ExceptionInfoDefaultImplTest {
+public class ExceptionInfoTest {
 
 	final String msg = "the exception's message";
 	final String otherMsg = "other exception's message";
 
 	@Test
 	public void exceptionInfoAttributes() {
-		ExceptionInfo ei = new ExceptionInfoDefaultImpl(
+		ExceptionInfo ei = new ExceptionInfo(
 				new TestException(msg));
 
 		assertThat("classname", ei.getClassName(),
@@ -40,7 +40,7 @@ public class ExceptionInfoDefaultImplTest {
 	@Test
 	public void chainedExceptionInfoAttributes() {
 		OtherTestException ote = new OtherTestException(otherMsg);
-		ExceptionInfo ei = new ExceptionInfoDefaultImpl(
+		ExceptionInfo ei = new ExceptionInfo(
 				new TestException(msg, ote));
 
 		assertThat("hascause", ei.hasCause(), equalTo(true));

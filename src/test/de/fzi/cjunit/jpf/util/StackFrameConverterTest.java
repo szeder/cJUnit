@@ -25,7 +25,15 @@ public class StackFrameConverterTest {
 	StackFrameConverter sfc = new StackFrameConverter();
 
 	@Test
-	public void sourceFileBasenameStripDirs() {
+	public void testToStackTraceElementInfoArrayHandlesNullArray() {
+		StackTraceElementInfo[] stackTrace
+				= sfc.toStackTraceElementInfoArray(null);
+		assertThat(stackTrace, notNullValue());
+		assertThat(stackTrace.length, equalTo(0));
+	}
+
+	@Test
+	public void testSourceFileBasenameStripDirs() {
 		String filename = "Object.java";
 		String filenameWithPath = "java" + File.separatorChar
 				+ "lang/" + File.separatorChar + filename;
@@ -34,33 +42,30 @@ public class StackFrameConverterTest {
 	}
 
 	@Test
-	public void sourceFileBasenameNothingToStrip() {
+	public void testSourceFileBasenameNothingToStrip() {
 		String magicFilename = "<direct call>";
 		assertThat(sfc.sourceFileBasename(magicFilename),
 				equalTo(magicFilename));
 	}
 
 	@Test
-	public void sourceFileBasenameHandlesNullReference() {
+	public void testSourceFileBasenameHandlesNullReference() {
 		String nullFilename = null;
 		assertThat(sfc.sourceFileBasename(nullFilename),
 				equalTo("(Unknown source)"));
 	}
 
 	@Test
-	public void stackTraceElementConversion() {
-		StackTraceElementInfo info = new StackTraceElementInfo() {
-			public String getClassName() { return "class0"; }
-			public String getMethodName() { return "method0"; }
-			public String getFileName() {
-				return File.separatorChar + "de"
-					+ File.separatorChar + "fzi"
-					+ File.separatorChar + "cjunit"
-					+ File.separatorChar + "test"
-					+ File.separatorChar + "Class0.java";
-			}
-			public int getLineNumber() { return 0; }
-		};
+	public void testToStackTraceElement() {
+		final char FSC = File.separatorChar;
+		StackTraceElementInfo info
+				= new StackTraceElementInfo("class0",
+						"method0",
+						FSC + "de" + FSC + "fzi"
+							+ FSC + "cjunit"
+							+ FSC + "test"
+							+ FSC + "Class0.java",
+						0);
 		StackTraceElement ste = sfc.toStackTraceElement(info);
 
 		assertThat("element 0", ste.getClassName(),
@@ -74,35 +79,22 @@ public class StackFrameConverterTest {
 	}
 
 	@Test
-	public void stackTraceConversion() {
-		StackTraceElementInfo info0 = new StackTraceElementInfo() {
-			public String getClassName() { return "class0"; }
-			public String getMethodName() { return "method0"; }
-			public String getFileName() {
-				return "Class0.java";
-			}
-			public int getLineNumber() { return 0; }
-		};
-		StackTraceElementInfo info1 = new StackTraceElementInfo() {
-			public String getClassName() { return "class1"; }
-			public String getMethodName() { return "method1"; }
-			public String getFileName() {
-				return "Class1.java";
-			}
-			public int getLineNumber() { return 1; }
-		};
-		StackTraceElementInfo info2 = new StackTraceElementInfo() {
-			public String getClassName() { return "class2"; }
-			public String getMethodName() { return "method2"; }
-			public String getFileName() {
-				return "Class2.java";
-			}
-			public int getLineNumber() { return 2; }
-		};
+	public void testToStackTraceElementArray() {
+		StackTraceElementInfo info0
+				= new StackTraceElementInfo("class0",
+						"method0", "Class0.java", 0);
+		StackTraceElementInfo info1
+				= new StackTraceElementInfo("class1",
+						"method1", "Class1.java", 1);
+		StackTraceElementInfo info2
+				= new StackTraceElementInfo("class2",
+						"method2", "Class2.java", 2);
+
 		StackTraceElementInfo[] infoArray
 				= new StackTraceElementInfo[] {
 						info0, info1, info2 };
-		StackTraceElement[] stackTrace = sfc.toStackTrace(infoArray);
+		StackTraceElement[] stackTrace = sfc.toStackTraceElementArray(
+				infoArray);
 
 		assertThat("stack trace lenght", stackTrace.length,
 				equalTo(infoArray.length));
@@ -133,5 +125,13 @@ public class StackFrameConverterTest {
 				equalTo(info2.getFileName()));
 		assertThat("element 2", stackTrace[2].getLineNumber(),
 				equalTo(info2.getLineNumber()));
+	}
+
+	@Test
+	public void testToStackTraceElementArrayHandlesNullArray() {
+		StackTraceElement[] stackTrace = sfc.toStackTraceElementArray(
+				null);
+		assertThat(stackTrace, notNullValue());
+		assertThat(stackTrace.length, equalTo(0));
 	}
 }
