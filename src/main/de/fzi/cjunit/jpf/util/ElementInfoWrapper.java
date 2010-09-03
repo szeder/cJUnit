@@ -24,12 +24,11 @@ public class ElementInfoWrapper {
 
 	public ElementInfoWrapper(ElementInfo elementInfo,
 			Class<?> expectedClass) {
-		String className = elementInfo.getClassInfo().getName();
-		if (!className.equals(expectedClass.getName())) {
+		if (!elementInfo.getClassInfo().isInstanceOf(expectedClass.getName())) {
 			String gripe = "ElementInfo type mismatch:"
 				+ lineSeparator + "expected: "
 				+ expectedClass.getName() + lineSeparator
-				+ "got: " + className;
+				+ "got: " + elementInfo.getClassInfo().getName();
 			throw new RuntimeException(gripe);
 		}
 
@@ -38,6 +37,10 @@ public class ElementInfoWrapper {
 
 	public ElementInfo getWrappedElementInfo() {
 		return elementInfo;
+	}
+
+	public String getClassName() {
+		return elementInfo.getClassInfo().getName();
 	}
 
 	public FieldInfo getFieldInfo(String fieldName) {
@@ -63,6 +66,11 @@ public class ElementInfoWrapper {
 	public ElementInfo getElementInfoForField(String fieldName) {
 		int refVal = getReferenceValueForField(fieldName);
 		return DynamicArea.getHeap().get(refVal);
+	}
+
+	public int[] getIntArrayForField(String fieldName) {
+		int refVal = getReferenceValueForField(fieldName);
+		return DynamicArea.getHeap().get(refVal).asIntArray();
 	}
 
 	public String getStringField(String fieldName) {
