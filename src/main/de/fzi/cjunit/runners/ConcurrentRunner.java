@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 
 import de.fzi.cjunit.ConcurrentTest;
@@ -70,6 +71,7 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 		validateConcurrentTestMethods(errors);
 		validateNoMethodsWithAnnotation(BeforeClass.class, errors);
 		validateNoMethodsWithAnnotation(AfterClass.class, errors);
+		validateNoRules(errors);
 	}
 
 	@Override
@@ -159,6 +161,13 @@ public class ConcurrentRunner extends BlockJUnit4ClassRunner {
 			String gripe = "@" + annotationClass.getSimpleName() +
 					" annotation in a test class with " +
 					"concurrent tests is not allowed";
+			errors.add(new Exception(gripe));
+		}
+	}
+
+	private void validateNoRules(List<Throwable> errors) {
+		if (!getTestClass().getAnnotatedFields(Rule.class).isEmpty()) {
+			String gripe = "Rules can't be used in a concurrent test class";
 			errors.add(new Exception(gripe));
 		}
 	}
