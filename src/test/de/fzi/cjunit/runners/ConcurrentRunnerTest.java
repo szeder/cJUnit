@@ -12,6 +12,7 @@ package de.fzi.cjunit.runners;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
@@ -297,6 +299,18 @@ public class ConcurrentRunnerTest {
 		@SuppressWarnings("unused")
 		ConcurrentRunner runner = new ConcurrentRunner(
 				TestClassWithBeforeClassAndAfterClass.class);
+	}
+
+	static public class TestClassWithRules {
+		@Rule public MethodRule rule;
+		@ConcurrentTest public void testMethod() { }
+	}
+
+	@Test(expected=InitializationError.class)
+	public void errorOnRulesWithConcurrentTest() throws Throwable {
+		@SuppressWarnings("unused")
+		ConcurrentRunner runner = new ConcurrentRunner(
+				TestClassWithRules.class);
 	}
 
 	static public class TestClassWithNegativeThreadCount {

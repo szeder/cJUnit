@@ -30,7 +30,7 @@ To build cJUnit from source you'll need
 All other software dependencies are included in the cJUnit source tree
 under the 'lib/' directory, namely:
 
-  - JUnit: the well-known unit testing framework for Java (release 4.6)
+  - JUnit: the well-known unit testing framework for Java (release 4.7)
   - Java PathFinder (JPF): the model checker used behind the scenes in
     cJUnit (from SVN revision r1539)
   - JPF's dependencies: BCEL, the Bytecode Engineering Library (release
@@ -127,7 +127,7 @@ Compatibility
 JUnit
 -----
 
-cJUnit works with JUnit releases 4.5 or later.  However, the following
+cJUnit works with JUnit releases 4.7 or later.  However, the following
 JUnit features are not supported or are broken:
 
   - @BeforeClass and @AfterClass annotations are not supported.
@@ -136,7 +136,9 @@ JUnit features are not supported or are broken:
   - Parallel execution (introduced in JUnit release 4.6) of concurrent
     unit tests would break, therefore they are executed serialized even if
     you tell JUnit to run all your unit tests in parallel.
-  - @Rules (introduced in JUnit release 4.7) will break.
+  - @Rules (introduced in JUnit release 4.7) are not supported.
+    Use of the @Rule annotation in a concurrent test class will cause an
+    InitializationError exception.
 
 JPF
 ---
