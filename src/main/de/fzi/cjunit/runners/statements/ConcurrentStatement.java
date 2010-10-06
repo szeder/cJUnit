@@ -26,6 +26,8 @@ import de.fzi.cjunit.jpf.outside.JPFInvoker;
 
 public class ConcurrentStatement extends Statement {
 
+	final static Object monitor = new Object();
+
 	public class MethodInfo {
 		ConcurrentFrameworkMethod method;
 		Class<? extends Throwable> exception;
@@ -67,7 +69,9 @@ public class ConcurrentStatement extends Statement {
 
 	@Override
 	public void evaluate() throws Throwable {
-		invokeJPF();
+		synchronized (monitor) {
+			invokeJPF();
+		}
 	}
 
 	protected void invokeJPF() throws Throwable {
