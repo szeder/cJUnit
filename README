@@ -30,11 +30,12 @@ To build cJUnit from source you'll need
 All other software dependencies are included in the cJUnit source tree
 under the 'lib/' directory, namely:
 
-  - JUnit: the well-known unit testing framework for Java
+  - JUnit: the well-known unit testing framework for Java (release 4.5)
   - Java PathFinder (JPF): the model checker used behind the scenes in
-    cJUnit
-  - JPF's dependencies: BCEL, the Bytecode Engineering Library
-  - hamcrest assertion library
+    cJUnit (from SVN revision r1539)
+  - JPF's dependencies: BCEL, the Bytecode Engineering Library (release
+    5.2)
+  - hamcrest assertion library (version 1.3RC0)
 
 You can build cJUnit by running
 
