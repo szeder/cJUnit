@@ -11,7 +11,7 @@ you never knew how many times you should repeat such a unit test to make
 sure that the unit under test delivers the expected results
 independently from the thread interleavings?
 
-cJunit is an extension to the well-known JUnit unit testing framework to
+cJUnit is an extension to the well-known JUnit unit testing framework to
 support concurrent unit tests, i.e. to automatically run such tests in
 all relevant different thread interleavings.  This way concurrency bugs
 in unit tests are detected reliably, not just by chance, and, more
