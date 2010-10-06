@@ -37,6 +37,9 @@ under the 'lib/' directory, namely:
     5.2)
   - hamcrest assertion library (version 1.3RC0)
 
+(If you want to use different versions from any of these, please refer to
+the Compatibility section below.)
+
 You can build cJUnit by running
 
   ant all
@@ -116,6 +119,44 @@ under the directories 'src/main' and 'src/test', then the file should
 contain the following line:
 
   vm.sourcepath=src/main,src/test
+
+
+Compatibility
+=============
+
+JUnit
+-----
+
+cJUnit works with JUnit releases 4.5 or later.  However, the following
+JUnit features are not supported or are broken:
+
+  - @BeforeClass and @AfterClass annotations are not supported.
+    Use of any of these annotations in concurrent test classes will cause
+    an InitializationError exception.
+  - Parallel execution (introduced in JUnit release 4.6) of concurrent
+    unit tests will break.
+  - @Rules (introduced in JUnit release 4.7) will break.
+
+JPF
+---
+
+cJUnit works with the provided JPF version (r1539).  Perhaps with other
+revisions, too, but API and configuration changes are far too frequent.
+If you manage to compile cJUnit with a different JPF revision, you might
+want to run the test classes in the de.fzi.cjunit.jpf.assumptions package,
+one at a time.
+
+BCEL
+----
+
+cJUnit (or rather JPF) works with BCEL release 5.2, which was released
+more than 4 years ago, and not much has happened since then.
+
+hamcrest
+--------
+
+cJUnit works with hamcrest versions 1.3RC0 or later.  There are various
+compile and runtime issues with previous versions.
 
 
 License
