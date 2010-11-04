@@ -15,6 +15,7 @@ import static org.hamcrest.Matchers.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -28,10 +29,12 @@ import de.fzi.cjunit.DeadlockError;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithConcurrencyBug;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithDeadlock;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithExceptionInThread;
+import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithInvocationTargetException;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithMultipleFailures;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithSequentialBug;
 import de.fzi.cjunit.integration.testclasses.SequentialTestWithFailure;
 import de.fzi.cjunit.integration.testclasses.SuccessfulTests;
+import de.fzi.cjunit.jpf.outside.ExceptionReconstructionException;
 import de.fzi.cjunit.testutils.OtherTestException;
 import de.fzi.cjunit.testutils.TestException;
 
@@ -203,5 +206,27 @@ public class IntegrationTest {
 		assertThat("second exception's cause",
 				failure.getException().getCause(),
 				instanceOf(TestException.class));
+	}
+
+	@Test
+	public void testWithInvocationTargetException() {
+		Class<?>[] classes = new Class<?>[] {
+				ConcurrentTestWithInvocationTargetException.class };
+		Result result = ConcurrentJUnit.runClasses(classes);
+
+		assertThat("number of tests", result.getRunCount(), equalTo(1));
+		assertThat("number of failures", result.getFailureCount(),
+				equalTo(1));
+		Throwable exception = result.getFailures().get(0).getException();
+		assertThat("exception's type", exception,
+				instanceOf(ExceptionReconstructionException.class));
+		assertThat("cause's type", exception.getCause(),
+				instanceOf(NoSuchMethodException.class));
+		assertThat("cause's message 1",
+				exception.getCause().getMessage(),
+				containsString("type: " + InvocationTargetException.class.getName()));
+		assertThat("cause's message 2",
+				exception.getCause().getMessage(),
+				containsString("message: " + TestException.class.getName()));
 	}
 }
