@@ -21,6 +21,7 @@ import org.junit.internal.runners.model.MultipleFailureException;
 import static de.fzi.cjunit.jpf.inside.TestWrapperOptions.*;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
+import de.fzi.cjunit.jpf.exceptioninfo.InvocationTargetExceptionInfo;
 import de.fzi.cjunit.jpf.exceptioninfo.MultipleFailureExceptionInfo;
 import de.fzi.cjunit.jpf.inside.NotifierMethods;
 
@@ -113,6 +114,9 @@ public class TestWrapper {
 			notifyTestSucceeded();
 		} catch (MultipleFailureException mfe) {
 			notifyTestFailed(new MultipleFailureExceptionInfo(mfe));
+		} catch (InvocationTargetException ite) {
+			notifyTestFailed(
+					new InvocationTargetExceptionInfo(ite));
 		} catch (Throwable t) {
 			notifyTestFailed(new ExceptionInfo(t));
 		}

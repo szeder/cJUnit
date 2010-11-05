@@ -34,7 +34,6 @@ import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithMultipleFailures;
 import de.fzi.cjunit.integration.testclasses.ConcurrentTestWithSequentialBug;
 import de.fzi.cjunit.integration.testclasses.SequentialTestWithFailure;
 import de.fzi.cjunit.integration.testclasses.SuccessfulTests;
-import de.fzi.cjunit.jpf.outside.ExceptionReconstructionException;
 import de.fzi.cjunit.testutils.OtherTestException;
 import de.fzi.cjunit.testutils.TestException;
 
@@ -219,14 +218,8 @@ public class IntegrationTest {
 				equalTo(1));
 		Throwable exception = result.getFailures().get(0).getException();
 		assertThat("exception's type", exception,
-				instanceOf(ExceptionReconstructionException.class));
+				instanceOf(InvocationTargetException.class));
 		assertThat("cause's type", exception.getCause(),
-				instanceOf(NoSuchMethodException.class));
-		assertThat("cause's message 1",
-				exception.getCause().getMessage(),
-				containsString("type: " + InvocationTargetException.class.getName()));
-		assertThat("cause's message 2",
-				exception.getCause().getMessage(),
-				containsString("message: " + TestException.class.getName()));
+				instanceOf(TestException.class));
 	}
 }
