@@ -19,6 +19,7 @@ import gov.nasa.jpf.jvm.JVM;
 import gov.nasa.jpf.jvm.MethodInfo;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
+import de.fzi.cjunit.jpf.exceptioninfo.InvocationTargetExceptionInfo;
 import de.fzi.cjunit.jpf.exceptioninfo.MultipleFailureExceptionInfo;
 import de.fzi.cjunit.jpf.exceptioninfo.StackTraceElementInfo;
 import de.fzi.cjunit.jpf.util.ElementInfoWrapper;
@@ -151,10 +152,13 @@ public class ExceptionInfoCollector {
 	public ExceptionInfo collectFromExceptionInfoOnStack(JVM vm)
 			throws Exception {
 		ElementInfo ei = elementInfoFromStack(vm);
+		String name = ei.getClassInfo().getName();
 
-		if (ei.getClassInfo().getName().equals(
+		if (name.equals(
 				MultipleFailureExceptionInfo.class.getName())) {
 			return multipleFailureExceptionInfoFromInfo(ei);
+		} else if (name.equals(InvocationTargetExceptionInfo.class.getName())) {
+			return invocationTargetExceptionInfoFromInfo(ei);
 		} else {
 			return exceptionInfoFromInfo(ei);
 		}
@@ -192,6 +196,20 @@ public class ExceptionInfoCollector {
 		return new MultipleFailureExceptionInfo(
 				eiw.getStringField("message"), stackTrace,
 				cause, failures);
+	}
+
+	protected InvocationTargetExceptionInfo invocationTargetExceptionInfoFromInfo(
+			ElementInfo ei) {
+		ElementInfoWrapper eiw = new ElementInfoWrapper(ei,
+				InvocationTargetExceptionInfo.class);
+
+		StackTraceElementInfo[] stackTrace = stackTraceFromInfo(eiw);
+
+		ExceptionInfo cause = causeFromInfo(eiw);
+
+		return new InvocationTargetExceptionInfo(
+				eiw.getStringField("message"), stackTrace,
+				cause);
 	}
 
 	protected ExceptionInfo causeFromInfo(ElementInfoWrapper eiw) {

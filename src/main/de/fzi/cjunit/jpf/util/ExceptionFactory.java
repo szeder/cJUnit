@@ -20,6 +20,7 @@ import org.junit.internal.runners.model.MultipleFailureException;
 import static de.fzi.cjunit.internal.util.LineSeparator.lineSeparator;
 
 import de.fzi.cjunit.jpf.exceptioninfo.ExceptionInfo;
+import de.fzi.cjunit.jpf.exceptioninfo.InvocationTargetExceptionInfo;
 import de.fzi.cjunit.jpf.exceptioninfo.MultipleFailureExceptionInfo;
 
 
@@ -78,6 +79,21 @@ public class ExceptionFactory {
 		}
 
 		return new MultipleFailureException(exceptions);
+	}
+
+	public InvocationTargetException createInvocationTargetException(
+			InvocationTargetExceptionInfo exceptionInfo)
+			throws IllegalArgumentException, ClassNotFoundException,
+				InstantiationException, IllegalAccessException,
+				InvocationTargetException,
+				NoSuchMethodException {
+		Throwable cause = createException(exceptionInfo.getCause());
+
+		InvocationTargetException ite = new InvocationTargetException(
+				cause, exceptionInfo.getMessage());
+		ite.setStackTrace(new StackFrameConverter().toStackTraceElementArray(
+				exceptionInfo.getStackTrace()));
+		return ite;
 	}
 
 	protected Constructor<?> getExceptionConstructor(
