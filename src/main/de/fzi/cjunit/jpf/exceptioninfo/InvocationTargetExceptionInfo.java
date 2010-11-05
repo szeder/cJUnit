@@ -27,4 +27,13 @@ public class InvocationTargetExceptionInfo extends ExceptionInfo {
 	public InvocationTargetExceptionInfo(InvocationTargetException ite) {
 		super(ite);
 	}
+
+	@Override
+	public Throwable reconstruct() throws IllegalArgumentException,
+			ClassNotFoundException, InstantiationException,
+			IllegalAccessException, InvocationTargetException,
+			NoSuchMethodException {
+		return new ExceptionFactory().createInvocationTargetException(
+				this);
+	}
 }
