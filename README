@@ -88,7 +88,7 @@ cJUnit can be used from the command line the same way as JUnit.
 
       java org.junit.runner.JUnitCore <tests>
 
-  - (alternativ) Run unit tests with cJUnit the same way as with JUnit:
+  - (alternatively) Run unit tests with cJUnit the same way as with JUnit:
 
       java de.fzi.cjunit.ConcurrentJUnit <tests>
 
